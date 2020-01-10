@@ -26,6 +26,7 @@ class VkApp {
 public:
 	void run();
 
+	bool vkFramebufferResized = false;
 private:
 	const std::vector<const char*> vkValidationLayers = {
 	"VK_LAYER_KHRONOS_validation"
@@ -35,10 +36,11 @@ private:
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME
 	};
 
-	const int WIDTH = 800;
-	const int HEIGHT = 600;
+	const int DEFAULT_WIDTH = 800;
+	const int DEFAULT_HEIGHT = 600;
 	const char* NAME = "Vulkan";
 	const char* ENGINE = "None";
+
 
 	GLFWwindow* glfwWindow;
 
@@ -104,7 +106,7 @@ private:
 	void initVkSurface();
 	void initVkPhysicalDevice();
 	void initVkLogicalDevice();
-	void initVkSwapChain();
+	void initVkSwapchain();
 	void initVkImageViews();
 	void initVkRenderPass();
 	void initVkGraphicsPipeline();
@@ -113,9 +115,13 @@ private:
 	void initVkCommandBuffers();
 	void initVkSemaphores();
 
+	void freeVkSwapchain();
+
+	void resetVkSwapchain();
+
 	void draw();
 	void loop();
-	void clear();
+	void free();
 
 	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* callbackData, void* userData);
 };

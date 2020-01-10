@@ -4,8 +4,14 @@
 void VkApp::initGlfw() {
 	glfwInit();
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-	glfwWindow = glfwCreateWindow(WIDTH, HEIGHT, NAME, nullptr, nullptr);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+	glfwWindow = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, NAME, nullptr, nullptr);
+	glfwSetWindowUserPointer(glfwWindow, this);
+
+	glfwSetFramebufferSizeCallback(glfwWindow, [](GLFWwindow* window, int width, int height) {
+		VkApp* application = reinterpret_cast<VkApp*>(glfwGetWindowUserPointer(window));
+		application->vkFramebufferResized = true;
+	});
 }
 
 void VkApp::initVk() {
@@ -14,7 +20,7 @@ void VkApp::initVk() {
 	initVkSurface();
 	initVkPhysicalDevice();
 	initVkLogicalDevice();
-	initVkSwapChain();
+	initVkSwapchain();
 	initVkImageViews();
 	initVkRenderPass();
 	initVkGraphicsPipeline();
@@ -180,7 +186,7 @@ void VkApp::initVkLogicalDevice() {
 	std::cout << "[Vulkan] Initialized logical device.\n";
 }
 
-void VkApp::initVkSwapChain() {
+void VkApp::initVkSwapchain() {
 	VkUtils::VkSwapChainSupportDetails vkDetails = getSwapChainSupport(vkMainPhysicalDevice);
 
 	VkSurfaceFormatKHR vkSurfaceFormat = selectSwapSurfaceFormat(vkDetails.vkSurfaceFormats);
@@ -571,6 +577,8 @@ void VkApp::initVkSemaphores() {
 
 	if (resultA != VK_SUCCESS || resultB != VK_SUCCESS) {
 		throw std::runtime_error("[Vulkan] Failed to create semaphore(s)!");
+	} else {
+		std::cout << "[Vulkan] Semaphore creation succeeded.\n";
 	}
 }
 
@@ -657,10 +665,12 @@ VkExtent2D VkApp::selectSwapExtent(const VkSurfaceCapabilitiesKHR& vkSurfaceCapa
 		return vkSurfaceCapabilitiesAvailable.currentExtent;
 	}
 	else {
-		VkExtent2D vkExtentActual = { WIDTH, HEIGHT };
+		int width;
+		int height;
 
-		vkExtentActual.width = std::max(vkSurfaceCapabilitiesAvailable.minImageExtent.width, std::min(vkSurfaceCapabilitiesAvailable.maxImageExtent.width, vkExtentActual.width));
-		vkExtentActual.height = std::max(vkSurfaceCapabilitiesAvailable.minImageExtent.height, std::min(vkSurfaceCapabilitiesAvailable.maxImageExtent.height, vkExtentActual.height));
+		glfwGetFramebufferSize(glfwWindow, &width, &height);
+
+		VkExtent2D vkExtentActual = { width, height };
 
 		std::cout << "[Vulkan] Chose swap dimensions: " << vkExtentActual.width << " x " << vkExtentActual.height << "\n";
 		return vkExtentActual;
@@ -797,13 +807,21 @@ void VkApp::run() {
 	initGlfw();
 	initVk();
 	loop();
-	clear();
+	free();
 }
 
 
 void VkApp::draw() {
 	uint32_t vkImageIndex;
-	vkAcquireNextImageKHR(vkMainLogicalDevice, vkSwapchain, UINT64_MAX, vkImageAvailableSemaphore, VK_NULL_HANDLE, &vkImageIndex);
+	VkResult resultA = vkAcquireNextImageKHR(vkMainLogicalDevice, vkSwapchain, UINT64_MAX, vkImageAvailableSemaphore, VK_NULL_HANDLE, &vkImageIndex);
+
+	if (resultA == VK_ERROR_OUT_OF_DATE_KHR || resultA == VK_SUBOPTIMAL_KHR || vkFramebufferResized) {
+		vkFramebufferResized = !vkFramebufferResized;
+		resetVkSwapchain();
+		return;
+	} else if (resultA != VK_SUCCESS && resultA != VK_SUBOPTIMAL_KHR) {
+		throw std::runtime_error("[Vulkan] Failed to acquire swap chain image!");
+	}
 
 	VkSubmitInfo submitInfo = {};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -839,7 +857,16 @@ void VkApp::draw() {
 
 	presentInfo.pResults = nullptr;
 
-	vkQueuePresentKHR(vkPresentQueue, &presentInfo);
+	VkResult resultB = vkQueuePresentKHR(vkPresentQueue, &presentInfo);
+
+	if (resultB == VK_ERROR_OUT_OF_DATE_KHR) {
+		resetVkSwapchain();
+		return;
+	} else if (resultB != VK_SUCCESS) {
+		throw std::runtime_error("[Vulkan] Failed to present swap chain image!");
+	}
+
+	vkQueueWaitIdle(vkPresentQueue);
 }
 
 void VkApp::loop() {
@@ -849,20 +876,14 @@ void VkApp::loop() {
 	}
 }
 
-void VkApp::clear() {
+void VkApp::free() {
+	freeVkSwapchain();
+
 	vkDestroySemaphore(vkMainLogicalDevice, vkRenderFinishedSemaphore, nullptr);
 	vkDestroySemaphore(vkMainLogicalDevice, vkImageAvailableSemaphore, nullptr);
 
 	vkDestroyCommandPool(vkMainLogicalDevice, vkCommandPool, nullptr);
 
-	std::for_each(vkSwapchainFramebuffers.begin(), vkSwapchainFramebuffers.end(), [&](VkFramebuffer vkFramebuffer) {
-		vkDestroyFramebuffer(vkMainLogicalDevice, vkFramebuffer, nullptr);
-	});
-
-	vkDestroyPipeline(vkMainLogicalDevice, vkGraphicsPipeline, nullptr);
-	vkDestroyPipelineLayout(vkMainLogicalDevice, vkPipelineLayout, nullptr);
-	vkDestroyRenderPass(vkMainLogicalDevice, vkRenderPass, nullptr);
-	vkDestroySwapchainKHR(vkMainLogicalDevice, vkSwapchain, nullptr);
 	vkDestroyDevice(vkMainLogicalDevice, nullptr);
 
 	if (enableValidationLayers) {
@@ -874,6 +895,42 @@ void VkApp::clear() {
 
 	glfwDestroyWindow(glfwWindow);
 	glfwTerminate();
+}
+
+void VkApp::freeVkSwapchain() {
+	for (VkFramebuffer vkFramebuffer : vkSwapchainFramebuffers) {
+		vkDestroyFramebuffer(vkMainLogicalDevice, vkFramebuffer, nullptr);
+	}
+
+	vkFreeCommandBuffers(vkMainLogicalDevice, vkCommandPool, static_cast<uint32_t>(vkCommandBuffers.size()), vkCommandBuffers.data());
+	
+	vkDestroyPipeline(vkMainLogicalDevice, vkGraphicsPipeline, nullptr);
+	vkDestroyPipelineLayout(vkMainLogicalDevice, vkPipelineLayout, nullptr);
+	vkDestroyRenderPass(vkMainLogicalDevice, vkRenderPass, nullptr);
+
+	for (VkImageView vkImageView : vkSwapchainImageViews) {
+		vkDestroyImageView(vkMainLogicalDevice, vkImageView, nullptr);
+	}
+
+	vkDestroySwapchainKHR(vkMainLogicalDevice, vkSwapchain, nullptr);
+}
+
+void VkApp::resetVkSwapchain() {
+	for (int width = 0, height = 0; width == 0 || height == 0; glfwGetFramebufferSize(glfwWindow, &width, &height)) {
+		glfwWaitEvents();
+	}
+
+	vkDeviceWaitIdle(vkMainLogicalDevice);
+
+	freeVkSwapchain();
+
+	initVkSwapchain();
+	initVkImageViews();
+	initVkRenderPass();
+	initVkGraphicsPipeline();
+	initVkFramebuffers();
+	initVkCommandBuffers();
+	initVkSemaphores();
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL VkApp::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* callbackData, void* userData) {
