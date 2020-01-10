@@ -40,87 +40,81 @@ private:
 	const char* NAME = "Vulkan";
 	const char* ENGINE = "None";
 
-	VkSwapchainKHR vkSwapchain;
-	std::vector<VkImage> vkSwapchainImages;
-	std::vector<VkImageView> vkSwapchainImageViews;
-	VkFormat vkSwapchainImageFormat;
-	VkExtent2D vkSwapchainExtent;
+	GLFWwindow* glfwWindow;
+
 	VkInstance vkInstance;
+
 	VkDebugUtilsMessengerEXT debugMessenger;
+
 	VkSurfaceKHR vkSurface;
+
 	VkPhysicalDevice vkMainPhysicalDevice = VK_NULL_HANDLE;
 	VkDevice vkMainLogicalDevice = VK_NULL_HANDLE;
+
 	VkQueue vkGraphicsQueue;
 	VkQueue vkPresentQueue;
-	VkPipelineLayout vkPipelineLayout;
-	VkRenderPass vkRenderPass;
-	VkPipeline vkGraphicsPipeline;
+
+	VkSwapchainKHR vkSwapchain;
+	VkFormat vkSwapchainImageFormat;
+	VkExtent2D vkSwapchainExtent;
+	std::vector<VkImage> vkSwapchainImages;
+	std::vector<VkImageView> vkSwapchainImageViews;
 	std::vector<VkFramebuffer> vkSwapchainFramebuffers;
+
+	VkRenderPass vkRenderPass;
+
+	VkPipelineLayout vkPipelineLayout;
+	VkPipeline vkGraphicsPipeline;
+
 	VkCommandPool vkCommandPool;
+
 	std::vector<VkCommandBuffer> vkCommandBuffers;
+
 	VkSemaphore vkImageAvailableSemaphore;
 	VkSemaphore vkRenderFinishedSemaphore;
 
-	GLFWwindow* glfwWindow;
+	bool checkVkValidationLayers();
+
+	VkShaderModule buildShaderModule(const std::vector<char>& rawShader);
+
+	void buildDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+
+	VkSurfaceFormatKHR selectSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& vkSurfaceFormatsAvailable);
+
+	VkPresentModeKHR selectSwapPresentMode(const std::vector<VkPresentModeKHR>& vkPresentModesAvailable);
+
+	VkExtent2D selectSwapExtent(const VkSurfaceCapabilitiesKHR& vkSurfaceCapabilitiesAvailable);
 
 	std::vector<VkExtensionProperties> getVkExtensionsAvailable();
 
 	std::vector<const char*> getGlfwExtensionsRequired();
 
-	bool checkVkValidationLayers();
+	VkUtils::VkSwapChainSupportDetails getSwapChainSupport(VkPhysicalDevice vkPhysicalDevice);
 
-	void initVkInstance();
+	bool getExtensionSupport(VkPhysicalDevice vkPhysicalDevice);
 
-	void initVkSurface();
+	VkUtils::VkQueueFamilyIndices getQueueFamilies(VkPhysicalDevice vkPhysicalDevice);
 
-	void initDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
-
-	void initVkDebugMessenger();
-
-	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& vkSurfaceFormatsAvailable);
-
-	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& vkPresentModesAvailable);
-
-	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& vkSurfaceCapabilitiesAvailable);
-
-	VkUtils::VkSwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice vkPhysicalDevice);
-
-	bool queryExtensionSupport(VkPhysicalDevice vkPhysicalDevice);
-
-	VkUtils::VkQueueFamilyIndices queryQueueFamilies(VkPhysicalDevice vkPhysicalDevice);
-
-	std::map<std::string, std::vector<char>> queryShaders();
-
-	VkShaderModule buildShaderModule(const std::vector<char>& rawShader);
-
-	void initVkPhysicalDevice();
-
-	void initVkLogicalDevice();
-
-	void initVkSwapChain();
-
-	void initVkImageViews();
-
-	void initVkRenderPass();
-
-	void initVkGraphicsPipeline();
-
-	void initVkFramebuffers();
-
-	void initVkCommandPool();
-
-	void initVkCommandBuffers();
-
-	void initVkSemaphores();
+	std::map<std::string, std::vector<char>> getShaders();
 
 	void initGlfw();
-
 	void initVk();
+	void initVkInstance();
+	void initVkDebugMessenger();
+	void initVkSurface();
+	void initVkPhysicalDevice();
+	void initVkLogicalDevice();
+	void initVkSwapChain();
+	void initVkImageViews();
+	void initVkRenderPass();
+	void initVkGraphicsPipeline();
+	void initVkFramebuffers();
+	void initVkCommandPool();
+	void initVkCommandBuffers();
+	void initVkSemaphores();
 
-	void vkDrawFrame();
-
+	void draw();
 	void loop();
-
 	void clear();
 
 	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* callbackData, void* userData);

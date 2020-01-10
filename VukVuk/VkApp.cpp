@@ -1,65 +1,27 @@
 #pragma once
 #include "VkApp.hpp"
 
-void VkApp::run() {
-	initGlfw();
-	initVk();
-	loop();
-	clear();
+void VkApp::initGlfw() {
+	glfwInit();
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+	glfwWindow = glfwCreateWindow(WIDTH, HEIGHT, NAME, nullptr, nullptr);
 }
 
-std::vector<VkExtensionProperties> VkApp::getVkExtensionsAvailable() {
-	uint32_t vkExtensionCount = 0;
-	vkEnumerateInstanceExtensionProperties(nullptr, &vkExtensionCount, nullptr);
-
-	std::vector<VkExtensionProperties> vkExtensions(vkExtensionCount);
-
-	vkEnumerateInstanceExtensionProperties(nullptr, &vkExtensionCount, vkExtensions.data());
-
-	std::cout << "[Vulkan] Available extensions successfully verified.\n";
-
-	return vkExtensions;
-}
-
-std::vector<const char*> VkApp::getGlfwExtensionsRequired() {
-	uint32_t glfwExtensionCount = 0;
-	const char** glfwExtensionsArray;
-
-	glfwExtensionsArray = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-	std::vector<const char*> glfwExtensions(glfwExtensionsArray, glfwExtensionsArray + glfwExtensionCount);
-
-	if (enableValidationLayers) {
-		glfwExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-	}
-
-	std::cout << "[GLFW] Required extensions successfully verified.\n";
-
-	return glfwExtensions;
-}
-
-bool VkApp::checkVkValidationLayers() {
-	uint32_t vkLayerCount = 0;
-	vkEnumerateInstanceLayerProperties(&vkLayerCount, nullptr);
-
-	std::vector<VkLayerProperties> vkAvailableLayers(vkLayerCount);
-	vkEnumerateInstanceLayerProperties(&vkLayerCount, vkAvailableLayers.data());
-
-	std::vector<const char*> vkAvailableLayerNames;
-	std::for_each(vkAvailableLayers.begin(), vkAvailableLayers.end(), [&](VkLayerProperties vkLayer) {
-		vkAvailableLayerNames.push_back(vkLayer.layerName);
-	});
-
-	std::for_each(vkValidationLayers.begin(), vkValidationLayers.end(), [&](const char* vkLayerName) {
-		if (std::find(vkAvailableLayerNames.begin(), vkAvailableLayerNames.end(), vkLayerName) != vkAvailableLayerNames.end()) {
-			std::cout << "[Vulkan] Validation layer verification failed.\n";
-			return false;
-		}
-	});
-
-	std::cout << "[Vulkan] Validation layers successfully verified.\n";
-
-	return true;
+void VkApp::initVk() {
+	initVkInstance();
+	initVkDebugMessenger();
+	initVkSurface();
+	initVkPhysicalDevice();
+	initVkLogicalDevice();
+	initVkSwapChain();
+	initVkImageViews();
+	initVkRenderPass();
+	initVkGraphicsPipeline();
+	initVkFramebuffers();
+	initVkCommandPool();
+	initVkCommandBuffers();
+	initVkSemaphores();
 }
 
 void VkApp::initVkInstance() {
@@ -84,7 +46,7 @@ void VkApp::initVkInstance() {
 		createInfo.enabledLayerCount = static_cast<uint32_t>(vkValidationLayers.size());
 		createInfo.ppEnabledLayerNames = vkValidationLayers.data();
 
-		initDebugMessengerCreateInfo(debugCreateInfo);
+		buildDebugMessengerCreateInfo(debugCreateInfo);
 		createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
 	}
 	else {
@@ -117,29 +79,9 @@ void VkApp::initVkInstance() {
 	}
 }
 
-void VkApp::initVkSurface() {
-	VkResult result = glfwCreateWindowSurface(vkInstance, glfwWindow, nullptr, &vkSurface);
-
-	if (result != VK_SUCCESS) {
-		throw std::runtime_error("Failed to create window surface!");
-	}
-	else {
-		std::cout << "[Vulkan] Initialized surface.\n";
-	}
-}
-
-void VkApp::initDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
-	createInfo = {};
-	createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-	createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-	createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-	createInfo.pfnUserCallback = debugCallback;
-	createInfo.pUserData = nullptr;
-}
-
 void VkApp::initVkDebugMessenger() {
 	VkDebugUtilsMessengerCreateInfoEXT createInfo;
-	initDebugMessengerCreateInfo(createInfo);
+	buildDebugMessengerCreateInfo(createInfo);
 
 
 	if (VkUtils::createDebugUtilsMessengerEXT(vkInstance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
@@ -150,160 +92,15 @@ void VkApp::initVkDebugMessenger() {
 	}
 }
 
-VkSurfaceFormatKHR VkApp::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& vkSurfaceFormatsAvailable) {
-	std::for_each(vkSurfaceFormatsAvailable.begin(), vkSurfaceFormatsAvailable.end(), [&](VkSurfaceFormatKHR vkSurfaceFormatAvailable) {
-		if (vkSurfaceFormatAvailable.format == VK_FORMAT_B8G8R8A8_UNORM && vkSurfaceFormatAvailable.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
-			std::cout << "[Vulkan] Chose surface format: " << vkSurfaceFormatAvailable.format << "\n";
-			return vkSurfaceFormatAvailable;
-		}
-	});
-
-	std::cout << "[Vulkan] Chose surface format: " << vkSurfaceFormatsAvailable[0].format << "\n";
-	return vkSurfaceFormatsAvailable[0];
-}
-
-VkPresentModeKHR VkApp::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& vkPresentModesAvailable) {
-	std::for_each(vkPresentModesAvailable.begin(), vkPresentModesAvailable.end(), [&](VkPresentModeKHR vkPresentModeAvailable) {
-		if (vkPresentModeAvailable == VK_PRESENT_MODE_IMMEDIATE_KHR) {
-			std::cout << "[Vulkan] Chose present mode: " << vkPresentModeAvailable << "\n";
-			return vkPresentModeAvailable;
-		}
-	});
-
-	std::cout << "[Vulkan] Chose present mode: " << VK_PRESENT_MODE_FIFO_KHR << "\n";
-	return VK_PRESENT_MODE_FIFO_KHR;
-}
-
-VkExtent2D VkApp::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& vkSurfaceCapabilitiesAvailable) {
-	if (vkSurfaceCapabilitiesAvailable.currentExtent.width != UINT32_MAX) {
-		std::cout << "[Vulkan] Chose swap dimensions: " << vkSurfaceCapabilitiesAvailable.currentExtent.width << " x " << vkSurfaceCapabilitiesAvailable.currentExtent.height << "\n";
-		return vkSurfaceCapabilitiesAvailable.currentExtent;
-	}
-	else {
-		VkExtent2D vkExtentActual = { WIDTH, HEIGHT };
-
-		vkExtentActual.width = std::max(vkSurfaceCapabilitiesAvailable.minImageExtent.width, std::min(vkSurfaceCapabilitiesAvailable.maxImageExtent.width, vkExtentActual.width));
-		vkExtentActual.height = std::max(vkSurfaceCapabilitiesAvailable.minImageExtent.height, std::min(vkSurfaceCapabilitiesAvailable.maxImageExtent.height, vkExtentActual.height));
-
-		std::cout << "[Vulkan] Chose swap dimensions: " << vkExtentActual.width << " x " << vkExtentActual.height << "\n";
-		return vkExtentActual;
-	}
-}
-
-VkUtils::VkSwapChainSupportDetails VkApp::querySwapChainSupport(VkPhysicalDevice vkPhysicalDevice) {
-	VkUtils::VkSwapChainSupportDetails vkDetails;
-
-	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vkPhysicalDevice, vkSurface, &vkDetails.vkSurfaceCapabilites);
-
-	uint32_t vkSurfaceFormatCount;
-	vkGetPhysicalDeviceSurfaceFormatsKHR(vkPhysicalDevice, vkSurface, &vkSurfaceFormatCount, nullptr);
-
-	if (vkSurfaceFormatCount != 0) {
-		vkDetails.vkSurfaceFormats.resize(vkSurfaceFormatCount);
-		vkGetPhysicalDeviceSurfaceFormatsKHR(vkPhysicalDevice, vkSurface, &vkSurfaceFormatCount, vkDetails.vkSurfaceFormats.data());
-	}
-
-	uint32_t vkPresentModeCount;
-	vkGetPhysicalDeviceSurfacePresentModesKHR(vkPhysicalDevice, vkSurface, &vkPresentModeCount, nullptr);
-
-	if (vkPresentModeCount != 0) {
-		vkDetails.vkPresentModes.resize(vkPresentModeCount);
-		vkGetPhysicalDeviceSurfacePresentModesKHR(vkPhysicalDevice, vkSurface, &vkPresentModeCount, vkDetails.vkPresentModes.data());
-	}
-
-	return vkDetails;
-}
-
-bool VkApp::queryExtensionSupport(VkPhysicalDevice vkPhysicalDevice) {
-	uint32_t vkExtensionCount;
-	vkEnumerateDeviceExtensionProperties(vkPhysicalDevice, nullptr, &vkExtensionCount, nullptr);
-
-	std::vector<VkExtensionProperties> vkAvailableExtensions(vkExtensionCount);
-	vkEnumerateDeviceExtensionProperties(vkPhysicalDevice, nullptr, &vkExtensionCount, vkAvailableExtensions.data());
-
-	std::set<std::string> requiredExtensions(vkDeviceExtensions.begin(), vkDeviceExtensions.end());
-
-	std::for_each(vkAvailableExtensions.begin(), vkAvailableExtensions.end(), [&](VkExtensionProperties vkExtension) {
-		requiredExtensions.erase(vkExtension.extensionName);
-	});
-
-	if (requiredExtensions.empty()) {
-		std::cout << "[Vulkan] Extension support verification succeeded.\n";
-		return true;
-	}
-	else {
-		std::cout << "[Vulkan] Extension support verification failed.\n";
-		return false;
-	}
-}
-
-VkUtils::VkQueueFamilyIndices VkApp::queryQueueFamilies(VkPhysicalDevice vkPhysicalDevice) {
-	VkUtils::VkQueueFamilyIndices vkIndices;
-
-	uint32_t vkQueueFamilyCount = 0;
-	vkGetPhysicalDeviceQueueFamilyProperties(vkPhysicalDevice, &vkQueueFamilyCount, nullptr);
-
-	std::vector<VkQueueFamilyProperties> vkQueueFamilies(vkQueueFamilyCount);
-	vkGetPhysicalDeviceQueueFamilyProperties(vkPhysicalDevice, &vkQueueFamilyCount, vkQueueFamilies.data());
-
-	int i = 0;
-	std::for_each(vkQueueFamilies.begin(), vkQueueFamilies.end(), [&](VkQueueFamilyProperties vkQueueFamily) {
-		VkBool32 presentSupport = false;
-		vkGetPhysicalDeviceSurfaceSupportKHR(vkPhysicalDevice, i, vkSurface, &presentSupport);
-
-		if (vkQueueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) vkIndices.graphicsFamily = i;
-		if (presentSupport) vkIndices.presentFamily = i;
-
-		if (vkIndices.isValid()) return false;
-
-		++i;
-	});
-
-	std::cout << "[Vulkan] Queue family verificaiton finished.\n";
-	return vkIndices;
-}
-
-std::map<std::string, std::vector<char>> VkApp::queryShaders() {
-	std::map<std::string, std::vector<char>> shaders;
-	std::filesystem::directory_iterator shaderIterator("C:\\Users\\vini2003\\source\\repos\\VukVuk\\VukVuk\\shaders");
-	for (std::filesystem::directory_entry shaderEntry : shaderIterator) {
-		if (shaderEntry.path().extension() == ".spv") {
-			std::ifstream shaderFile(shaderEntry.path(), std::ios::ate | std::ios::binary);
-
-			if (!shaderFile.is_open()) {
-				throw std::runtime_error("[Vulkan] Failed to load shader file: " + shaderEntry.path().filename().string() + "\n");
-			}
-			else {
-				std::vector<char> buffer(shaderEntry.file_size());
-				shaderFile.seekg(0);
-				shaderFile.read(buffer.data(), shaderEntry.file_size());
-				shaderFile.close();
-				shaders[shaderEntry.path().filename().string()] = buffer;
-				std::cout << "[Vulkan] Loaded shader file: " << shaderEntry.path().filename().string() << "\n";
-			}
-		}
-	}
-	return shaders;
-}
-
-VkShaderModule VkApp::buildShaderModule(const std::vector<char>& rawShader) {
-	VkShaderModuleCreateInfo createInfo = {};
-	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-	createInfo.codeSize = rawShader.size();
-	createInfo.pCode = reinterpret_cast<const uint32_t*>(rawShader.data());
-
-	VkShaderModule vkShaderModule;
-
-	VkResult result = vkCreateShaderModule(vkMainLogicalDevice, &createInfo, nullptr, &vkShaderModule);
+void VkApp::initVkSurface() {
+	VkResult result = glfwCreateWindowSurface(vkInstance, glfwWindow, nullptr, &vkSurface);
 
 	if (result != VK_SUCCESS) {
-		throw std::runtime_error("[Vulkna] Failed to create shader module!");
+		throw std::runtime_error("Failed to create window surface!");
 	}
 	else {
-		std::cout << "[Vulkan] Built shader with " << rawShader.size() << " bytes.\n";
-		return vkShaderModule;
+		std::cout << "[Vulkan] Initialized surface.\n";
 	}
-
 }
 
 void VkApp::initVkPhysicalDevice() {
@@ -319,7 +116,7 @@ void VkApp::initVkPhysicalDevice() {
 
 	std::for_each(vkDevices.begin(), vkDevices.end(), [&](VkPhysicalDevice vkPhysicalDevice) {
 		if ([&]()->bool {
-			return queryQueueFamilies(vkPhysicalDevice).isValid() && queryExtensionSupport(vkPhysicalDevice) && querySwapChainSupport(vkPhysicalDevice).isValid();
+			return getQueueFamilies(vkPhysicalDevice).isValid() && getExtensionSupport(vkPhysicalDevice) && getSwapChainSupport(vkPhysicalDevice).isValid();
 		}()) {
 			vkMainPhysicalDevice = vkPhysicalDevice;
 
@@ -336,7 +133,7 @@ void VkApp::initVkPhysicalDevice() {
 }
 
 void VkApp::initVkLogicalDevice() {
-	VkUtils::VkQueueFamilyIndices indices = queryQueueFamilies(vkMainPhysicalDevice);
+	VkUtils::VkQueueFamilyIndices indices = getQueueFamilies(vkMainPhysicalDevice);
 
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 	std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
@@ -384,11 +181,11 @@ void VkApp::initVkLogicalDevice() {
 }
 
 void VkApp::initVkSwapChain() {
-	VkUtils::VkSwapChainSupportDetails vkDetails = querySwapChainSupport(vkMainPhysicalDevice);
+	VkUtils::VkSwapChainSupportDetails vkDetails = getSwapChainSupport(vkMainPhysicalDevice);
 
-	VkSurfaceFormatKHR vkSurfaceFormat = chooseSwapSurfaceFormat(vkDetails.vkSurfaceFormats);
-	VkPresentModeKHR vkPresentMode = chooseSwapPresentMode(vkDetails.vkPresentModes);
-	VkExtent2D vkExtent = chooseSwapExtent(vkDetails.vkSurfaceCapabilites);
+	VkSurfaceFormatKHR vkSurfaceFormat = selectSwapSurfaceFormat(vkDetails.vkSurfaceFormats);
+	VkPresentModeKHR vkPresentMode = selectSwapPresentMode(vkDetails.vkPresentModes);
+	VkExtent2D vkExtent = selectSwapExtent(vkDetails.vkSurfaceCapabilites);
 
 	uint32_t vkMinImageCount = vkDetails.vkSurfaceCapabilites.minImageCount + 1;
 
@@ -406,7 +203,7 @@ void VkApp::initVkSwapChain() {
 	createInfo.imageArrayLayers = 1;
 	createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-	VkUtils::VkQueueFamilyIndices vkIndices = queryQueueFamilies(vkMainPhysicalDevice);
+	VkUtils::VkQueueFamilyIndices vkIndices = getQueueFamilies(vkMainPhysicalDevice);
 	uint32_t queueFamilyIndices[] = { vkIndices.graphicsFamily.value(), vkIndices.presentFamily.value() };
 
 	if (vkIndices.graphicsFamily != vkIndices.presentFamily) {
@@ -521,7 +318,7 @@ void VkApp::initVkRenderPass() {
 }
 
 void VkApp::initVkGraphicsPipeline() {
-	std::map<std::string, std::vector<char>> rawShaders = queryShaders();
+	std::map<std::string, std::vector<char>> rawShaders = getShaders();
 
 	VkShaderModule vkVertShaderModule = buildShaderModule(rawShaders["vert.spv"]);
 	VkShaderModule vkFragShaderModule = buildShaderModule(rawShaders["frag.spv"]);
@@ -692,7 +489,7 @@ void VkApp::initVkFramebuffers() {
 }
 
 void VkApp::initVkCommandPool() {
-	VkUtils::VkQueueFamilyIndices queueFamilyIndices = queryQueueFamilies(vkMainPhysicalDevice);
+	VkUtils::VkQueueFamilyIndices queueFamilyIndices = getQueueFamilies(vkMainPhysicalDevice);
 
 	VkCommandPoolCreateInfo vkCommandPoolInfo = {};
 	vkCommandPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -777,30 +574,234 @@ void VkApp::initVkSemaphores() {
 	}
 }
 
-void VkApp::initGlfw() {
-	glfwInit();
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-	glfwWindow = glfwCreateWindow(WIDTH, HEIGHT, NAME, nullptr, nullptr);
+bool VkApp::checkVkValidationLayers() {
+	uint32_t vkLayerCount = 0;
+	vkEnumerateInstanceLayerProperties(&vkLayerCount, nullptr);
+
+	std::vector<VkLayerProperties> vkAvailableLayers(vkLayerCount);
+	vkEnumerateInstanceLayerProperties(&vkLayerCount, vkAvailableLayers.data());
+
+	std::vector<const char*> vkAvailableLayerNames;
+	std::for_each(vkAvailableLayers.begin(), vkAvailableLayers.end(), [&](VkLayerProperties vkLayer) {
+		vkAvailableLayerNames.push_back(vkLayer.layerName);
+	});
+
+	std::for_each(vkValidationLayers.begin(), vkValidationLayers.end(), [&](const char* vkLayerName) {
+		if (std::find(vkAvailableLayerNames.begin(), vkAvailableLayerNames.end(), vkLayerName) != vkAvailableLayerNames.end()) {
+			std::cout << "[Vulkan] Validation layer verification failed.\n";
+			return false;
+		}
+	});
+
+	std::cout << "[Vulkan] Validation layers successfully verified.\n";
+
+	return true;
 }
 
-void VkApp::initVk() {
-	initVkInstance();
-	initVkDebugMessenger();
-	initVkSurface();
-	initVkPhysicalDevice();
-	initVkLogicalDevice();
-	initVkSwapChain();
-	initVkImageViews();
-	initVkRenderPass();
-	initVkGraphicsPipeline();
-	initVkFramebuffers();
-	initVkCommandPool();
-	initVkCommandBuffers();
-	initVkSemaphores();
+void VkApp::buildDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
+	createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+	createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+	createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+	createInfo.pfnUserCallback = debugCallback;
+	createInfo.pUserData = nullptr;
 }
 
-void VkApp::vkDrawFrame() {
+VkShaderModule VkApp::buildShaderModule(const std::vector<char>& rawShader) {
+	VkShaderModuleCreateInfo createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+	createInfo.codeSize = rawShader.size();
+	createInfo.pCode = reinterpret_cast<const uint32_t*>(rawShader.data());
+
+	VkShaderModule vkShaderModule;
+
+	VkResult result = vkCreateShaderModule(vkMainLogicalDevice, &createInfo, nullptr, &vkShaderModule);
+
+	if (result != VK_SUCCESS) {
+		throw std::runtime_error("[Vulkna] Failed to create shader module!");
+	}
+	else {
+		std::cout << "[Vulkan] Built shader with " << rawShader.size() << " bytes.\n";
+		return vkShaderModule;
+	}
+
+}
+
+VkSurfaceFormatKHR VkApp::selectSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& vkSurfaceFormatsAvailable) {
+	std::for_each(vkSurfaceFormatsAvailable.begin(), vkSurfaceFormatsAvailable.end(), [&](VkSurfaceFormatKHR vkSurfaceFormatAvailable) {
+		if (vkSurfaceFormatAvailable.format == VK_FORMAT_B8G8R8A8_UNORM && vkSurfaceFormatAvailable.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+			std::cout << "[Vulkan] Chose surface format: " << vkSurfaceFormatAvailable.format << "\n";
+			return vkSurfaceFormatAvailable;
+		}
+	});
+
+	std::cout << "[Vulkan] Chose surface format: " << vkSurfaceFormatsAvailable[0].format << "\n";
+	return vkSurfaceFormatsAvailable[0];
+}
+
+VkPresentModeKHR VkApp::selectSwapPresentMode(const std::vector<VkPresentModeKHR>& vkPresentModesAvailable) {
+	std::for_each(vkPresentModesAvailable.begin(), vkPresentModesAvailable.end(), [&](VkPresentModeKHR vkPresentModeAvailable) {
+		if (vkPresentModeAvailable == VK_PRESENT_MODE_IMMEDIATE_KHR) {
+			std::cout << "[Vulkan] Chose present mode: " << vkPresentModeAvailable << "\n";
+			return vkPresentModeAvailable;
+		}
+	});
+
+	std::cout << "[Vulkan] Chose present mode: " << VK_PRESENT_MODE_FIFO_KHR << "\n";
+	return VK_PRESENT_MODE_FIFO_KHR;
+}
+
+VkExtent2D VkApp::selectSwapExtent(const VkSurfaceCapabilitiesKHR& vkSurfaceCapabilitiesAvailable) {
+	if (vkSurfaceCapabilitiesAvailable.currentExtent.width != UINT32_MAX) {
+		std::cout << "[Vulkan] Chose swap dimensions: " << vkSurfaceCapabilitiesAvailable.currentExtent.width << " x " << vkSurfaceCapabilitiesAvailable.currentExtent.height << "\n";
+		return vkSurfaceCapabilitiesAvailable.currentExtent;
+	}
+	else {
+		VkExtent2D vkExtentActual = { WIDTH, HEIGHT };
+
+		vkExtentActual.width = std::max(vkSurfaceCapabilitiesAvailable.minImageExtent.width, std::min(vkSurfaceCapabilitiesAvailable.maxImageExtent.width, vkExtentActual.width));
+		vkExtentActual.height = std::max(vkSurfaceCapabilitiesAvailable.minImageExtent.height, std::min(vkSurfaceCapabilitiesAvailable.maxImageExtent.height, vkExtentActual.height));
+
+		std::cout << "[Vulkan] Chose swap dimensions: " << vkExtentActual.width << " x " << vkExtentActual.height << "\n";
+		return vkExtentActual;
+	}
+}
+
+std::vector<VkExtensionProperties> VkApp::getVkExtensionsAvailable() {
+	uint32_t vkExtensionCount = 0;
+	vkEnumerateInstanceExtensionProperties(nullptr, &vkExtensionCount, nullptr);
+
+	std::vector<VkExtensionProperties> vkExtensions(vkExtensionCount);
+
+	vkEnumerateInstanceExtensionProperties(nullptr, &vkExtensionCount, vkExtensions.data());
+
+	std::cout << "[Vulkan] Available extensions successfully verified.\n";
+
+	return vkExtensions;
+}
+
+std::vector<const char*> VkApp::getGlfwExtensionsRequired() {
+	uint32_t glfwExtensionCount = 0;
+	const char** glfwExtensionsArray;
+
+	glfwExtensionsArray = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+	std::vector<const char*> glfwExtensions(glfwExtensionsArray, glfwExtensionsArray + glfwExtensionCount);
+
+	if (enableValidationLayers) {
+		glfwExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+	}
+
+	std::cout << "[GLFW] Required extensions successfully verified.\n";
+
+	return glfwExtensions;
+}
+
+VkUtils::VkSwapChainSupportDetails VkApp::getSwapChainSupport(VkPhysicalDevice vkPhysicalDevice) {
+	VkUtils::VkSwapChainSupportDetails vkDetails;
+
+	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vkPhysicalDevice, vkSurface, &vkDetails.vkSurfaceCapabilites);
+
+	uint32_t vkSurfaceFormatCount;
+	vkGetPhysicalDeviceSurfaceFormatsKHR(vkPhysicalDevice, vkSurface, &vkSurfaceFormatCount, nullptr);
+
+	if (vkSurfaceFormatCount != 0) {
+		vkDetails.vkSurfaceFormats.resize(vkSurfaceFormatCount);
+		vkGetPhysicalDeviceSurfaceFormatsKHR(vkPhysicalDevice, vkSurface, &vkSurfaceFormatCount, vkDetails.vkSurfaceFormats.data());
+	}
+
+	uint32_t vkPresentModeCount;
+	vkGetPhysicalDeviceSurfacePresentModesKHR(vkPhysicalDevice, vkSurface, &vkPresentModeCount, nullptr);
+
+	if (vkPresentModeCount != 0) {
+		vkDetails.vkPresentModes.resize(vkPresentModeCount);
+		vkGetPhysicalDeviceSurfacePresentModesKHR(vkPhysicalDevice, vkSurface, &vkPresentModeCount, vkDetails.vkPresentModes.data());
+	}
+
+	return vkDetails;
+}
+
+bool VkApp::getExtensionSupport(VkPhysicalDevice vkPhysicalDevice) {
+	uint32_t vkExtensionCount;
+	vkEnumerateDeviceExtensionProperties(vkPhysicalDevice, nullptr, &vkExtensionCount, nullptr);
+
+	std::vector<VkExtensionProperties> vkAvailableExtensions(vkExtensionCount);
+	vkEnumerateDeviceExtensionProperties(vkPhysicalDevice, nullptr, &vkExtensionCount, vkAvailableExtensions.data());
+
+	std::set<std::string> requiredExtensions(vkDeviceExtensions.begin(), vkDeviceExtensions.end());
+
+	std::for_each(vkAvailableExtensions.begin(), vkAvailableExtensions.end(), [&](VkExtensionProperties vkExtension) {
+		requiredExtensions.erase(vkExtension.extensionName);
+	});
+
+	if (requiredExtensions.empty()) {
+		std::cout << "[Vulkan] Extension support verification succeeded.\n";
+		return true;
+	}
+	else {
+		std::cout << "[Vulkan] Extension support verification failed.\n";
+		return false;
+	}
+}
+
+VkUtils::VkQueueFamilyIndices VkApp::getQueueFamilies(VkPhysicalDevice vkPhysicalDevice) {
+	VkUtils::VkQueueFamilyIndices vkIndices;
+
+	uint32_t vkQueueFamilyCount = 0;
+	vkGetPhysicalDeviceQueueFamilyProperties(vkPhysicalDevice, &vkQueueFamilyCount, nullptr);
+
+	std::vector<VkQueueFamilyProperties> vkQueueFamilies(vkQueueFamilyCount);
+	vkGetPhysicalDeviceQueueFamilyProperties(vkPhysicalDevice, &vkQueueFamilyCount, vkQueueFamilies.data());
+
+	int i = 0;
+	std::for_each(vkQueueFamilies.begin(), vkQueueFamilies.end(), [&](VkQueueFamilyProperties vkQueueFamily) {
+		VkBool32 presentSupport = false;
+		vkGetPhysicalDeviceSurfaceSupportKHR(vkPhysicalDevice, i, vkSurface, &presentSupport);
+
+		if (vkQueueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) vkIndices.graphicsFamily = i;
+		if (presentSupport) vkIndices.presentFamily = i;
+
+		if (vkIndices.isValid()) return false;
+
+		++i;
+	});
+
+	std::cout << "[Vulkan] Queue family verificaiton finished.\n";
+	return vkIndices;
+}
+
+std::map<std::string, std::vector<char>> VkApp::getShaders() {
+	std::map<std::string, std::vector<char>> shaders;
+	std::filesystem::directory_iterator shaderIterator("C:\\Users\\vini2003\\source\\repos\\VukVuk\\VukVuk\\shaders");
+	for (std::filesystem::directory_entry shaderEntry : shaderIterator) {
+		if (shaderEntry.path().extension() == ".spv") {
+			std::ifstream shaderFile(shaderEntry.path(), std::ios::ate | std::ios::binary);
+
+			if (!shaderFile.is_open()) {
+				throw std::runtime_error("[Vulkan] Failed to load shader file: " + shaderEntry.path().filename().string() + "\n");
+			}
+			else {
+				std::vector<char> buffer(shaderEntry.file_size());
+				shaderFile.seekg(0);
+				shaderFile.read(buffer.data(), shaderEntry.file_size());
+				shaderFile.close();
+				shaders[shaderEntry.path().filename().string()] = buffer;
+				std::cout << "[Vulkan] Loaded shader file: " << shaderEntry.path().filename().string() << "\n";
+			}
+		}
+	}
+	return shaders;
+}
+
+void VkApp::run() {
+	initGlfw();
+	initVk();
+	loop();
+	clear();
+}
+
+
+void VkApp::draw() {
 	uint32_t vkImageIndex;
 	vkAcquireNextImageKHR(vkMainLogicalDevice, vkSwapchain, UINT64_MAX, vkImageAvailableSemaphore, VK_NULL_HANDLE, &vkImageIndex);
 
@@ -844,7 +845,7 @@ void VkApp::vkDrawFrame() {
 void VkApp::loop() {
 	while (!glfwWindowShouldClose(glfwWindow)) {
 		glfwPollEvents();
-		vkDrawFrame();
+		draw();
 	}
 }
 
@@ -880,3 +881,4 @@ VKAPI_ATTR VkBool32 VKAPI_CALL VkApp::debugCallback(VkDebugUtilsMessageSeverityF
 
 	return VK_FALSE;
 }
+
