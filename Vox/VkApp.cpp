@@ -26,6 +26,7 @@ void VkApp::initVk() {
 	initVkGraphicsPipeline();
 	initVkFramebuffers();
 	initVkCommandPool();
+	initVkVertexBuffer();
 	initVkCommandBuffers();
 	initVkSemaphores();
 }
@@ -350,6 +351,15 @@ void VkApp::initVkGraphicsPipeline() {
 	vkVertexInputInfo.vertexAttributeDescriptionCount = 0;
 	vkVertexInputInfo.pVertexAttributeDescriptions = nullptr;
 
+	auto bindingDescription = VkUtils::VkVertex::getBindingDescription();
+	auto attributeDescriptions = VkUtils::VkVertex::getAttributeDescriptions();
+
+	vkVertexInputInfo.vertexBindingDescriptionCount = 1;
+	vkVertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+	vkVertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+	vkVertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+
+
 	VkPipelineInputAssemblyStateCreateInfo vkInputAssemblyInfo = {};
 	vkInputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 	vkInputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -511,6 +521,47 @@ void VkApp::initVkCommandPool() {
 	}
 }
 
+void VkApp::initVkVertexBuffer() {
+	VkBufferCreateInfo bufferInfo = {};
+	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	bufferInfo.size = sizeof(vkVertices[0]) * vkVertices.size();
+	bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+	VkResult resultA = vkCreateBuffer(vkMainLogicalDevice, &bufferInfo, nullptr, &vkVertexBuffer);
+
+	if (resultA != VK_SUCCESS) {
+		throw std::runtime_error("[Vulkan] Failed to create vertex buffer!");
+	} else {
+		std::cout << "[Vulkan] Vertex buffer initialization succeeded.\n";
+	}
+
+	VkMemoryRequirements memRequirements;
+	vkGetBufferMemoryRequirements(vkMainLogicalDevice, vkVertexBuffer, &memRequirements);
+
+	VkMemoryAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	allocInfo.allocationSize = memRequirements.size;
+	allocInfo.memoryTypeIndex = getMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+	VkResult resultB = vkAllocateMemory(vkMainLogicalDevice, &allocInfo, nullptr, &vkVertexBufferMemory);
+	
+	if (resultB != VK_SUCCESS) {
+		throw std::runtime_error("[Vulkan] Failed to allocate vertex buffer memory!");
+	} else {
+		std::cout << "[Vulkan] Vertex buffer memory allocation succeeded.\n";
+	}
+
+	vkBindBufferMemory(vkMainLogicalDevice, vkVertexBuffer, vkVertexBufferMemory, 0);
+
+	void* data;
+	vkMapMemory(vkMainLogicalDevice, vkVertexBufferMemory, 0, bufferInfo.size, 0, &data);
+
+	memcpy(data, vkVertices.data(), (size_t)bufferInfo.size);
+
+	vkUnmapMemory(vkMainLogicalDevice, vkVertexBufferMemory);
+}
+
 void VkApp::initVkCommandBuffers() {
 	vkCommandBuffers.resize(vkSwapchainFramebuffers.size());
 
@@ -554,7 +605,12 @@ void VkApp::initVkCommandBuffers() {
 
 		vkCmdBeginRenderPass(vkCommandBuffers[i], &vkRenderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 		vkCmdBindPipeline(vkCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, vkGraphicsPipeline);
-		vkCmdDraw(vkCommandBuffers[i], 3, 1, 0, 0);
+
+		VkBuffer vertexBuffers[] = { vkVertexBuffer };
+		VkDeviceSize offsets[] = { 0 };
+		vkCmdBindVertexBuffers(vkCommandBuffers[i], 0, 1, vertexBuffers, offsets);
+
+		vkCmdDraw(vkCommandBuffers[i], static_cast<uint32_t>(vkVertices.size()), 1, 0, 0);
 		vkCmdEndRenderPass(vkCommandBuffers[i]);
 
 		VkResult resultB = vkEndCommandBuffer(vkCommandBuffers[i]);
@@ -562,6 +618,7 @@ void VkApp::initVkCommandBuffers() {
 		if (resultB != VK_SUCCESS) {
 			throw std::runtime_error("[Vulkan] Failed to record command buffer!");
 		}
+
 		++i;
 	});
 
@@ -754,6 +811,20 @@ bool VkApp::getExtensionSupport(VkPhysicalDevice vkPhysicalDevice) {
 	}
 }
 
+uint32_t VkApp::getMemoryType(uint32_t vkTypeFilter, VkMemoryPropertyFlags vkFlagProperties) {
+	VkPhysicalDeviceMemoryProperties vkMemProperties;
+	vkGetPhysicalDeviceMemoryProperties(vkMainPhysicalDevice, &vkMemProperties);
+
+	for (uint32_t i = 0; i < vkMemProperties.memoryTypeCount; i++) {
+		if ((vkTypeFilter & (1 << i)) && (vkMemProperties.memoryTypes[i].propertyFlags & vkFlagProperties) == vkFlagProperties) {
+			std::cout << "[Vulkan] Found compatible memory type.\n";
+			return i;
+		}
+	}
+
+	throw std::runtime_error("[Vulkan] Failed to find suitable memory type!");
+}
+
 VkUtils::VkQueueFamilyIndices VkApp::getQueueFamilies(VkPhysicalDevice vkPhysicalDevice) {
 	VkUtils::VkQueueFamilyIndices vkIndices;
 
@@ -782,7 +853,7 @@ VkUtils::VkQueueFamilyIndices VkApp::getQueueFamilies(VkPhysicalDevice vkPhysica
 
 std::map<std::string, std::vector<char>> VkApp::getShaders() {
 	std::map<std::string, std::vector<char>> shaders;
-	std::filesystem::directory_iterator shaderIterator("C:\\Users\\vini2003\\source\\repos\\VukVuk\\VukVuk\\shaders");
+	std::filesystem::directory_iterator shaderIterator("shaders");
 	for (std::filesystem::directory_entry shaderEntry : shaderIterator) {
 		if (shaderEntry.path().extension() == ".spv") {
 			std::ifstream shaderFile(shaderEntry.path(), std::ios::ate | std::ios::binary);
@@ -878,6 +949,9 @@ void VkApp::loop() {
 
 void VkApp::free() {
 	freeVkSwapchain();
+
+	vkDestroyBuffer(vkMainLogicalDevice, vkVertexBuffer, nullptr);
+	vkFreeMemory(vkMainLogicalDevice, vkVertexBufferMemory, nullptr);
 
 	vkDestroySemaphore(vkMainLogicalDevice, vkRenderFinishedSemaphore, nullptr);
 	vkDestroySemaphore(vkMainLogicalDevice, vkImageAvailableSemaphore, nullptr);

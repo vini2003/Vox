@@ -13,6 +13,7 @@
 #include <filesystem>
 #include <fstream>
 #include <map>
+#include <array>
 
 #include "VkUtils.hpp"
 
@@ -70,6 +71,15 @@ private:
 
 	VkCommandPool vkCommandPool;
 
+	VkBuffer vkVertexBuffer;
+	VkDeviceMemory vkVertexBufferMemory;
+
+	std::vector<VkUtils::VkVertex> vkVertices = {
+		{{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
+		{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+		{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+	};
+
 	std::vector<VkCommandBuffer> vkCommandBuffers;
 
 	VkSemaphore vkImageAvailableSemaphore;
@@ -95,6 +105,8 @@ private:
 
 	bool getExtensionSupport(VkPhysicalDevice vkPhysicalDevice);
 
+	uint32_t getMemoryType(uint32_t vkTypeFilter, VkMemoryPropertyFlags vkFlagProperties);
+
 	VkUtils::VkQueueFamilyIndices getQueueFamilies(VkPhysicalDevice vkPhysicalDevice);
 
 	std::map<std::string, std::vector<char>> getShaders();
@@ -112,6 +124,7 @@ private:
 	void initVkGraphicsPipeline();
 	void initVkFramebuffers();
 	void initVkCommandPool();
+	void initVkVertexBuffer();
 	void initVkCommandBuffers();
 	void initVkSemaphores();
 

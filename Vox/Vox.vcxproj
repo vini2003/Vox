@@ -22,7 +22,7 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{741D759B-0E73-4EB4-848B-8414F7A12806}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>VukVuk</RootNamespace>
+    <RootNamespace>Vox</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>Vox</ProjectName>
   </PropertyGroup>
