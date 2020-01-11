@@ -26,7 +26,7 @@ void VkApp::initVk() {
 	initVkRenderPass();
 	initVkGraphicsPipeline();
 	initVkFramebuffers();
-	initVkCommandPool();
+	initVkCommandPools();
 	initVkVertexBuffer();
 	initVkCommandBuffers();
 	initVkSemaphores();
@@ -499,7 +499,7 @@ void VkApp::initVkFramebuffers() {
 	std::cout << "[Vulkan] Framebuffer initialization succeeded.\n";
 }
 
-void VkApp::initVkCommandPool() {
+void VkApp::initVkCommandPools() {
 	VkUtils::VkQueueFamilyIndices queueFamilyIndices = getQueueFamilies(vkMainPhysicalDevice);
 
 	VkCommandPoolCreateInfo vkCommandPoolInfo = {};
@@ -507,54 +507,53 @@ void VkApp::initVkCommandPool() {
 	vkCommandPoolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 	vkCommandPoolInfo.flags = 0;
 
-	VkResult result = vkCreateCommandPool(vkMainLogicalDevice, &vkCommandPoolInfo, nullptr, &vkCommandPool);
-	if (result != VK_SUCCESS) {
-		throw std::runtime_error("[Vulkan] Failed to create command pool!");
-	}
-	else {
-		std::cout << "[Vulkan] Command pool initialization succeeded!\n";
-	}
+	VkUtils::VkCommandPooolBuildInfo buildInfo = {};
+	buildInfo.vkLogicalDevice = vkMainLogicalDevice;
+	buildInfo.vkCommandPoolInfo = &vkCommandPoolInfo;
+	buildInfo.vkAllocationCallbacks = nullptr;
+	buildInfo.vkCommandPool = &vkCommandPool;
+
+	buildPool(buildInfo);
+
+	vkCommandPoolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
+
+	buildInfo.vkCommandPool = &vkCommandPoolShort;
+
+	buildPool(buildInfo);
+
 }
 
 void VkApp::initVkVertexBuffer() {
-	VkBufferCreateInfo bufferInfo = {};
-	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	bufferInfo.size = sizeof(vkVertices[0]) * vkVertices.size();
-	bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	VkBuffer vkStagingBuffer;
+	VkDeviceMemory vkStagingBufferMemory;
 
-	VkResult resultA = vkCreateBuffer(vkMainLogicalDevice, &bufferInfo, nullptr, &vkVertexBuffer);
+	VkUtils::VkBufferBuildInfo buildInfo = {};
+	buildInfo.vkSize = sizeof(vkVertices[0]) * vkVertices.size();
+	buildInfo.vkUsage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+	buildInfo.vkProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+	buildInfo.vkBuffer = &vkStagingBuffer;
+	buildInfo.vkBufferMemory = &vkStagingBufferMemory;
 
-	if (resultA != VK_SUCCESS) {
-		throw std::runtime_error("[Vulkan] Failed to create vertex buffer!");
-	} else {
-		std::cout << "[Vulkan] Vertex buffer initialization succeeded.\n";
-	}
-
-	VkMemoryRequirements memRequirements;
-	vkGetBufferMemoryRequirements(vkMainLogicalDevice, vkVertexBuffer, &memRequirements);
-
-	VkMemoryAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-	allocInfo.allocationSize = memRequirements.size;
-	allocInfo.memoryTypeIndex = getMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-	VkResult resultB = vkAllocateMemory(vkMainLogicalDevice, &allocInfo, nullptr, &vkVertexBufferMemory);
-	
-	if (resultB != VK_SUCCESS) {
-		throw std::runtime_error("[Vulkan] Failed to allocate vertex buffer memory!");
-	} else {
-		std::cout << "[Vulkan] Vertex buffer memory allocation succeeded.\n";
-	}
-
-	vkBindBufferMemory(vkMainLogicalDevice, vkVertexBuffer, vkVertexBufferMemory, 0);
+	buildBuffer(buildInfo);
 
 	void* data;
-	vkMapMemory(vkMainLogicalDevice, vkVertexBufferMemory, 0, bufferInfo.size, 0, &data);
+	vkMapMemory(vkMainLogicalDevice, vkStagingBufferMemory, 0, buildInfo.vkSize, 0, &data);
 
-	memcpy(data, vkVertices.data(), (size_t)bufferInfo.size);
+	memcpy(data, vkVertices.data(), (size_t) buildInfo.vkSize);
 
-	vkUnmapMemory(vkMainLogicalDevice, vkVertexBufferMemory);
+	vkUnmapMemory(vkMainLogicalDevice, vkStagingBufferMemory);
+
+	buildInfo.vkUsage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+	buildInfo.vkProperties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+	buildInfo.vkBuffer = &vkVertexBuffer;
+	buildInfo.vkBufferMemory = &vkVertexBufferMemory;
+
+	buildBuffer(buildInfo);
+
+	copyBuffer(vkStagingBuffer, vkVertexBuffer, buildInfo.vkSize);
+
+	vkDestroyBuffer(vkMainLogicalDevice, vkStagingBuffer, nullptr);
+	vkFreeMemory(vkMainLogicalDevice, vkStagingBufferMemory, nullptr);
 }
 
 void VkApp::initVkCommandBuffers() {
@@ -684,7 +683,93 @@ VkShaderModule VkApp::buildShaderModule(const std::vector<char>& rawShader) {
 		std::cout << "[Vulkan] Built shader with " << rawShader.size() << " bytes.\n";
 		return vkShaderModule;
 	}
+}
 
+VkResult VkApp::buildBuffer(VkUtils::VkBufferBuildInfo buildInfo) {
+	VkBufferCreateInfo bufferInfo = {};
+	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	bufferInfo.size = buildInfo.vkSize;
+	bufferInfo.usage = buildInfo.vkUsage;
+	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+	VkResult resultA = vkCreateBuffer(vkMainLogicalDevice, &bufferInfo, nullptr, buildInfo.vkBuffer);
+
+	if (resultA != VK_SUCCESS) {
+		throw std::runtime_error("[Vulkan] Failed to create vertex buffer!");
+	}
+	else {
+		std::cout << "[Vulkan] Vertex buffer initialization succeeded.\n";
+	}
+
+	VkMemoryRequirements memRequirements;
+	vkGetBufferMemoryRequirements(vkMainLogicalDevice, *buildInfo.vkBuffer, &memRequirements);
+
+	VkMemoryAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	allocInfo.allocationSize = memRequirements.size;
+	allocInfo.memoryTypeIndex = getMemoryType(memRequirements.memoryTypeBits, buildInfo.vkProperties);
+	
+	VkResult resultB = vkAllocateMemory(vkMainLogicalDevice, &allocInfo, nullptr, buildInfo.vkBufferMemory);
+
+	if (resultB != VK_SUCCESS) {
+		throw std::runtime_error("[Vulkan] Failed to allocate vertex buffer memory!");
+	}
+	else {
+		std::cout << "[Vulkan] Vertex buffer memory allocation succeeded.\n";
+	}
+
+	vkBindBufferMemory(vkMainLogicalDevice, *buildInfo.vkBuffer, *buildInfo.vkBufferMemory, 0);
+
+	return VK_SUCCESS;
+}
+
+VkResult VkApp::copyBuffer(VkBuffer vkSourceBuffer, VkBuffer vkDestinationBuffer, VkDeviceSize vkBufferSize) {
+	VkCommandBufferAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandPool = vkCommandPoolShort;
+	allocInfo.commandBufferCount = 1;
+
+	VkCommandBuffer vkTempBuffer;
+	vkAllocateCommandBuffers(vkMainLogicalDevice, &allocInfo, &vkTempBuffer);
+
+	VkCommandBufferBeginInfo beginInfo = {};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+	vkBeginCommandBuffer(vkTempBuffer, &beginInfo);
+
+	VkBufferCopy vkCopyRegion = {};
+	vkCopyRegion.srcOffset = 0;
+	vkCopyRegion.dstOffset = 0;
+	vkCopyRegion.size = vkBufferSize;
+	vkCmdCopyBuffer(vkTempBuffer, vkSourceBuffer, vkDestinationBuffer, 1, &vkCopyRegion);
+
+	vkEndCommandBuffer(vkTempBuffer);
+
+	VkSubmitInfo submitInfo = {};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &vkTempBuffer;
+
+	vkQueueSubmit(vkGraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+	vkQueueWaitIdle(vkGraphicsQueue);
+
+	vkFreeCommandBuffers(vkMainLogicalDevice, vkCommandPoolShort, 1, &vkTempBuffer);
+
+	return VK_SUCCESS;
+}
+
+VkResult VkApp::buildPool(VkUtils::VkCommandPooolBuildInfo buildInfo) {
+	VkResult result = vkCreateCommandPool(buildInfo.vkLogicalDevice, buildInfo.vkCommandPoolInfo, buildInfo.vkAllocationCallbacks, buildInfo.vkCommandPool);
+
+	if (result != VK_SUCCESS) {
+		throw std::runtime_error("[Vulkan] Failed to create command pool!");
+	}
+	else {
+		std::cout << "[Vulkan] Command pool initialization succeeded!\n";
+		return VK_SUCCESS;
+	}
 }
 
 VkSurfaceFormatKHR VkApp::selectSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& vkSurfaceFormatsAvailable) {
@@ -877,8 +962,8 @@ void VkApp::run() {
 	vkApi.vkApp = this;
 
 	VkUtils::VkTriangle t1  = {
-		{{-0.5f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
-		{{0.5f, 0.0f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+		{{-0.5f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}},
+		{{0.5f, 0.0f, 0.5f}, {1.0f, 0.0f, 0.0f}},
 		{{-0.5f, 0.5f, 0.0f},  {1.0f, 0.0f, 0.0f}}
 	};
 

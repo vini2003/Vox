@@ -21,6 +21,21 @@ namespace VkUtils {
 		bool isValid();
 	};
 
+	struct VkBufferBuildInfo {
+		VkDeviceSize vkSize;
+		VkBufferUsageFlags vkUsage;
+		VkMemoryPropertyFlags vkProperties;
+		VkBuffer* vkBuffer;
+		VkDeviceMemory* vkBufferMemory;
+	};
+
+	struct VkCommandPooolBuildInfo {
+		VkDevice vkLogicalDevice;
+		VkCommandPoolCreateInfo* vkCommandPoolInfo;
+		VkAllocationCallbacks* vkAllocationCallbacks;
+		VkCommandPool* vkCommandPool;
+	};
+
 	struct VkVertex {
 		glm::vec3 vkPos;
 

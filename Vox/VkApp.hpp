@@ -72,6 +72,7 @@ private:
 	VkPipeline vkGraphicsPipeline;
 
 	VkCommandPool vkCommandPool;
+	VkCommandPool vkCommandPoolShort;
 
 	VkBuffer vkVertexBuffer;
 	VkDeviceMemory vkVertexBufferMemory;
@@ -88,6 +89,12 @@ private:
 	VkShaderModule buildShaderModule(const std::vector<char>& rawShader);
 
 	void buildDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+
+	VkResult buildBuffer(VkUtils::VkBufferBuildInfo buildInfo);
+
+	VkResult copyBuffer(VkBuffer vkSourceBuffer, VkBuffer vkDestinationBuffer, VkDeviceSize vkBufferSize);
+
+	VkResult buildPool(VkUtils::VkCommandPooolBuildInfo buildInfo);
 
 	VkSurfaceFormatKHR selectSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& vkSurfaceFormatsAvailable);
 
@@ -121,7 +128,7 @@ private:
 	void initVkRenderPass();
 	void initVkGraphicsPipeline();
 	void initVkFramebuffers();
-	void initVkCommandPool();
+	void initVkCommandPools();
 	void initVkVertexBuffer();
 	void initVkCommandBuffers();
 	void initVkSemaphores();
