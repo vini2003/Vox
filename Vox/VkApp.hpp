@@ -27,6 +27,8 @@ class VkApp {
 public:
 	void run();
 
+	void vkApiPutTriangle(VkUtils::VkTriangle& vertices);
+
 	bool vkFramebufferResized = false;
 private:
 	const std::vector<const char*> vkValidationLayers = {
@@ -74,14 +76,7 @@ private:
 	VkBuffer vkVertexBuffer;
 	VkDeviceMemory vkVertexBufferMemory;
 
-	std::vector<VkUtils::VkVertex> vkVertices = {
-		{{-0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
-		{{0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-		{{-0.5f, 0.5f},  {1.0f, 0.0f, 0.0f}},
-		{{0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-		{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-		{{-0.5f, 0.5f},  {1.0f, 0.0f, 0.0f}},
-	};
+	std::vector<VkUtils::VkVertex> vkVertices;
 
 	std::vector<VkCommandBuffer> vkCommandBuffers;
 

@@ -22,12 +22,17 @@ namespace VkUtils {
 	};
 
 	struct VkVertex {
-		glm::vec2 vkPos;
-		glm::vec3 vkColor;
+		glm::vec3 vkPos;
+
+		glm::vec3 vkCol;
 
 		static VkVertexInputBindingDescription getBindingDescription();
 		
-		static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions();
+		static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescription();
+	};
+
+	struct VkTriangle {
+		VkVertex vA, vB, vC;
 	};
 
 	VkResult createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);

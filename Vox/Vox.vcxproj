@@ -161,10 +161,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="VkApi.cpp" />
     <ClCompile Include="VkApp.cpp" />
     <ClCompile Include="VkUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="VkApi.hpp" />
     <ClInclude Include="VkApp.hpp" />
     <ClInclude Include="VkUtils.hpp" />
   </ItemGroup>

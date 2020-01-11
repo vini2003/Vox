@@ -23,18 +23,18 @@ VkVertexInputBindingDescription VkUtils::VkVertex::getBindingDescription() {
 	return bindingDescription;
 }
 
-std::array<VkVertexInputAttributeDescription, 2> VkUtils::VkVertex::getAttributeDescriptions() {
-	std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions = {};
-	attributeDescriptions[0].binding = 0;
-	attributeDescriptions[0].location = 0;
-	attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
-	attributeDescriptions[0].offset = offsetof(VkUtils::VkVertex, vkPos);
-	attributeDescriptions[1].binding = 0;
-	attributeDescriptions[1].location = 1;
-	attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-	attributeDescriptions[1].offset = offsetof(VkUtils::VkVertex, vkColor);
+std::array<VkVertexInputAttributeDescription, 2> VkUtils::VkVertex::getAttributeDescription() {
+	std::array<VkVertexInputAttributeDescription, 2> attributeDescription;
+	attributeDescription[0].binding = 0;
+	attributeDescription[0].location = 0;
+	attributeDescription[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+	attributeDescription[0].offset = offsetof(VkUtils::VkVertex, vkPos);
+	attributeDescription[1].binding = 0;
+	attributeDescription[1].location = 1;
+	attributeDescription[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+	attributeDescription[1].offset = offsetof(VkUtils::VkVertex, vkCol);
 
-	return attributeDescriptions;
+	return attributeDescription;
 }
 
 VkResult VkUtils::createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {

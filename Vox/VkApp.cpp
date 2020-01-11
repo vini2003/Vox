@@ -1,5 +1,6 @@
 #pragma once
 #include "VkApp.hpp"
+#include "VkApi.hpp"
 
 void VkApp::initGlfw() {
 	glfwInit();
@@ -320,8 +321,6 @@ void VkApp::initVkRenderPass() {
 	if (result != VK_SUCCESS) {
 		throw std::runtime_error("[Vulkan] Failed to create render pass!");
 	}
-
-
 }
 
 void VkApp::initVkGraphicsPipeline() {
@@ -346,18 +345,14 @@ void VkApp::initVkGraphicsPipeline() {
 
 	VkPipelineVertexInputStateCreateInfo vkVertexInputInfo = {};
 	vkVertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	vkVertexInputInfo.vertexBindingDescriptionCount = 0;
-	vkVertexInputInfo.pVertexBindingDescriptions = nullptr;
-	vkVertexInputInfo.vertexAttributeDescriptionCount = 0;
-	vkVertexInputInfo.pVertexAttributeDescriptions = nullptr;
 
 	auto bindingDescription = VkUtils::VkVertex::getBindingDescription();
-	auto attributeDescriptions = VkUtils::VkVertex::getAttributeDescriptions();
+	auto attributeDescription = VkUtils::VkVertex::getAttributeDescription();
 
 	vkVertexInputInfo.vertexBindingDescriptionCount = 1;
-	vkVertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+	vkVertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescription.size());
 	vkVertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-	vkVertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+	vkVertexInputInfo.pVertexAttributeDescriptions = attributeDescription.data();
 
 
 	VkPipelineInputAssemblyStateCreateInfo vkInputAssemblyInfo = {};
@@ -871,11 +866,31 @@ std::map<std::string, std::vector<char>> VkApp::getShaders() {
 			}
 		}
 	}
+
 	return shaders;
 }
 
 void VkApp::run() {
 	initGlfw();
+
+	VkApi vkApi;
+	vkApi.vkApp = this;
+
+	VkUtils::VkTriangle t1  = {
+		{{-0.5f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
+		{{0.5f, 0.0f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+		{{-0.5f, 0.5f, 0.0f},  {1.0f, 0.0f, 0.0f}}
+	};
+
+	VkUtils::VkTriangle t2 = {
+		{{0.5f, 0.0f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+		{{0.5f, 0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+		{{-0.5f, 0.5f, 0.0f},  {1.0f, 0.0f, 0.0f}}
+	};
+
+	vkApi.putTriangle(t1);
+	vkApi.putTriangle(t2);
+
 	initVk();
 	loop();
 	free();
@@ -1005,6 +1020,12 @@ void VkApp::resetVkSwapchain() {
 	initVkFramebuffers();
 	initVkCommandBuffers();
 	initVkSemaphores();
+}
+
+void VkApp::vkApiPutTriangle(VkUtils::VkTriangle& triangle) {
+	for (auto vkVertex : { triangle.vA, triangle.vB, triangle.vC }) {
+		vkVertices.push_back(vkVertex);
+	}
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL VkApp::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* callbackData, void* userData) {
