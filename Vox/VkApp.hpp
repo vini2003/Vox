@@ -75,9 +75,12 @@ private:
 	VkDeviceMemory vkVertexBufferMemory;
 
 	std::vector<VkUtils::VkVertex> vkVertices = {
-		{{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
+		{{-0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
+		{{0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+		{{-0.5f, 0.5f},  {1.0f, 0.0f, 0.0f}},
+		{{0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
 		{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-		{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+		{{-0.5f, 0.5f},  {1.0f, 0.0f, 0.0f}},
 	};
 
 	std::vector<VkCommandBuffer> vkCommandBuffers;
