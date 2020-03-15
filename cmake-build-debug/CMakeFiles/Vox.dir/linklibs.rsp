@@ -1,0 +1,1 @@
+ -LC:/VulkanSDK/1.1.130.0/Lib32  -LC:/Users/vini2003/vsprojects/Libraries/glfw-3.3.2-x86/lib-mingw -lgdi32 -lglfw3 -lvulkan-1 -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 

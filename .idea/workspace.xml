@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
+    <generated>
+      <config projectName="Vox" targetName="Vox" />
+    </generated>
+  </component>
+  <component name="CMakeSettings" AUTO_RELOAD="true">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="32bbc70b-b24c-4934-957b-2e03dd561bc3" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMake/Default.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMake/DefaultCXX.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMake/DefaultFortran.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMake/Utils.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Vox/CMakeLists.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Vox/VkApi.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/VkApi.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Vox/VkApi.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/VkApi.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Vox/VkApp.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/VkApp.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Vox/VkApp.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/VkApp.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Vox/VkUtils.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/VkUtils.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Vox/VkUtils.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/VkUtils.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Vox/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Vox/shaders/frag.spv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Vox/shaders/glsl2spirv.bat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Vox/shaders/shader.frag" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Vox/shaders/shader.vert" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Vox/shaders/vert.spv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeCache.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeCache.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CMakeCXXCompiler.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CMakeCXXCompiler.cmake" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CMakeDetermineCompilerABI_CXX.bin" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CMakeDetermineCompilerABI_CXX.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CMakeSystem.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CMakeSystem.cmake" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CompilerIdCXX/a.exe" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/3.15.3/CompilerIdCXX/a.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Makefile.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Makefile.cmake" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Makefile2" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Makefile2" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Progress/1" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Progress/2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Progress/3" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Progress/4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Progress/count.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/TargetDirectories.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/TargetDirectories.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-environment.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-environment.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-log.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-log.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Vox.cbp" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Vox.cbp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Vox/CMakeFiles/CMakeDirectoryInformation.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Vox/CMakeFiles/Vox.dir/CXX.includecache" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Vox/CMakeFiles/Vox.dir/DependInfo.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Vox/CMakeFiles/Vox.dir/build.make" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Vox/CMakeFiles/Vox.dir/cmake_clean.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Vox/CMakeFiles/Vox.dir/depend.internal" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Vox/CMakeFiles/Vox.dir/depend.make" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Vox/CMakeFiles/Vox.dir/flags.make" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Vox/CMakeFiles/Vox.dir/link.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Vox/CMakeFiles/Vox.dir/progress.make" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Vox/CMakeFiles/progress.marks" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Vox/Makefile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Vox/cmake_install.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/cmake_install.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/cmake_install.cmake" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1Z8hEzlzoAD8a6AiJnuOTaHt3hT" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\vini2003\vsprojects\C++\Vox" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="Vox" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Vox" TARGET_NAME="Vox" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Vox" RUN_TARGET_NAME="Vox">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="32bbc70b-b24c-4934-957b-2e03dd561bc3" name="Default Changelist" comment="" />
+      <created>1584226520786</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1584226520786</updated>
+      <workItem from="1584226523361" duration="225000" />
+      <workItem from="1584226786343" duration="721000" />
+      <workItem from="1584227606134" duration="85000" />
+      <workItem from="1584227710571" duration="4226000" />
+      <workItem from="1584271038085" duration="1854000" />
+      <workItem from="1584273276594" duration="838000" />
+      <workItem from="1584274125993" duration="1098000" />
+      <workItem from="1584275232904" duration="1069000" />
+    </task>
+    <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/shaders" />
+    </ignored-roots>
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="724" y="315" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1584228766868">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="724" y="315" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1920.1040@0.0.1920.1040" timestamp="1584228766868" />
+    <state width="433" height="646" key="DebuggerActiveHint" timestamp="1584275511065">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="433" height="646" key="DebuggerActiveHint/0.0.1920.1040@0.0.1920.1040" timestamp="1584275511065" />
+    <state x="740" y="274" key="FileChooserDialogImpl" timestamp="1584227589259">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="740" y="274" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1584227589259" />
+    <state width="1877" height="176" key="GridCell.Tab.0.bottom" timestamp="1584276217217">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="176" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1584276217217" />
+    <state width="1877" height="176" key="GridCell.Tab.0.center" timestamp="1584276217217">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="176" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1584276217217" />
+    <state width="1877" height="176" key="GridCell.Tab.0.left" timestamp="1584276217217">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="176" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1584276217217" />
+    <state width="1877" height="176" key="GridCell.Tab.0.right" timestamp="1584276217217">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="176" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1584276217217" />
+    <state width="1877" height="176" key="GridCell.Tab.1.bottom" timestamp="1584276217217">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="176" key="GridCell.Tab.1.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1584276217217" />
+    <state width="1877" height="176" key="GridCell.Tab.1.center" timestamp="1584276217217">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="176" key="GridCell.Tab.1.center/0.0.1920.1040@0.0.1920.1040" timestamp="1584276217217" />
+    <state width="1877" height="176" key="GridCell.Tab.1.left" timestamp="1584276217217">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="176" key="GridCell.Tab.1.left/0.0.1920.1040@0.0.1920.1040" timestamp="1584276217217" />
+    <state width="1877" height="176" key="GridCell.Tab.1.right" timestamp="1584276217217">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="176" key="GridCell.Tab.1.right/0.0.1920.1040@0.0.1920.1040" timestamp="1584276217217" />
+    <state x="461" y="162" key="SettingsEditor" timestamp="1584276302104">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="461" y="162" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1584276302104" />
+    <state x="636" y="344" key="com.intellij.ide.util.TipDialog" timestamp="1584275260654">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="636" y="344" key="com.intellij.ide.util.TipDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1584275260654" />
+    <state x="646" y="256" width="627" height="528" key="find.popup" timestamp="1584276207275">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="646" y="256" width="627" height="528" key="find.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1584276207275" />
+    <state x="616" y="240" key="run.anything.popup" timestamp="1584228316890">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="616" y="240" key="run.anything.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1584228316890" />
+  </component>
+</project>

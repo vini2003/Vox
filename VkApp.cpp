@@ -1,4 +1,6 @@
 #pragma once
+
+#include <cstring>
 #include "VkApp.hpp"
 #include "VkApi.hpp"
 
@@ -807,7 +809,7 @@ VkExtent2D VkApp::selectSwapExtent(const VkSurfaceCapabilitiesKHR& vkSurfaceCapa
 
 		glfwGetFramebufferSize(glfwWindow, &width, &height);
 
-		VkExtent2D vkExtentActual = { width, height };
+		VkExtent2D vkExtentActual = { static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
 
 		std::cout << "[Vulkan] Chose swap dimensions: " << vkExtentActual.width << " x " << vkExtentActual.height << "\n";
 		return vkExtentActual;
