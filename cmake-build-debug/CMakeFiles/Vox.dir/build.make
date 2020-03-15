@@ -56,76 +56,76 @@ include CMakeFiles/Vox.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/Vox.dir/flags.make
 
-CMakeFiles/Vox.dir/main.cpp.obj: CMakeFiles/Vox.dir/flags.make
-CMakeFiles/Vox.dir/main.cpp.obj: CMakeFiles/Vox.dir/includes_CXX.rsp
-CMakeFiles/Vox.dir/main.cpp.obj: ../main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\vini2003\vsprojects\C++\Vox\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/Vox.dir/main.cpp.obj"
-	C:\MinGW\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\Vox.dir\main.cpp.obj -c C:\Users\vini2003\vsprojects\C++\Vox\main.cpp
+CMakeFiles/Vox.dir/source/Main.cpp.obj: CMakeFiles/Vox.dir/flags.make
+CMakeFiles/Vox.dir/source/Main.cpp.obj: CMakeFiles/Vox.dir/includes_CXX.rsp
+CMakeFiles/Vox.dir/source/Main.cpp.obj: ../source/Main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\vini2003\vsprojects\C++\Vox\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/Vox.dir/source/Main.cpp.obj"
+	C:\MinGW\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\Vox.dir\source\Main.cpp.obj -c C:\Users\vini2003\vsprojects\C++\Vox\source\Main.cpp
 
-CMakeFiles/Vox.dir/main.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Vox.dir/main.cpp.i"
-	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\vini2003\vsprojects\C++\Vox\main.cpp > CMakeFiles\Vox.dir\main.cpp.i
+CMakeFiles/Vox.dir/source/Main.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Vox.dir/source/Main.cpp.i"
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\vini2003\vsprojects\C++\Vox\source\Main.cpp > CMakeFiles\Vox.dir\source\Main.cpp.i
 
-CMakeFiles/Vox.dir/main.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Vox.dir/main.cpp.s"
-	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\vini2003\vsprojects\C++\Vox\main.cpp -o CMakeFiles\Vox.dir\main.cpp.s
+CMakeFiles/Vox.dir/source/Main.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Vox.dir/source/Main.cpp.s"
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\vini2003\vsprojects\C++\Vox\source\Main.cpp -o CMakeFiles\Vox.dir\source\Main.cpp.s
 
-CMakeFiles/Vox.dir/VkApi.cpp.obj: CMakeFiles/Vox.dir/flags.make
-CMakeFiles/Vox.dir/VkApi.cpp.obj: CMakeFiles/Vox.dir/includes_CXX.rsp
-CMakeFiles/Vox.dir/VkApi.cpp.obj: ../VkApi.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\vini2003\vsprojects\C++\Vox\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/Vox.dir/VkApi.cpp.obj"
-	C:\MinGW\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\Vox.dir\VkApi.cpp.obj -c C:\Users\vini2003\vsprojects\C++\Vox\VkApi.cpp
+CMakeFiles/Vox.dir/source/vulkan/VkApi.cpp.obj: CMakeFiles/Vox.dir/flags.make
+CMakeFiles/Vox.dir/source/vulkan/VkApi.cpp.obj: CMakeFiles/Vox.dir/includes_CXX.rsp
+CMakeFiles/Vox.dir/source/vulkan/VkApi.cpp.obj: ../source/vulkan/VkApi.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\vini2003\vsprojects\C++\Vox\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/Vox.dir/source/vulkan/VkApi.cpp.obj"
+	C:\MinGW\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\Vox.dir\source\vulkan\VkApi.cpp.obj -c C:\Users\vini2003\vsprojects\C++\Vox\source\vulkan\VkApi.cpp
 
-CMakeFiles/Vox.dir/VkApi.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Vox.dir/VkApi.cpp.i"
-	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\vini2003\vsprojects\C++\Vox\VkApi.cpp > CMakeFiles\Vox.dir\VkApi.cpp.i
+CMakeFiles/Vox.dir/source/vulkan/VkApi.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Vox.dir/source/vulkan/VkApi.cpp.i"
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\vini2003\vsprojects\C++\Vox\source\vulkan\VkApi.cpp > CMakeFiles\Vox.dir\source\vulkan\VkApi.cpp.i
 
-CMakeFiles/Vox.dir/VkApi.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Vox.dir/VkApi.cpp.s"
-	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\vini2003\vsprojects\C++\Vox\VkApi.cpp -o CMakeFiles\Vox.dir\VkApi.cpp.s
+CMakeFiles/Vox.dir/source/vulkan/VkApi.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Vox.dir/source/vulkan/VkApi.cpp.s"
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\vini2003\vsprojects\C++\Vox\source\vulkan\VkApi.cpp -o CMakeFiles\Vox.dir\source\vulkan\VkApi.cpp.s
 
-CMakeFiles/Vox.dir/VkApp.cpp.obj: CMakeFiles/Vox.dir/flags.make
-CMakeFiles/Vox.dir/VkApp.cpp.obj: CMakeFiles/Vox.dir/includes_CXX.rsp
-CMakeFiles/Vox.dir/VkApp.cpp.obj: ../VkApp.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\vini2003\vsprojects\C++\Vox\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/Vox.dir/VkApp.cpp.obj"
-	C:\MinGW\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\Vox.dir\VkApp.cpp.obj -c C:\Users\vini2003\vsprojects\C++\Vox\VkApp.cpp
+CMakeFiles/Vox.dir/source/vulkan/VkApp.cpp.obj: CMakeFiles/Vox.dir/flags.make
+CMakeFiles/Vox.dir/source/vulkan/VkApp.cpp.obj: CMakeFiles/Vox.dir/includes_CXX.rsp
+CMakeFiles/Vox.dir/source/vulkan/VkApp.cpp.obj: ../source/vulkan/VkApp.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\vini2003\vsprojects\C++\Vox\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/Vox.dir/source/vulkan/VkApp.cpp.obj"
+	C:\MinGW\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\Vox.dir\source\vulkan\VkApp.cpp.obj -c C:\Users\vini2003\vsprojects\C++\Vox\source\vulkan\VkApp.cpp
 
-CMakeFiles/Vox.dir/VkApp.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Vox.dir/VkApp.cpp.i"
-	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\vini2003\vsprojects\C++\Vox\VkApp.cpp > CMakeFiles\Vox.dir\VkApp.cpp.i
+CMakeFiles/Vox.dir/source/vulkan/VkApp.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Vox.dir/source/vulkan/VkApp.cpp.i"
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\vini2003\vsprojects\C++\Vox\source\vulkan\VkApp.cpp > CMakeFiles\Vox.dir\source\vulkan\VkApp.cpp.i
 
-CMakeFiles/Vox.dir/VkApp.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Vox.dir/VkApp.cpp.s"
-	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\vini2003\vsprojects\C++\Vox\VkApp.cpp -o CMakeFiles\Vox.dir\VkApp.cpp.s
+CMakeFiles/Vox.dir/source/vulkan/VkApp.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Vox.dir/source/vulkan/VkApp.cpp.s"
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\vini2003\vsprojects\C++\Vox\source\vulkan\VkApp.cpp -o CMakeFiles\Vox.dir\source\vulkan\VkApp.cpp.s
 
-CMakeFiles/Vox.dir/VkUtils.cpp.obj: CMakeFiles/Vox.dir/flags.make
-CMakeFiles/Vox.dir/VkUtils.cpp.obj: CMakeFiles/Vox.dir/includes_CXX.rsp
-CMakeFiles/Vox.dir/VkUtils.cpp.obj: ../VkUtils.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\vini2003\vsprojects\C++\Vox\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/Vox.dir/VkUtils.cpp.obj"
-	C:\MinGW\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\Vox.dir\VkUtils.cpp.obj -c C:\Users\vini2003\vsprojects\C++\Vox\VkUtils.cpp
+CMakeFiles/Vox.dir/source/vulkan/VkUtils.cpp.obj: CMakeFiles/Vox.dir/flags.make
+CMakeFiles/Vox.dir/source/vulkan/VkUtils.cpp.obj: CMakeFiles/Vox.dir/includes_CXX.rsp
+CMakeFiles/Vox.dir/source/vulkan/VkUtils.cpp.obj: ../source/vulkan/VkUtils.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\vini2003\vsprojects\C++\Vox\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/Vox.dir/source/vulkan/VkUtils.cpp.obj"
+	C:\MinGW\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\Vox.dir\source\vulkan\VkUtils.cpp.obj -c C:\Users\vini2003\vsprojects\C++\Vox\source\vulkan\VkUtils.cpp
 
-CMakeFiles/Vox.dir/VkUtils.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Vox.dir/VkUtils.cpp.i"
-	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\vini2003\vsprojects\C++\Vox\VkUtils.cpp > CMakeFiles\Vox.dir\VkUtils.cpp.i
+CMakeFiles/Vox.dir/source/vulkan/VkUtils.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Vox.dir/source/vulkan/VkUtils.cpp.i"
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\vini2003\vsprojects\C++\Vox\source\vulkan\VkUtils.cpp > CMakeFiles\Vox.dir\source\vulkan\VkUtils.cpp.i
 
-CMakeFiles/Vox.dir/VkUtils.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Vox.dir/VkUtils.cpp.s"
-	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\vini2003\vsprojects\C++\Vox\VkUtils.cpp -o CMakeFiles\Vox.dir\VkUtils.cpp.s
+CMakeFiles/Vox.dir/source/vulkan/VkUtils.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Vox.dir/source/vulkan/VkUtils.cpp.s"
+	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\vini2003\vsprojects\C++\Vox\source\vulkan\VkUtils.cpp -o CMakeFiles\Vox.dir\source\vulkan\VkUtils.cpp.s
 
 # Object files for target Vox
 Vox_OBJECTS = \
-"CMakeFiles/Vox.dir/main.cpp.obj" \
-"CMakeFiles/Vox.dir/VkApi.cpp.obj" \
-"CMakeFiles/Vox.dir/VkApp.cpp.obj" \
-"CMakeFiles/Vox.dir/VkUtils.cpp.obj"
+"CMakeFiles/Vox.dir/source/Main.cpp.obj" \
+"CMakeFiles/Vox.dir/source/vulkan/VkApi.cpp.obj" \
+"CMakeFiles/Vox.dir/source/vulkan/VkApp.cpp.obj" \
+"CMakeFiles/Vox.dir/source/vulkan/VkUtils.cpp.obj"
 
 # External object files for target Vox
 Vox_EXTERNAL_OBJECTS =
 
-Vox.exe: CMakeFiles/Vox.dir/main.cpp.obj
-Vox.exe: CMakeFiles/Vox.dir/VkApi.cpp.obj
-Vox.exe: CMakeFiles/Vox.dir/VkApp.cpp.obj
-Vox.exe: CMakeFiles/Vox.dir/VkUtils.cpp.obj
+Vox.exe: CMakeFiles/Vox.dir/source/Main.cpp.obj
+Vox.exe: CMakeFiles/Vox.dir/source/vulkan/VkApi.cpp.obj
+Vox.exe: CMakeFiles/Vox.dir/source/vulkan/VkApp.cpp.obj
+Vox.exe: CMakeFiles/Vox.dir/source/vulkan/VkUtils.cpp.obj
 Vox.exe: CMakeFiles/Vox.dir/build.make
 Vox.exe: CMakeFiles/Vox.dir/linklibs.rsp
 Vox.exe: CMakeFiles/Vox.dir/objects1.rsp

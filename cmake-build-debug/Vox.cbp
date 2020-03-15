@@ -25,7 +25,7 @@
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add directory="C:/Users/vini2003/vsprojects/Libraries/glm"/>
-					<Add directory="C:/VulkanSDK/1.1.130.0/Include"/>
+					<Add directory="C:/Users/vini2003/vsprojects/Libraries/vulkan-sdk-1.1.130.0/include"/>
 					<Add directory="C:/Users/vini2003/vsprojects/Libraries/glfw-3.3.2-x86/include"/>
 					<Add directory="c:\mingw\bin\../lib/gcc/mingw32/9.2.0/include/c++"/>
 					<Add directory="c:\mingw\bin\../lib/gcc/mingw32/9.2.0/include/c++/mingw32"/>
@@ -49,7 +49,7 @@
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add directory="C:/Users/vini2003/vsprojects/Libraries/glm"/>
-					<Add directory="C:/VulkanSDK/1.1.130.0/Include"/>
+					<Add directory="C:/Users/vini2003/vsprojects/Libraries/vulkan-sdk-1.1.130.0/include"/>
 					<Add directory="C:/Users/vini2003/vsprojects/Libraries/glfw-3.3.2-x86/include"/>
 					<Add directory="c:\mingw\bin\../lib/gcc/mingw32/9.2.0/include/c++"/>
 					<Add directory="c:\mingw\bin\../lib/gcc/mingw32/9.2.0/include/c++/mingw32"/>
@@ -86,25 +86,25 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="C:/Users/vini2003/vsprojects/C++/Vox/VkApi.cpp">
+		<Unit filename="C:/Users/vini2003/vsprojects/C++/Vox/source/Main.cpp">
 			<Option target="Vox"/>
 		</Unit>
-		<Unit filename="C:/Users/vini2003/vsprojects/C++/Vox/VkApi.hpp">
+		<Unit filename="C:/Users/vini2003/vsprojects/C++/Vox/source/vulkan/VkApi.cpp">
 			<Option target="Vox"/>
 		</Unit>
-		<Unit filename="C:/Users/vini2003/vsprojects/C++/Vox/VkApp.cpp">
+		<Unit filename="C:/Users/vini2003/vsprojects/C++/Vox/source/vulkan/VkApi.hpp">
 			<Option target="Vox"/>
 		</Unit>
-		<Unit filename="C:/Users/vini2003/vsprojects/C++/Vox/VkApp.hpp">
+		<Unit filename="C:/Users/vini2003/vsprojects/C++/Vox/source/vulkan/VkApp.cpp">
 			<Option target="Vox"/>
 		</Unit>
-		<Unit filename="C:/Users/vini2003/vsprojects/C++/Vox/VkUtils.cpp">
+		<Unit filename="C:/Users/vini2003/vsprojects/C++/Vox/source/vulkan/VkApp.hpp">
 			<Option target="Vox"/>
 		</Unit>
-		<Unit filename="C:/Users/vini2003/vsprojects/C++/Vox/VkUtils.hpp">
+		<Unit filename="C:/Users/vini2003/vsprojects/C++/Vox/source/vulkan/VkUtils.cpp">
 			<Option target="Vox"/>
 		</Unit>
-		<Unit filename="C:/Users/vini2003/vsprojects/C++/Vox/main.cpp">
+		<Unit filename="C:/Users/vini2003/vsprojects/C++/Vox/source/vulkan/VkUtils.hpp">
 			<Option target="Vox"/>
 		</Unit>
 		<Unit filename="C:/Users/vini2003/vsprojects/C++/Vox/CMakeLists.txt">

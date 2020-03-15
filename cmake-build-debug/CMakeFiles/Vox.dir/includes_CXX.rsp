@@ -1,1 +1,1 @@
--IC:/Users/vini2003/vsprojects/Libraries/glm -IC:/VulkanSDK/1.1.130.0/Include -IC:/Users/vini2003/vsprojects/Libraries/glfw-3.3.2-x86/include 
+-IC:/Users/vini2003/vsprojects/Libraries/glm -IC:/Users/vini2003/vsprojects/Libraries/vulkan-sdk-1.1.130.0/include -IC:/Users/vini2003/vsprojects/Libraries/glfw-3.3.2-x86/include 

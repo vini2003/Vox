@@ -122,113 +122,113 @@ Vox/fast:
 	$(MAKE) -f CMakeFiles\Vox.dir\build.make CMakeFiles/Vox.dir/build
 .PHONY : Vox/fast
 
-VkApi.obj: VkApi.cpp.obj
+source/Main.obj: source/Main.cpp.obj
 
-.PHONY : VkApi.obj
-
-# target to build an object file
-VkApi.cpp.obj:
-	$(MAKE) -f CMakeFiles\Vox.dir\build.make CMakeFiles/Vox.dir/VkApi.cpp.obj
-.PHONY : VkApi.cpp.obj
-
-VkApi.i: VkApi.cpp.i
-
-.PHONY : VkApi.i
-
-# target to preprocess a source file
-VkApi.cpp.i:
-	$(MAKE) -f CMakeFiles\Vox.dir\build.make CMakeFiles/Vox.dir/VkApi.cpp.i
-.PHONY : VkApi.cpp.i
-
-VkApi.s: VkApi.cpp.s
-
-.PHONY : VkApi.s
-
-# target to generate assembly for a file
-VkApi.cpp.s:
-	$(MAKE) -f CMakeFiles\Vox.dir\build.make CMakeFiles/Vox.dir/VkApi.cpp.s
-.PHONY : VkApi.cpp.s
-
-VkApp.obj: VkApp.cpp.obj
-
-.PHONY : VkApp.obj
+.PHONY : source/Main.obj
 
 # target to build an object file
-VkApp.cpp.obj:
-	$(MAKE) -f CMakeFiles\Vox.dir\build.make CMakeFiles/Vox.dir/VkApp.cpp.obj
-.PHONY : VkApp.cpp.obj
+source/Main.cpp.obj:
+	$(MAKE) -f CMakeFiles\Vox.dir\build.make CMakeFiles/Vox.dir/source/Main.cpp.obj
+.PHONY : source/Main.cpp.obj
 
-VkApp.i: VkApp.cpp.i
+source/Main.i: source/Main.cpp.i
 
-.PHONY : VkApp.i
+.PHONY : source/Main.i
 
 # target to preprocess a source file
-VkApp.cpp.i:
-	$(MAKE) -f CMakeFiles\Vox.dir\build.make CMakeFiles/Vox.dir/VkApp.cpp.i
-.PHONY : VkApp.cpp.i
+source/Main.cpp.i:
+	$(MAKE) -f CMakeFiles\Vox.dir\build.make CMakeFiles/Vox.dir/source/Main.cpp.i
+.PHONY : source/Main.cpp.i
 
-VkApp.s: VkApp.cpp.s
+source/Main.s: source/Main.cpp.s
 
-.PHONY : VkApp.s
+.PHONY : source/Main.s
 
 # target to generate assembly for a file
-VkApp.cpp.s:
-	$(MAKE) -f CMakeFiles\Vox.dir\build.make CMakeFiles/Vox.dir/VkApp.cpp.s
-.PHONY : VkApp.cpp.s
+source/Main.cpp.s:
+	$(MAKE) -f CMakeFiles\Vox.dir\build.make CMakeFiles/Vox.dir/source/Main.cpp.s
+.PHONY : source/Main.cpp.s
 
-VkUtils.obj: VkUtils.cpp.obj
+source/vulkan/VkApi.obj: source/vulkan/VkApi.cpp.obj
 
-.PHONY : VkUtils.obj
+.PHONY : source/vulkan/VkApi.obj
 
 # target to build an object file
-VkUtils.cpp.obj:
-	$(MAKE) -f CMakeFiles\Vox.dir\build.make CMakeFiles/Vox.dir/VkUtils.cpp.obj
-.PHONY : VkUtils.cpp.obj
+source/vulkan/VkApi.cpp.obj:
+	$(MAKE) -f CMakeFiles\Vox.dir\build.make CMakeFiles/Vox.dir/source/vulkan/VkApi.cpp.obj
+.PHONY : source/vulkan/VkApi.cpp.obj
 
-VkUtils.i: VkUtils.cpp.i
+source/vulkan/VkApi.i: source/vulkan/VkApi.cpp.i
 
-.PHONY : VkUtils.i
+.PHONY : source/vulkan/VkApi.i
 
 # target to preprocess a source file
-VkUtils.cpp.i:
-	$(MAKE) -f CMakeFiles\Vox.dir\build.make CMakeFiles/Vox.dir/VkUtils.cpp.i
-.PHONY : VkUtils.cpp.i
+source/vulkan/VkApi.cpp.i:
+	$(MAKE) -f CMakeFiles\Vox.dir\build.make CMakeFiles/Vox.dir/source/vulkan/VkApi.cpp.i
+.PHONY : source/vulkan/VkApi.cpp.i
 
-VkUtils.s: VkUtils.cpp.s
+source/vulkan/VkApi.s: source/vulkan/VkApi.cpp.s
 
-.PHONY : VkUtils.s
+.PHONY : source/vulkan/VkApi.s
 
 # target to generate assembly for a file
-VkUtils.cpp.s:
-	$(MAKE) -f CMakeFiles\Vox.dir\build.make CMakeFiles/Vox.dir/VkUtils.cpp.s
-.PHONY : VkUtils.cpp.s
+source/vulkan/VkApi.cpp.s:
+	$(MAKE) -f CMakeFiles\Vox.dir\build.make CMakeFiles/Vox.dir/source/vulkan/VkApi.cpp.s
+.PHONY : source/vulkan/VkApi.cpp.s
 
-main.obj: main.cpp.obj
+source/vulkan/VkApp.obj: source/vulkan/VkApp.cpp.obj
 
-.PHONY : main.obj
+.PHONY : source/vulkan/VkApp.obj
 
 # target to build an object file
-main.cpp.obj:
-	$(MAKE) -f CMakeFiles\Vox.dir\build.make CMakeFiles/Vox.dir/main.cpp.obj
-.PHONY : main.cpp.obj
+source/vulkan/VkApp.cpp.obj:
+	$(MAKE) -f CMakeFiles\Vox.dir\build.make CMakeFiles/Vox.dir/source/vulkan/VkApp.cpp.obj
+.PHONY : source/vulkan/VkApp.cpp.obj
 
-main.i: main.cpp.i
+source/vulkan/VkApp.i: source/vulkan/VkApp.cpp.i
 
-.PHONY : main.i
+.PHONY : source/vulkan/VkApp.i
 
 # target to preprocess a source file
-main.cpp.i:
-	$(MAKE) -f CMakeFiles\Vox.dir\build.make CMakeFiles/Vox.dir/main.cpp.i
-.PHONY : main.cpp.i
+source/vulkan/VkApp.cpp.i:
+	$(MAKE) -f CMakeFiles\Vox.dir\build.make CMakeFiles/Vox.dir/source/vulkan/VkApp.cpp.i
+.PHONY : source/vulkan/VkApp.cpp.i
 
-main.s: main.cpp.s
+source/vulkan/VkApp.s: source/vulkan/VkApp.cpp.s
 
-.PHONY : main.s
+.PHONY : source/vulkan/VkApp.s
 
 # target to generate assembly for a file
-main.cpp.s:
-	$(MAKE) -f CMakeFiles\Vox.dir\build.make CMakeFiles/Vox.dir/main.cpp.s
-.PHONY : main.cpp.s
+source/vulkan/VkApp.cpp.s:
+	$(MAKE) -f CMakeFiles\Vox.dir\build.make CMakeFiles/Vox.dir/source/vulkan/VkApp.cpp.s
+.PHONY : source/vulkan/VkApp.cpp.s
+
+source/vulkan/VkUtils.obj: source/vulkan/VkUtils.cpp.obj
+
+.PHONY : source/vulkan/VkUtils.obj
+
+# target to build an object file
+source/vulkan/VkUtils.cpp.obj:
+	$(MAKE) -f CMakeFiles\Vox.dir\build.make CMakeFiles/Vox.dir/source/vulkan/VkUtils.cpp.obj
+.PHONY : source/vulkan/VkUtils.cpp.obj
+
+source/vulkan/VkUtils.i: source/vulkan/VkUtils.cpp.i
+
+.PHONY : source/vulkan/VkUtils.i
+
+# target to preprocess a source file
+source/vulkan/VkUtils.cpp.i:
+	$(MAKE) -f CMakeFiles\Vox.dir\build.make CMakeFiles/Vox.dir/source/vulkan/VkUtils.cpp.i
+.PHONY : source/vulkan/VkUtils.cpp.i
+
+source/vulkan/VkUtils.s: source/vulkan/VkUtils.cpp.s
+
+.PHONY : source/vulkan/VkUtils.s
+
+# target to generate assembly for a file
+source/vulkan/VkUtils.cpp.s:
+	$(MAKE) -f CMakeFiles\Vox.dir\build.make CMakeFiles/Vox.dir/source/vulkan/VkUtils.cpp.s
+.PHONY : source/vulkan/VkUtils.cpp.s
 
 # Help Target
 help:
@@ -239,18 +239,18 @@ help:
 	@echo ... Vox
 	@echo ... edit_cache
 	@echo ... rebuild_cache
-	@echo ... VkApi.obj
-	@echo ... VkApi.i
-	@echo ... VkApi.s
-	@echo ... VkApp.obj
-	@echo ... VkApp.i
-	@echo ... VkApp.s
-	@echo ... VkUtils.obj
-	@echo ... VkUtils.i
-	@echo ... VkUtils.s
-	@echo ... main.obj
-	@echo ... main.i
-	@echo ... main.s
+	@echo ... source/Main.obj
+	@echo ... source/Main.i
+	@echo ... source/Main.s
+	@echo ... source/vulkan/VkApi.obj
+	@echo ... source/vulkan/VkApi.i
+	@echo ... source/vulkan/VkApi.s
+	@echo ... source/vulkan/VkApp.obj
+	@echo ... source/vulkan/VkApp.i
+	@echo ... source/vulkan/VkApp.s
+	@echo ... source/vulkan/VkUtils.obj
+	@echo ... source/vulkan/VkUtils.i
+	@echo ... source/vulkan/VkUtils.s
 .PHONY : help
 
 

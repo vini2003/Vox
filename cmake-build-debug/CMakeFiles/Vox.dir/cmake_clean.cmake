@@ -1,8 +1,8 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/Vox.dir/VkApi.cpp.obj"
-  "CMakeFiles/Vox.dir/VkApp.cpp.obj"
-  "CMakeFiles/Vox.dir/VkUtils.cpp.obj"
-  "CMakeFiles/Vox.dir/main.cpp.obj"
+  "CMakeFiles/Vox.dir/source/Main.cpp.obj"
+  "CMakeFiles/Vox.dir/source/vulkan/VkApi.cpp.obj"
+  "CMakeFiles/Vox.dir/source/vulkan/VkApp.cpp.obj"
+  "CMakeFiles/Vox.dir/source/vulkan/VkUtils.cpp.obj"
   "Vox.exe"
   "Vox.exe.manifest"
   "Vox.pdb"
