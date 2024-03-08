@@ -1,7 +1,0 @@
-Package: imgui
-Feature: vulkan-binding
-Depends: vulkan
-Architecture: x64-windows
-Multi-Arch: same
-Description: Make available Vulkan binding
-Status: install ok half-installed
