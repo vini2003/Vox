@@ -1,4 +1,3 @@
-#pragma once
 #include "VkApi.hpp"
 #include "VkUtils.hpp"
 #include "glm/glm.hpp"

@@ -10,7 +10,9 @@ add_executable(${PROJECT_NAME} "${SOURCE_DIRECTORY}/Main.cpp" "${SOURCE_DIRECTOR
         "${SOURCE_DIRECTORY}/vulkan/VkUtils.cpp")
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/shaders shaders)
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/shaders shaders
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/textures textures
+)
 
 find_package(Vulkan REQUIRED)
 include_directories(${Vulkan_INCLUDE_DIRS})
@@ -24,3 +26,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE glm::glm)
 
 find_package(glfw3 CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
+
+find_package(Stb REQUIRED)
+target_include_directories(${PROJECT_NAME} PRIVATE ${Stb_INCLUDE_DIR})

@@ -1,4 +1,5 @@
 #pragma once
+
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -20,6 +21,8 @@
 #include <imgui_impl_vulkan.h>
 #include <imgui_impl_glfw.h>
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "VkUtils.hpp"
@@ -101,17 +104,35 @@ private:
 	VkBuffer vkIndexBuffer;
 	VkDeviceMemory vkIndexBufferMemory;
 
+	VkImage vkTextureImage;
+	VkDeviceMemory vkTextureImageMemory;
+	VkImageView vkTextureImageView;
+	VkSampler vkTextureSampler;
+
+	VkImage vkDepthImage;
+	VkDeviceMemory vkDepthImageMemory;
+	VkImageView vkDepthImageView;
+	VkSampler vkDepthSampler; // TODO
+
 	std::vector<VkBuffer> vkUniformBuffers;
 	std::vector<VkDeviceMemory> vkUniformBufferMemories;
 	std::vector<void*> vkUniformBuffersMapped;
 
 	std::vector<VkUtils::VkVertex> vkVertices = {
-		{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-		{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-		{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}},
-		{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}}
+		{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+		{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+		{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+		{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+
+		{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+		{{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+		{{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+		{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
 	};
-	std::vector<uint16_t> vkIndices = { 0, 1, 2, 2, 3, 0 };
+	std::vector<uint16_t> vkIndices = {
+		0, 1, 2, 2, 3, 0,
+		4, 5, 6, 6, 7, 4
+	};
 
 	std::vector<VkCommandBuffer> vkCommandBuffers;
 
@@ -127,8 +148,12 @@ private:
 	void buildDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 
 	VkResult buildBuffer(VkUtils::VkBufferBuildInfo buildInfo);
+	VkResult buildImage(uint32_t vkWidth, uint32_t vkHeight, VkFormat vkFormat, VkImageTiling vkTiling, VkImageUsageFlags vkUsage, VkMemoryPropertyFlags vkProperties, VkImage& vkImage, VkDeviceMemory& vkImageMemory);
+	VkResult buildImageView(VkImage vkImage, VkFormat vkFormat, VkImageAspectFlags vkAspect, VkImageView& vkImageView);
 
 	VkResult copyBuffer(VkBuffer vkSourceBuffer, VkBuffer vkDestinationBuffer, VkDeviceSize vkBufferSize);
+
+	VkResult copyBufferToImage(VkBuffer vkBuffer, VkImage vkImage, uint32_t vkWidth, uint32_t vkHeight);
 
 	VkResult buildPool(VkUtils::VkCommandPooolBuildInfo buildInfo);
 
@@ -154,6 +179,12 @@ private:
 
 	void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
+	VkFormat findSupportedFormat(const std::vector<VkFormat>& vkCandidates, VkImageTiling vkTiling, VkFormatFeatureFlags vkFeatures);
+
+	VkFormat findDepthFormat();
+
+	bool hasStencilComponent(VkFormat vkFormat);
+
 	void initGlfw();
 	void initVk();
 	void initImGui();
@@ -174,6 +205,10 @@ private:
 	void initVkUniformBuffers();
 	void initVkDescriptorPool();
 	void initVkDescriptorSets();
+	void initVkDepthResources();
+	void initVkTextureImage();
+	void initVkTextureImageView();
+	void initVkTextureSampler();
 	void initVkCommandBuffers();
 	void initVkSemaphores();
 
@@ -181,8 +216,9 @@ private:
 
 	void executeImmediateCommand(std::function<void(VkCommandBuffer cmd)> &&function);
 
-	void freeVkSwapchain();
+	void transitionVkImageLayout(VkImage vkImage, VkFormat vkFormat, VkImageLayout vkOldLayout, VkImageLayout vkNewLayout);
 
+	void freeVkSwapchain();
 	void resetVkSwapchain();
 
 	void draw();

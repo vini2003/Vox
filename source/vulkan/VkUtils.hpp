@@ -2,6 +2,8 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 #include <optional>
 #include <vector>
@@ -38,13 +40,13 @@ namespace VkUtils {
 	};
 
 	struct VkVertex {
-		glm::vec3 vkPos;
-
-		glm::vec3 vkCol;
+		glm::vec3 pos;
+		glm::vec3 color;
+		glm::vec2 texCoord;
 
 		static VkVertexInputBindingDescription getBindingDescription();
 		
-		static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescription();
+		static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescription();
 	};
 
 	struct VkTriangle {
