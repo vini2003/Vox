@@ -11,7 +11,7 @@ bool VkUtils::VkQueueFamilyIndices::isValid() {
 }
 
 bool VkUtils::VkSwapChainSupportDetails::isValid() {
-	return !vkSurfaceFormats.empty() && !vkPresentModes.empty();
+	return !surfaceFormats.empty() && !presentModes.empty();
 }
 
 VkVertexInputBindingDescription VkUtils::VkVertex::getBindingDescription() {

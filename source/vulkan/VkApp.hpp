@@ -40,13 +40,13 @@ class VkApp {
 public:
 	void run();
 
-	bool vkFramebufferResized = false;
+	bool framebufferResized = false;
 private:
-	const std::vector<const char*> vkValidationLayers = {
+	const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
 	};
 
-	const std::vector<const char*> vkDeviceExtensions = {
+	const std::vector<const char*> deviceExtensions = {
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME
 	};
 
@@ -207,7 +207,7 @@ private:
 
 	void executeImmediateCommand(std::function<void(VkCommandBuffer cmd)> &&function);
 
-	void transitionVkImageLayout(VkImage vkImage, VkFormat vkFormat, VkImageLayout vkOldLayout, VkImageLayout vkNewLayout);
+	void transitionVkImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 
 	void freeVkSwapchain();
 	void resetVkSwapchain();

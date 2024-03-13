@@ -21,26 +21,26 @@ namespace VkUtils {
 	};
 
 	struct VkSwapChainSupportDetails {
-		VkSurfaceCapabilitiesKHR vkSurfaceCapabilites;
-		std::vector<VkSurfaceFormatKHR> vkSurfaceFormats;
-		std::vector<VkPresentModeKHR> vkPresentModes;
+		VkSurfaceCapabilitiesKHR surfaceCapabilites;
+		std::vector<VkSurfaceFormatKHR> surfaceFormats;
+		std::vector<VkPresentModeKHR> presentModes;
 
 		bool isValid();
 	};
 
 	struct VkBufferBuildInfo {
-		VkDeviceSize vkSize;
-		VkBufferUsageFlags vkUsage;
-		VkMemoryPropertyFlags vkProperties;
-		VkBuffer* vkBuffer;
-		VkDeviceMemory* vkBufferMemory;
+		VkDeviceSize deviceSize;
+		VkBufferUsageFlags bufferUsageFlags;
+		VkMemoryPropertyFlags memoryPropertyFlags;
+		VkBuffer* buffer;
+		VkDeviceMemory* bufferMemory;
 	};
 
 	struct VkCommandPooolBuildInfo {
-		VkDevice vkLogicalDevice;
-		VkCommandPoolCreateInfo* vkCommandPoolInfo;
-		VkAllocationCallbacks* vkAllocationCallbacks;
-		VkCommandPool* vkCommandPool;
+		VkDevice logicalDevice;
+		VkCommandPoolCreateInfo* commandPoolInfo;
+		VkAllocationCallbacks* allocationCallbacks;
+		VkCommandPool* commandPool;
 	};
 
 	struct VkVertex {

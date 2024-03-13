@@ -15,7 +15,7 @@ void VkApp::initGlfw() {
 
 	glfwSetFramebufferSizeCallback(glfwWindow, [](GLFWwindow* window, int width, int height) {
 		auto* application = static_cast<VkApp*>(glfwGetWindowUserPointer(window));
-		application->vkFramebufferResized = true;
+		application->framebufferResized = true;
 	});
 }
 
@@ -46,7 +46,7 @@ void VkApp::initVk() {
 	initSyncObjects();
 }
 
-void VkApp::executeImmediateCommand(std::function<void(VkCommandBuffer cmd)> &&function) {
+void VkApp::executeImmediateCommand(std::function<void(VkCommandBuffer commandBuffer)> &&function) {
 	VkCommandBufferAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -77,15 +77,15 @@ void VkApp::executeImmediateCommand(std::function<void(VkCommandBuffer cmd)> &&f
 	vkFreeCommandBuffers(mainLogicalDevice, shortCommandPool, 1, &commandBuffer);
 }
 
-void VkApp::transitionVkImageLayout(VkImage vkImage, VkFormat vkFormat, VkImageLayout vkOldLayout, VkImageLayout vkNewLayout) {
-	executeImmediateCommand([&](VkCommandBuffer commandBuffer) {
+void VkApp::transitionVkImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) {
+	executeImmediateCommand([&](const auto& commandBuffer) {
 		VkImageMemoryBarrier barrier = {};
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-		barrier.oldLayout = vkOldLayout;
-		barrier.newLayout = vkNewLayout;
+		barrier.oldLayout = oldLayout;
+		barrier.newLayout = newLayout;
 		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		barrier.image = vkImage;
+		barrier.image = image;
 		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 		barrier.subresourceRange.baseMipLevel = 0;
 		barrier.subresourceRange.levelCount = 1;
@@ -95,13 +95,13 @@ void VkApp::transitionVkImageLayout(VkImage vkImage, VkFormat vkFormat, VkImageL
 		VkPipelineStageFlags sourceStage;
 		VkPipelineStageFlags destinationStage;
 
-		if (vkOldLayout == VK_IMAGE_LAYOUT_UNDEFINED && vkNewLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+		if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
 			barrier.srcAccessMask = 0;
 			barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 
 			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 			destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-		} else if (vkOldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && vkNewLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+		} else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
 			barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 			barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
@@ -191,8 +191,8 @@ void VkApp::initVkInstance() {
 	VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
 
 	if (enableValidationLayers) {
-		createInfo.enabledLayerCount = static_cast<uint32_t>(vkValidationLayers.size());
-		createInfo.ppEnabledLayerNames = vkValidationLayers.data();
+		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+		createInfo.ppEnabledLayerNames = validationLayers.data();
 
 		buildDebugMessengerCreateInfo(debugCreateInfo);
 		createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
@@ -247,21 +247,21 @@ void VkApp::initSurface() {
 }
 
 void VkApp::initPhysicalDevice() {
-	uint32_t vkDeviceCount = 0;
+	uint32_t deviceCount = 0;
 
-	if (VK_SUCCESS != vkEnumeratePhysicalDevices(vkInstance, &vkDeviceCount, nullptr) || vkDeviceCount == 0) {
+	if (VK_SUCCESS != vkEnumeratePhysicalDevices(vkInstance, &deviceCount, nullptr) || deviceCount == 0) {
 		throw std::runtime_error("Failed to find number of GPUs with Vulkan support!");
 	}
 
-	std::vector<VkPhysicalDevice> vkDevices(vkDeviceCount);
+	std::vector<VkPhysicalDevice> devices(deviceCount);
 
-	if (VK_SUCCESS != vkEnumeratePhysicalDevices(vkInstance, &vkDeviceCount, vkDevices.data())) {
+	if (VK_SUCCESS != vkEnumeratePhysicalDevices(vkInstance, &deviceCount, devices.data())) {
 		throw std::runtime_error("Failed to find GPUs with Vulkan support!");
 	}
 
-	for (const auto& vkPhysicalDevice : vkDevices) {
-		if (hasRequiredFeatures(vkPhysicalDevice)) {
-			mainPhysicalDevice = vkPhysicalDevice;
+	for (const auto& device : devices) {
+		if (hasRequiredFeatures(device)) {
+			mainPhysicalDevice = device;
 
 			VkPhysicalDeviceProperties deviceProperties;
 			vkGetPhysicalDeviceProperties(mainPhysicalDevice, &deviceProperties);
@@ -302,12 +302,12 @@ void VkApp::initLogicalDevice() {
 	createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
 	createInfo.pQueueCreateInfos = queueCreateInfos.data();
 	createInfo.pEnabledFeatures = &deviceFeatures;
-	createInfo.enabledExtensionCount = static_cast<uint32_t>(vkDeviceExtensions.size());
-	createInfo.ppEnabledExtensionNames = vkDeviceExtensions.data();
+	createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+	createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
 	if (enableValidationLayers) {
-		createInfo.enabledLayerCount = static_cast<uint32_t>(vkValidationLayers.size());
-		createInfo.ppEnabledLayerNames = vkValidationLayers.data();
+		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+		createInfo.ppEnabledLayerNames = validationLayers.data();
 	} else {
 		createInfo.enabledLayerCount = 0;
 	}
@@ -670,10 +670,10 @@ void VkApp::initCommandPools() {
 	commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
 	VkUtils::VkCommandPooolBuildInfo commandPoolBuildInfo = {};
-	commandPoolBuildInfo.vkLogicalDevice = mainLogicalDevice;
-	commandPoolBuildInfo.vkCommandPoolInfo = &commandPoolCreateInfo;
-	commandPoolBuildInfo.vkAllocationCallbacks = nullptr;
-	commandPoolBuildInfo.vkCommandPool = &commandPool;
+	commandPoolBuildInfo.logicalDevice = mainLogicalDevice;
+	commandPoolBuildInfo.commandPoolInfo = &commandPoolCreateInfo;
+	commandPoolBuildInfo.allocationCallbacks = nullptr;
+	commandPoolBuildInfo.commandPool = &commandPool;
 
 	if (VK_SUCCESS != buildPool(commandPoolBuildInfo)) {
 		throw std::runtime_error("[Vulkan] Failed to create command pool!");
@@ -681,7 +681,7 @@ void VkApp::initCommandPools() {
 
 	commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
 
-	commandPoolBuildInfo.vkCommandPool = &shortCommandPool;
+	commandPoolBuildInfo.commandPool = &shortCommandPool;
 
 	if (VK_SUCCESS != buildPool(commandPoolBuildInfo)) {
 		throw std::runtime_error("[Vulkan] Failed to create short command pool!");
@@ -693,31 +693,31 @@ void VkApp::initVertexBuffer() {
 	VkDeviceMemory stagingBufferMemory;
 
 	VkUtils::VkBufferBuildInfo bufferBuildInfo = {};
-	bufferBuildInfo.vkSize = sizeof(vertices[0]) * vertices.size();
-	bufferBuildInfo.vkUsage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-	bufferBuildInfo.vkProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-	bufferBuildInfo.vkBuffer = &stagingBuffer;
-	bufferBuildInfo.vkBufferMemory = &stagingBufferMemory;
+	bufferBuildInfo.deviceSize = sizeof(vertices[0]) * vertices.size();
+	bufferBuildInfo.bufferUsageFlags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+	bufferBuildInfo.memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+	bufferBuildInfo.buffer = &stagingBuffer;
+	bufferBuildInfo.bufferMemory = &stagingBufferMemory;
 
 	if (VK_SUCCESS != buildBuffer(bufferBuildInfo)) {
 		throw std::runtime_error("[Vulkan] Failed to create staging vertex buffer!");
 	}
 
 	void* data;
-	vkMapMemory(mainLogicalDevice, stagingBufferMemory, 0, bufferBuildInfo.vkSize, 0, &data);
-	memcpy(data, vertices.data(), bufferBuildInfo.vkSize);
+	vkMapMemory(mainLogicalDevice, stagingBufferMemory, 0, bufferBuildInfo.deviceSize, 0, &data);
+	memcpy(data, vertices.data(), bufferBuildInfo.deviceSize);
 	vkUnmapMemory(mainLogicalDevice, stagingBufferMemory);
 
-	bufferBuildInfo.vkUsage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-	bufferBuildInfo.vkProperties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-	bufferBuildInfo.vkBuffer = &vertexBuffer;
-	bufferBuildInfo.vkBufferMemory = &vertexBufferMemory;
+	bufferBuildInfo.bufferUsageFlags = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+	bufferBuildInfo.memoryPropertyFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+	bufferBuildInfo.buffer = &vertexBuffer;
+	bufferBuildInfo.bufferMemory = &vertexBufferMemory;
 
 	if (VK_SUCCESS != buildBuffer(bufferBuildInfo)) {
 		throw std::runtime_error("[Vulkan] Failed to create vertex buffer!");
 	}
 
-	copyBuffer(stagingBuffer, vertexBuffer, bufferBuildInfo.vkSize);
+	copyBuffer(stagingBuffer, vertexBuffer, bufferBuildInfo.deviceSize);
 
 	vkDestroyBuffer(mainLogicalDevice, stagingBuffer, nullptr);
 	vkFreeMemory(mainLogicalDevice, stagingBufferMemory, nullptr);
@@ -730,11 +730,11 @@ void VkApp::initIndexBuffer() {
 	VkDeviceMemory stagingBufferMemory;
 
 	VkUtils::VkBufferBuildInfo bufferBuildInfo = {};
-	bufferBuildInfo.vkSize = bufferSize;
-	bufferBuildInfo.vkUsage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-	bufferBuildInfo.vkProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-	bufferBuildInfo.vkBuffer = &stagingBuffer;
-	bufferBuildInfo.vkBufferMemory = &stagingBufferMemory;
+	bufferBuildInfo.deviceSize = bufferSize;
+	bufferBuildInfo.bufferUsageFlags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+	bufferBuildInfo.memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+	bufferBuildInfo.buffer = &stagingBuffer;
+	bufferBuildInfo.bufferMemory = &stagingBufferMemory;
 
 	if (VK_SUCCESS != buildBuffer(bufferBuildInfo)) {
 		throw std::runtime_error("[Vulkan] Failed to create staging index buffer!");
@@ -750,10 +750,10 @@ void VkApp::initIndexBuffer() {
 
 	vkUnmapMemory(mainLogicalDevice, stagingBufferMemory);
 
-	bufferBuildInfo.vkUsage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-	bufferBuildInfo.vkProperties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-	bufferBuildInfo.vkBuffer = &indexBuffer;
-	bufferBuildInfo.vkBufferMemory = &indexBufferMemory;
+	bufferBuildInfo.bufferUsageFlags = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+	bufferBuildInfo.memoryPropertyFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+	bufferBuildInfo.buffer = &indexBuffer;
+	bufferBuildInfo.bufferMemory = &indexBufferMemory;
 
 	if (VK_SUCCESS != buildBuffer(bufferBuildInfo)) {
 		throw std::runtime_error("[Vulkan] Failed to create index buffer!");
@@ -872,11 +872,11 @@ void VkApp::initTextureImage() {
 	VkDeviceMemory stagingBufferMemory;
 
 	VkUtils::VkBufferBuildInfo bufferBuildInfo = {};
-	bufferBuildInfo.vkSize = imageSize;
-	bufferBuildInfo.vkUsage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-	bufferBuildInfo.vkProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-	bufferBuildInfo.vkBuffer = &stagingBuffer;
-	bufferBuildInfo.vkBufferMemory = &stagingBufferMemory;
+	bufferBuildInfo.deviceSize = imageSize;
+	bufferBuildInfo.bufferUsageFlags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+	bufferBuildInfo.memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+	bufferBuildInfo.buffer = &stagingBuffer;
+	bufferBuildInfo.bufferMemory = &stagingBufferMemory;
 
 	if (VK_SUCCESS != buildBuffer(bufferBuildInfo)) {
 		throw std::runtime_error("[Vulkan] Failed to create staging texture buffer!");
@@ -953,11 +953,11 @@ void VkApp::initUniformBuffers() {
 		constexpr auto bufferSize = sizeof(UniformBufferObject);
 
 		VkUtils::VkBufferBuildInfo bufferBuildInfo = {};
-		bufferBuildInfo.vkSize = bufferSize;
-		bufferBuildInfo.vkUsage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-		bufferBuildInfo.vkProperties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-		bufferBuildInfo.vkBuffer = &uniformBuffers[i];
-		bufferBuildInfo.vkBufferMemory = &uniformBufferMemories[i];
+		bufferBuildInfo.deviceSize = bufferSize;
+		bufferBuildInfo.bufferUsageFlags = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+		bufferBuildInfo.memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+		bufferBuildInfo.buffer = &uniformBuffers[i];
+		bufferBuildInfo.bufferMemory = &uniformBufferMemories[i];
 
 		if (VK_SUCCESS != buildBuffer(bufferBuildInfo)) {
 			throw std::runtime_error("[Vulkan] Failed to create uniform buffer!");
@@ -1046,7 +1046,7 @@ bool VkApp::checkVkValidationLayers() {
 		std::cout << "[Vulkan] Available layer: " << layerName << "\n" << std::flush;
 	}
 
-	for (const auto& layerName : vkValidationLayers) {
+	for (const auto& layerName : validationLayers) {
 		if (std::ranges::find(availableLayerNames, layerName) == availableLayerNames.end()) {
 			std::cout << "[Vulkan] Validation layer verification failed.\n" << std::flush;
 			return false;
@@ -1087,11 +1087,11 @@ VkShaderModule VkApp::buildShaderModule(const std::vector<char>& rawShader) {
 VkResult VkApp::buildBuffer(VkUtils::VkBufferBuildInfo buildInfo) {
 	VkBufferCreateInfo bufferCreateInfo = {};
 	bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	bufferCreateInfo.size = buildInfo.vkSize;
-	bufferCreateInfo.usage = buildInfo.vkUsage;
+	bufferCreateInfo.size = buildInfo.deviceSize;
+	bufferCreateInfo.usage = buildInfo.bufferUsageFlags;
 	bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-	if (const auto result = vkCreateBuffer(mainLogicalDevice, &bufferCreateInfo, nullptr, buildInfo.vkBuffer);
+	if (const auto result = vkCreateBuffer(mainLogicalDevice, &bufferCreateInfo, nullptr, buildInfo.buffer);
 		result != VK_SUCCESS) {
 		std::cerr << "[Vulkan] Failed to create buffer!\n" << std::flush;
 		return result;
@@ -1100,14 +1100,14 @@ VkResult VkApp::buildBuffer(VkUtils::VkBufferBuildInfo buildInfo) {
 	std::cout << "[Vulkan] Buffer initialization succeeded.\n" << std::flush;
 
 	VkMemoryRequirements memRequirements;
-	vkGetBufferMemoryRequirements(mainLogicalDevice, *buildInfo.vkBuffer, &memRequirements);
+	vkGetBufferMemoryRequirements(mainLogicalDevice, *buildInfo.buffer, &memRequirements);
 
 	VkMemoryAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	allocInfo.allocationSize = memRequirements.size;
-	allocInfo.memoryTypeIndex = getMemoryType(memRequirements.memoryTypeBits, buildInfo.vkProperties);
+	allocInfo.memoryTypeIndex = getMemoryType(memRequirements.memoryTypeBits, buildInfo.memoryPropertyFlags);
 
-	if (const auto result = vkAllocateMemory(mainLogicalDevice, &allocInfo, nullptr, buildInfo.vkBufferMemory);
+	if (const auto result = vkAllocateMemory(mainLogicalDevice, &allocInfo, nullptr, buildInfo.bufferMemory);
 		result != VK_SUCCESS) {
 		std::cerr << "[Vulkan] Failed to allocate buffer memory!\n" << std::flush;
 		return result;
@@ -1115,7 +1115,7 @@ VkResult VkApp::buildBuffer(VkUtils::VkBufferBuildInfo buildInfo) {
 
 	std::cout << "[Vulkan] Buffer memory allocation succeeded.\n" << std::flush;
 
-	vkBindBufferMemory(mainLogicalDevice, *buildInfo.vkBuffer, *buildInfo.vkBufferMemory, 0);
+	vkBindBufferMemory(mainLogicalDevice, *buildInfo.buffer, *buildInfo.bufferMemory, 0);
 
 	return VK_SUCCESS;
 }
@@ -1182,7 +1182,7 @@ VkResult VkApp::buildImageView(VkImage image, VkFormat format, VkImageAspectFlag
 }
 
 void VkApp::copyBuffer(VkBuffer srcBuffer, VkBuffer destBuffer, VkDeviceSize bufferSize) {
-	executeImmediateCommand([&](VkCommandBuffer commandBuffer) {
+	executeImmediateCommand([&](const auto& commandBuffer) {
 		VkBufferCopy bufferCopy = {};
 		bufferCopy.srcOffset = 0;
 		bufferCopy.dstOffset = 0;
@@ -1193,7 +1193,7 @@ void VkApp::copyBuffer(VkBuffer srcBuffer, VkBuffer destBuffer, VkDeviceSize buf
 }
 
 VkResult VkApp::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) {
-	executeImmediateCommand([&](VkCommandBuffer commandBuffer) {
+	executeImmediateCommand([&](const auto& commandBuffer) {
 		VkBufferImageCopy bufferImageCopy = {};
 		bufferImageCopy.bufferOffset = 0;
 		bufferImageCopy.bufferRowLength = 0;
@@ -1223,7 +1223,7 @@ VkResult VkApp::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width
 }
 
 VkResult VkApp::buildPool(VkUtils::VkCommandPooolBuildInfo buildInfo) {
-	if (const auto result = vkCreateCommandPool(buildInfo.vkLogicalDevice, buildInfo.vkCommandPoolInfo, buildInfo.vkAllocationCallbacks, buildInfo.vkCommandPool);
+	if (const auto result = vkCreateCommandPool(buildInfo.logicalDevice, buildInfo.commandPoolInfo, buildInfo.allocationCallbacks, buildInfo.commandPool);
 		VK_SUCCESS != result) {
 		return result;
 	}
@@ -1310,7 +1310,7 @@ std::vector<const char*> VkApp::getGlfwExtensionsRequired() {
 VkUtils::VkSwapChainSupportDetails VkApp::getSwapChainSupport(VkPhysicalDevice physicalDevice) {
 	VkUtils::VkSwapChainSupportDetails swapChainSupportDetails;
 
-	if (VK_SUCCESS != vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &swapChainSupportDetails.vkSurfaceCapabilites)) {
+	if (VK_SUCCESS != vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &swapChainSupportDetails.surfaceCapabilites)) {
 		throw std::runtime_error("[Vulkan] Failed to get physical device surface capabilities!");
 	}
 
@@ -1320,9 +1320,9 @@ VkUtils::VkSwapChainSupportDetails VkApp::getSwapChainSupport(VkPhysicalDevice p
 	}
 
 	if (surfaceFormatCount != 0) {
-		swapChainSupportDetails.vkSurfaceFormats.resize(surfaceFormatCount);
+		swapChainSupportDetails.surfaceFormats.resize(surfaceFormatCount);
 
-		if (VK_SUCCESS != vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &surfaceFormatCount, swapChainSupportDetails.vkSurfaceFormats.data())) {
+		if (VK_SUCCESS != vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &surfaceFormatCount, swapChainSupportDetails.surfaceFormats.data())) {
 			throw std::runtime_error("[Vulkan] Failed to get physical device surface formats!");
 		}
 	}
@@ -1333,9 +1333,9 @@ VkUtils::VkSwapChainSupportDetails VkApp::getSwapChainSupport(VkPhysicalDevice p
 	}
 
 	if (vkPresentModeCount != 0) {
-		swapChainSupportDetails.vkPresentModes.resize(vkPresentModeCount);
+		swapChainSupportDetails.presentModes.resize(vkPresentModeCount);
 
-		if (VK_SUCCESS != vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &vkPresentModeCount, swapChainSupportDetails.vkPresentModes.data())) {
+		if (VK_SUCCESS != vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &vkPresentModeCount, swapChainSupportDetails.presentModes.data())) {
 			throw std::runtime_error("[Vulkan] Failed to get physical device surface present modes!");
 		}
 	}
@@ -1358,7 +1358,7 @@ bool VkApp::hasExtensionSupport(VkPhysicalDevice vkPhysicalDevice) {
 		throw std::runtime_error("[Vulkan] Failed to enumerate device extension properties!");
 	}
 
-	std::set<std::string> requiredExtensions(vkDeviceExtensions.begin(), vkDeviceExtensions.end());
+	std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
 
 	for (const auto& [extensionName, specVersion] : availableExtensions) {
 		requiredExtensions.erase(extensionName);
@@ -1541,21 +1541,21 @@ void VkApp::loadModel() {
 		throw std::runtime_error(warn + err);
 	}
 
-	std::unordered_map<VkUtils::VkVertex, uint32_t> uniqueVertices{};
+	std::unordered_map<VkUtils::VkVertex, uint32_t> uniqueVertices = {};
 
-	for (const auto& shape : shapes) {
-		for (const auto& index : shape.mesh.indices) {
-			VkUtils::VkVertex vertex{};
+	for (const auto& [name, mesh, lines, points] : shapes) {
+		for (const auto& [vertexIndex, normalIndex, texCoordIndex] : mesh.indices) {
+			VkUtils::VkVertex vertex = {};
 
 			vertex.pos = {
-				attrib.vertices[3 * index.vertex_index + 0],
-				attrib.vertices[3 * index.vertex_index + 1],
-				attrib.vertices[3 * index.vertex_index + 2]
+				attrib.vertices[3 * vertexIndex + 0],
+				attrib.vertices[3 * vertexIndex + 1],
+				attrib.vertices[3 * vertexIndex + 2]
 			};
 
 			vertex.texCoord = {
-				attrib.texcoords[2 * index.texcoord_index + 0],
-				1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
+				attrib.texcoords[2 * texCoordIndex + 0],
+				1.0f - attrib.texcoords[2 * texCoordIndex + 1]
 			};
 
 			vertex.color = {1.0f, 1.0f, 1.0f};
@@ -1643,8 +1643,8 @@ void VkApp::draw() {
 	presentInfo.pSwapchains = swapChains.data();
 	presentInfo.pImageIndices = &imageIndex;
 
-	if (const auto result = vkQueuePresentKHR(presentQueue, &presentInfo); result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || vkFramebufferResized) {
-		vkFramebufferResized = false;
+	if (const auto result = vkQueuePresentKHR(presentQueue, &presentInfo); result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
+		framebufferResized = false;
 		resetVkSwapchain();
 	} else if (result != VK_SUCCESS) {
 		throw std::runtime_error("[Vulkan] Failed to present swap chain image!");
