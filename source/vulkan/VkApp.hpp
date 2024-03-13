@@ -25,6 +25,8 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtc/matrix_transform.hpp>
 
+
+
 #include "VkUtils.hpp"
 
 #ifdef NDEBUG
@@ -34,9 +36,9 @@ const bool enableValidationLayers = true;
 #endif
 
 struct UniformBufferObject {
-	glm::mat4 model;
-	glm::mat4 view;
-	glm::mat4 proj;
+	alignas(16) glm::mat4 model;
+	alignas(16) glm::mat4 view;
+	alignas(16) glm::mat4 proj;
 };
 
 class VkApp {
@@ -57,6 +59,9 @@ private:
 
 	const int DEFAULT_WIDTH = 800;
 	const int DEFAULT_HEIGHT = 600;
+
+	const std::string MODEL_PATH = "models/viking_room.obj";
+	const std::string TEXTURE_PATH = "textures/viking_room.png";
 
 	const int MAX_FLAMES_IN_FLIGHT = 2;
 
@@ -118,21 +123,8 @@ private:
 	std::vector<VkDeviceMemory> vkUniformBufferMemories;
 	std::vector<void*> vkUniformBuffersMapped;
 
-	std::vector<VkUtils::VkVertex> vkVertices = {
-		{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-		{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-		{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-		{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-
-		{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-		{{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-		{{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-		{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
-	};
-	std::vector<uint16_t> vkIndices = {
-		0, 1, 2, 2, 3, 0,
-		4, 5, 6, 6, 7, 4
-	};
+	std::vector<VkUtils::VkVertex> vkVertices = {};
+	std::vector<uint32_t> vkIndices = {};
 
 	std::vector<VkCommandBuffer> vkCommandBuffers;
 
@@ -184,6 +176,8 @@ private:
 	VkFormat findDepthFormat();
 
 	bool hasStencilComponent(VkFormat vkFormat);
+
+	void loadModel();
 
 	void initGlfw();
 	void initVk();

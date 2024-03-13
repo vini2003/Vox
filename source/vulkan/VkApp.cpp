@@ -1,7 +1,11 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader.h>
+
 #include <cstring>
+#include <unordered_map>
 
 #include "VkApp.hpp"
 #include "VkApi.hpp"
@@ -36,6 +40,7 @@ void VkApp::initVk() {
 	initVkTextureImage();
 	initVkTextureImageView();
 	initVkTextureSampler();
+	loadModel();
 	initVkVertexBuffer();
 	initVkIndexBuffer();
 	initVkUniformBuffers();
@@ -289,7 +294,7 @@ void VkApp::initVkLogicalDevice() {
 	VkUtils::VkQueueFamilyIndices indices = getQueueFamilies(vkMainPhysicalDevice);
 
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-	std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+	std::set uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
 	float queuePriority = 1.0f;
 	for (uint32_t queueFamily : uniqueQueueFamilies) {
@@ -865,7 +870,7 @@ void VkApp::initVkTextureImage() {
 	int textureHeight;
 	int textureChannels;
 
-	stbi_uc* pixels = stbi_load("textures/texture.jpg", &textureWidht, &textureHeight, &textureChannels, STBI_rgb_alpha);
+	stbi_uc* pixels = stbi_load(TEXTURE_PATH.c_str(), &textureWidht, &textureHeight, &textureChannels, STBI_rgb_alpha);
 
 	VkDeviceSize vkImageSize = textureWidht * textureHeight * 4;
 
@@ -1230,7 +1235,7 @@ VkResult VkApp::buildPool(VkUtils::VkCommandPooolBuildInfo buildInfo) {
 
 VkSurfaceFormatKHR VkApp::selectSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& vkSurfaceFormatsAvailable) {
 	const auto it = std::ranges::find_if(vkSurfaceFormatsAvailable, [](const VkSurfaceFormatKHR& vkSurfaceFormatAvailable) {
-		return vkSurfaceFormatAvailable.format == VK_FORMAT_B8G8R8A8_UNORM && vkSurfaceFormatAvailable.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+		return vkSurfaceFormatAvailable.format == VK_FORMAT_B8G8R8A8_SRGB && vkSurfaceFormatAvailable.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
 	});
 
 	if (it != vkSurfaceFormatsAvailable.end()) {
@@ -1479,7 +1484,7 @@ void VkApp::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageInd
 	VkDeviceSize offsets[] = {0};
 
 	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-	vkCmdBindIndexBuffer(commandBuffer, vkIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+	vkCmdBindIndexBuffer(commandBuffer, vkIndexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
 	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipelineLayout, 0, 1, &vkDescriptorSets[currentFrame], 0, nullptr);
 
@@ -1521,6 +1526,47 @@ VkFormat VkApp::findDepthFormat() {
 
 bool VkApp::hasStencilComponent(VkFormat vkFormat) {
 	return vkFormat == VK_FORMAT_D32_SFLOAT_S8_UINT || vkFormat == VK_FORMAT_D24_UNORM_S8_UINT;
+}
+
+void VkApp::loadModel() {
+	tinyobj::attrib_t attrib;
+	std::vector<tinyobj::shape_t> shapes;
+	std::vector<tinyobj::material_t> materials;
+	std::string warn, err;
+
+	if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, MODEL_PATH.c_str())) {
+		throw std::runtime_error(warn + err);
+	}
+
+	std::unordered_map<VkUtils::VkVertex, uint32_t> uniqueVertices{};
+
+	for (const auto& shape : shapes) {
+		for (const auto& index : shape.mesh.indices) {
+			VkUtils::VkVertex vertex{};
+
+			vertex.pos = {
+				attrib.vertices[3 * index.vertex_index + 0],
+				attrib.vertices[3 * index.vertex_index + 1],
+				attrib.vertices[3 * index.vertex_index + 2]
+			};
+
+			vertex.texCoord = {
+				attrib.texcoords[2 * index.texcoord_index + 0],
+				1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
+			};
+
+			vertex.color = {1.0f, 1.0f, 1.0f};
+
+			vkVertices.push_back(vertex);
+
+			if (uniqueVertices.count(vertex) == 0) {
+				uniqueVertices[vertex] = static_cast<uint32_t>(vkVertices.size());
+				vkVertices.push_back(vertex);
+			}
+
+			vkIndices.push_back(uniqueVertices[vertex]);
+		}
+	}
 }
 
 void VkApp::draw() {

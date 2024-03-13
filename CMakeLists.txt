@@ -12,6 +12,7 @@ add_executable(${PROJECT_NAME} "${SOURCE_DIRECTORY}/Main.cpp" "${SOURCE_DIRECTOR
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/shaders shaders
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/textures textures
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/models models
 )
 
 find_package(Vulkan REQUIRED)
@@ -29,3 +30,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 
 find_package(Stb REQUIRED)
 target_include_directories(${PROJECT_NAME} PRIVATE ${Stb_INCLUDE_DIR})
+
+find_package(tinyobjloader CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE tinyobjloader::tinyobjloader)
