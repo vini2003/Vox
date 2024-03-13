@@ -4,20 +4,15 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
-#include <stdexcept>
 #include <functional>
-#include <cstdlib>
 #include <vector>
-#include <algorithm>
-#include <optional>
-#include <set>
 #include <filesystem>
-#include <fstream>
 #include <map>
-#include <array>
+#include <cstring>
+#include <unordered_map>
+#include <set>
 
 #include <imgui.h>
-#include <imgui_impl_win32.h>
 #include <imgui_impl_vulkan.h>
 #include <imgui_impl_glfw.h>
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
@@ -44,8 +39,6 @@ struct UniformBufferObject {
 class VkApp {
 public:
 	void run();
-
-	void vkApiPutTriangle(VkUtils::VkTriangle& vertices);
 
 	bool vkFramebufferResized = false;
 private:
@@ -76,62 +69,62 @@ private:
 
 	VkDebugUtilsMessengerEXT debugMessenger;
 
-	VkSurfaceKHR vkSurface;
+	VkSurfaceKHR surface;
 
-	VkPhysicalDevice vkMainPhysicalDevice = VK_NULL_HANDLE;
-	VkDevice vkMainLogicalDevice = VK_NULL_HANDLE;
+	VkPhysicalDevice mainPhysicalDevice = VK_NULL_HANDLE;
+	VkDevice mainLogicalDevice = VK_NULL_HANDLE;
 
-	VkQueue vkGraphicsQueue;
-	VkQueue vkPresentQueue;
+	VkQueue graphicsQueue;
+	VkQueue presentQueue;
 
-	VkSwapchainKHR vkSwapchain;
-	VkFormat vkSwapchainImageFormat;
-	VkExtent2D vkSwapchainExtent;
-	std::vector<VkImage> vkSwapchainImages;
-	std::vector<VkImageView> vkSwapchainImageViews;
-	std::vector<VkFramebuffer> vkSwapchainFramebuffers;
+	VkSwapchainKHR swapchain;
+	VkFormat swapchainImageFormat;
+	VkExtent2D swapchainExtent;
+	std::vector<VkImage> swapchainImages;
+	std::vector<VkImageView> swapchainImageViews;
+	std::vector<VkFramebuffer> swapchainFramebuffers;
 
-	VkRenderPass vkRenderPass;
+	VkRenderPass renderPass;
 
-	VkDescriptorSetLayout vkDescriptorSetLayout;
+	VkDescriptorSetLayout descriptorSetLayout;
 
-	std::vector<VkDescriptorSet> vkDescriptorSets;
+	std::vector<VkDescriptorSet> descriptorSets;
 
-	VkDescriptorPool vkDescriptorPool;
-	VkPipelineLayout vkPipelineLayout;
-	VkPipeline vkGraphicsPipeline;
+	VkDescriptorPool descriptorPool;
+	VkPipelineLayout pipelineLayout;
+	VkPipeline pipeline;
 
-	VkCommandPool vkCommandPool;
-	VkCommandPool vkCommandPoolShort;
+	VkCommandPool commandPool;
+	VkCommandPool shortCommandPool;
 
-	VkBuffer vkVertexBuffer;
-	VkDeviceMemory vkVertexBufferMemory;
-	VkBuffer vkIndexBuffer;
-	VkDeviceMemory vkIndexBufferMemory;
+	VkBuffer vertexBuffer;
+	VkDeviceMemory vertexBufferMemory;
+	VkBuffer indexBuffer;
+	VkDeviceMemory indexBufferMemory;
 
-	VkImage vkTextureImage;
-	VkDeviceMemory vkTextureImageMemory;
-	VkImageView vkTextureImageView;
-	VkSampler vkTextureSampler;
+	VkImage textureImage;
+	VkDeviceMemory textureImageMemory;
+	VkImageView textureImageView;
+	VkSampler textureSampler;
 
-	VkImage vkDepthImage;
-	VkDeviceMemory vkDepthImageMemory;
-	VkImageView vkDepthImageView;
-	VkSampler vkDepthSampler; // TODO
+	VkImage depthImage;
+	VkDeviceMemory depthImageMemory;
+	VkImageView depthImageView;
+	VkSampler depthSampler; // TODO
 
-	std::vector<VkBuffer> vkUniformBuffers;
-	std::vector<VkDeviceMemory> vkUniformBufferMemories;
-	std::vector<void*> vkUniformBuffersMapped;
+	std::vector<VkBuffer> uniformBuffers;
+	std::vector<VkDeviceMemory> uniformBufferMemories;
+	std::vector<void*> uniformBuffersMapped;
 
-	std::vector<VkUtils::VkVertex> vkVertices = {};
-	std::vector<uint32_t> vkIndices = {};
+	std::vector<VkUtils::VkVertex> vertices = {};
+	std::vector<uint32_t> indices = {};
 
-	std::vector<VkCommandBuffer> vkCommandBuffers;
+	std::vector<VkCommandBuffer> commandBuffers;
 
-	std::vector<VkSemaphore> vkImageAvailableSemaphores;
-	std::vector<VkSemaphore> vkRenderFinishedSemaphores;
+	std::vector<VkSemaphore> imageAvailableSemaphores;
+	std::vector<VkSemaphore> renderFinishedSemaphores;
 
-	std::vector<VkFence> vkInFlightFences;
+	std::vector<VkFence> inFlightFences;
 
 	bool checkVkValidationLayers();
 
@@ -140,38 +133,42 @@ private:
 	void buildDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 
 	VkResult buildBuffer(VkUtils::VkBufferBuildInfo buildInfo);
-	VkResult buildImage(uint32_t vkWidth, uint32_t vkHeight, VkFormat vkFormat, VkImageTiling vkTiling, VkImageUsageFlags vkUsage, VkMemoryPropertyFlags vkProperties, VkImage& vkImage, VkDeviceMemory& vkImageMemory);
-	VkResult buildImageView(VkImage vkImage, VkFormat vkFormat, VkImageAspectFlags vkAspect, VkImageView& vkImageView);
+	VkResult buildImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkImage& image, VkDeviceMemory& imageMemory);
+	VkResult buildImageView(VkImage image, VkFormat format, VkImageAspectFlags imageAspectFlags, VkImageView& imageView);
 
-	VkResult copyBuffer(VkBuffer vkSourceBuffer, VkBuffer vkDestinationBuffer, VkDeviceSize vkBufferSize);
+	void copyBuffer(VkBuffer srcBuffer, VkBuffer destBuffer, VkDeviceSize bufferSize);
 
-	VkResult copyBufferToImage(VkBuffer vkBuffer, VkImage vkImage, uint32_t vkWidth, uint32_t vkHeight);
+	VkResult copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 
 	VkResult buildPool(VkUtils::VkCommandPooolBuildInfo buildInfo);
 
-	VkSurfaceFormatKHR selectSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& vkSurfaceFormatsAvailable);
+	VkSurfaceFormatKHR selectSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& surfaceFormats);
 
-	VkPresentModeKHR selectSwapPresentMode(const std::vector<VkPresentModeKHR>& vkPresentModesAvailable);
+	VkPresentModeKHR selectSwapPresentMode(const std::vector<VkPresentModeKHR>& presentModes);
 
-	VkExtent2D selectSwapExtent(const VkSurfaceCapabilitiesKHR& vkSurfaceCapabilitiesAvailable);
+	VkExtent2D selectSwapExtent(const VkSurfaceCapabilitiesKHR& surfaceCapabilities);
 
 	std::vector<VkExtensionProperties> getVkExtensionsAvailable();
 
 	std::vector<const char*> getGlfwExtensionsRequired();
 
-	VkUtils::VkSwapChainSupportDetails getSwapChainSupport(VkPhysicalDevice vkPhysicalDevice);
+	VkUtils::VkSwapChainSupportDetails getSwapChainSupport(VkPhysicalDevice physicalDevice);
 
-	bool getExtensionSupport(VkPhysicalDevice vkPhysicalDevice);
+	bool hasSamplerAnisotropySupport(VkPhysicalDeviceFeatures physicalDeviceFeatures);
 
-	uint32_t getMemoryType(uint32_t vkTypeFilter, VkMemoryPropertyFlags vkFlagProperties);
+	bool hasExtensionSupport(VkPhysicalDevice vkPhysicalDevice);
 
-	VkUtils::VkQueueFamilyIndices getQueueFamilies(VkPhysicalDevice vkPhysicalDevice);
+	bool hasRequiredFeatures(VkPhysicalDevice physicalDevice);
+
+	uint32_t getMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags memoryPropertyFlags);
+
+	VkUtils::VkQueueFamilyIndices getQueueFamilies(VkPhysicalDevice physicalDevice);
 
 	std::map<std::string, std::vector<char>> getShaders();
 
 	void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
-	VkFormat findSupportedFormat(const std::vector<VkFormat>& vkCandidates, VkImageTiling vkTiling, VkFormatFeatureFlags vkFeatures);
+	VkFormat findSupportedFormat(const std::vector<VkFormat>& formats, VkImageTiling imageTiling, VkFormatFeatureFlags formatFatureFlags);
 
 	VkFormat findDepthFormat();
 
@@ -181,30 +178,30 @@ private:
 
 	void initGlfw();
 	void initVk();
-	void initImGui();
 	void initVkInstance();
-	void initVkDebugMessenger();
-	void initVkSurface();
-	void initVkPhysicalDevice();
-	void initVkLogicalDevice();
-	void initVkSwapchain();
-	void initVkImageViews();
-	void initVkRenderPass();
-	void initVkDescriptorSetLayout();
-	void initVkGraphicsPipeline();
-	void initVkFramebuffers();
-	void initVkCommandPools();
-	void initVkVertexBuffer();
-	void initVkIndexBuffer();
-	void initVkUniformBuffers();
-	void initVkDescriptorPool();
-	void initVkDescriptorSets();
-	void initVkDepthResources();
-	void initVkTextureImage();
-	void initVkTextureImageView();
-	void initVkTextureSampler();
-	void initVkCommandBuffers();
-	void initVkSemaphores();
+	void initImGui();
+	void initDebugMessenger();
+	void initSurface();
+	void initPhysicalDevice();
+	void initLogicalDevice();
+	void initSwapchain();
+	void initImageViews();
+	void initRenderPass();
+	void initDescriptorSetLayout();
+	void initPipeline();
+	void initFramebuffers();
+	void initCommandPools();
+	void initVertexBuffer();
+	void initIndexBuffer();
+	void initUniformBuffers();
+	void initDescriptorPool();
+	void initDescriptorSets();
+	void initDepthResources();
+	void initTextureImage();
+	void initTextureImageView();
+	void initTextureSampler();
+	void initCommandBuffers();
+	void initSyncObjects();
 
 	void updateVkUniformBuffer(uint32_t currentImage);
 
