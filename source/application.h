@@ -20,6 +20,7 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "shaders.h"
 #include "util.h"
 
 #ifdef NDEBUG
@@ -59,6 +60,8 @@ private:
 	const char* NAME = "Vulkan";
 	const char* ENGINE = "None";
 
+	std::vector<std::string> shaders = { "obj", "obj_red" };
+
 	uint32_t currentFrame = 0;
 
 	GLFWwindow* glfwWindow;
@@ -84,13 +87,14 @@ private:
 
 	VkRenderPass renderPass;
 
-	VkDescriptorSetLayout descriptorSetLayout;
+	std::map<std::string, VkDescriptorSetLayout> descriptorSetLayouts;
 
-	std::vector<VkDescriptorSet> descriptorSets;
+	std::map<std::string, std::vector<VkDescriptorSet>> descriptorSets;
 
 	VkDescriptorPool descriptorPool;
-	VkPipelineLayout pipelineLayout;
-	VkPipeline pipeline;
+
+	std::map<std::string, VkPipelineLayout> pipelineLayouts;
+	std::map<std::string, VkPipeline> pipelines;
 
 	VkCommandPool commandPool;
 	VkCommandPool shortCommandPool;
