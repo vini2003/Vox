@@ -20,9 +20,7 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtc/matrix_transform.hpp>
 
-
-
-#include "VkUtils.hpp"
+#include "util.h"
 
 #ifdef NDEBUG
 const bool enableValidationLayers = false;
@@ -36,7 +34,7 @@ struct UniformBufferObject {
 	alignas(16) glm::mat4 proj;
 };
 
-class VkApp {
+class Application {
 public:
 	void run();
 

@@ -5,9 +5,10 @@ set(CMAKE_CXX_STANDARD 26)
 set(PROJECT_NAME Vox)
 set(SOURCE_DIRECTORY "source")
 
-add_executable(${PROJECT_NAME} "${SOURCE_DIRECTORY}/Main.cpp"
-        "${SOURCE_DIRECTORY}/vulkan/VkApp.cpp"
-        "${SOURCE_DIRECTORY}/vulkan/VkUtils.cpp")
+add_executable(${PROJECT_NAME} "${SOURCE_DIRECTORY}/main.cpp"
+        "${SOURCE_DIRECTORY}/application.cpp"
+        "${SOURCE_DIRECTORY}/util.cpp"
+        "${SOURCE_DIRECTORY}/shaders.cpp")
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/shaders shaders

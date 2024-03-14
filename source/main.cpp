@@ -1,7 +1,7 @@
-#include "vulkan/VkApp.hpp"
+#include "application.h"
 
 int main() {
-	VkApp application;
+	Application application;
 
 	try {
 		application.run();

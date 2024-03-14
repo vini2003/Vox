@@ -4,7 +4,7 @@
 #include <vector>
 #include <array>
 
-#include "VkUtils.hpp"
+#include "util.h"
 
 bool VkUtils::VkQueueFamilyIndices::isValid() {
 	return graphicsFamily.has_value() && presentFamily.has_value();
