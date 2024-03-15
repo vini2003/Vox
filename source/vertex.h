@@ -56,37 +56,50 @@ template<>
 constexpr VkFormat toVkFormat<glm::dvec4>() { return VK_FORMAT_R64G64B64A64_SFLOAT; }
 
 namespace vox {
-    template<size_t Offset, typename Type>
     struct VertexAttribute {
-        using type = Type;
-        static constexpr size_t offset = Offset;
+        size_t offset;
+        VkFormat format;
     };
 
-    class Vertex {
+    template<typename Derived>
+    class VertexBase {
+    public:
+        static VkVertexInputBindingDescription getBindingDescription() {
+            return {
+                .binding = 0, // TODO: Update this to use the correct binding.
+                .stride = sizeof(Derived),
+                .inputRate = VK_VERTEX_INPUT_RATE_VERTEX
+            };
+        }
+
+        static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions() {
+            const auto& attributes = Derived::attributes;
+
+            std::vector<VkVertexInputAttributeDescription> descriptions;
+
+            for (auto i = 0; i < attributes.size(); ++i) {
+                descriptions.push_back({
+                    .location = static_cast<uint32_t>(i),
+                    .binding = 0, // TODO: Update this to use the correct binding.
+                    .format = attributes[i].format,
+                    .offset = static_cast<uint32_t>(attributes[i].offset) // TODO: Check if we need to static_cast.
+                });
+            }
+            return descriptions;
+        }
+    };
+
+    class Vertex : public VertexBase<Vertex> {
     public:
         glm::vec3 pos;
         glm::vec3 color;
         glm::vec2 texCoord;
 
-        static VkVertexInputBindingDescription getBindingDescription();
-
-        static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
-
-        bool operator==(const Vertex& other) const;
-    };
-
-    template<typename V>
-    struct VertexTraits;
-
-    template<>
-    struct VertexTraits<Vertex> {
-        using Attributes = std::tuple<
-            VertexAttribute<offsetof(Vertex, pos), glm::vec3>,
-            VertexAttribute<offsetof(Vertex, color), glm::vec3>,
-            VertexAttribute<offsetof(Vertex, texCoord), glm::vec3>
-        >;
-
-        static constexpr size_t count = std::tuple_size_v<Attributes>;
+        static constexpr std::array<VertexAttribute, 3> attributes = {{
+            {offsetof(Vertex, pos), toVkFormat<glm::vec3>()},
+            {offsetof(Vertex, color), toVkFormat<glm::vec3>()},
+            {offsetof(Vertex, texCoord), toVkFormat<glm::vec2>()}
+        }};
     };
 }
 

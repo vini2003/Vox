@@ -6,21 +6,7 @@
 
 #include "application.h"
 
-void Shader::buildVertexShaderModule(VkDevice device) {
-    if (this->vertexShaderCode.has_value()) {
-        this->vertexShaderModule = application->buildShaderModule(this->vertexShaderCode.value());
-    } else {
-        throw std::runtime_error("[Shader] Vertex shader code not present! ID: " + this->id);
-    }
-}
 
-void Shader::buildFragmentShaderModule(VkDevice device) {
-    if (this->fragmentShaderCode.has_value()) {
-        this->fragmentShaderModule = application->buildShaderModule(this->fragmentShaderCode.value());
-    } else {
-        throw std::runtime_error("[Shader] Fragment shader code not present! ID: " + this->id);
-    }
-}
 
 VkVertexInputBindingDescription Shader::getBindingDescription() {
     VkVertexInputBindingDescription bindingDescription = {};
