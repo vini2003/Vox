@@ -40,7 +40,7 @@ public:
 	void run();
 
 	bool framebufferResized = false;
-private:
+
 	const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
 	};
@@ -118,7 +118,7 @@ private:
 	std::vector<VkDeviceMemory> uniformBufferMemories;
 	std::vector<void*> uniformBuffersMapped;
 
-	std::vector<VkUtils::VkVertex> vertices = {};
+	std::vector<vox::Vertex> vertices = {};
 	std::vector<uint32_t> indices = {};
 
 	std::vector<VkCommandBuffer> commandBuffers;
@@ -134,7 +134,7 @@ private:
 
 	void buildDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 
-	VkResult buildBuffer(VkUtils::VkBufferBuildInfo buildInfo);
+	VkResult buildBuffer(vox::BufferBuildInfo buildInfo);
 	VkResult buildImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkImage& image, VkDeviceMemory& imageMemory);
 	VkResult buildImageView(VkImage image, VkFormat format, VkImageAspectFlags imageAspectFlags, VkImageView& imageView);
 
@@ -142,7 +142,7 @@ private:
 
 	VkResult copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 
-	VkResult buildPool(VkUtils::VkCommandPooolBuildInfo buildInfo);
+	VkResult buildPool(vox::CommandPooolBuildInfo buildInfo);
 
 	VkSurfaceFormatKHR selectSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& surfaceFormats);
 
@@ -154,7 +154,7 @@ private:
 
 	std::vector<const char*> getGlfwExtensionsRequired();
 
-	VkUtils::VkSwapChainSupportDetails getSwapChainSupport(VkPhysicalDevice physicalDevice);
+	vox::SwapChainSupportDetails getSwapChainSupport(VkPhysicalDevice physicalDevice);
 
 	bool hasSamplerAnisotropySupport(VkPhysicalDeviceFeatures physicalDeviceFeatures);
 
@@ -164,7 +164,7 @@ private:
 
 	uint32_t getMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags memoryPropertyFlags);
 
-	VkUtils::VkQueueFamilyIndices getQueueFamilies(VkPhysicalDevice physicalDevice);
+	vox::QueueFamilyIndices getQueueFamilies(VkPhysicalDevice physicalDevice);
 
 	std::map<std::string, std::vector<char>> getShaders();
 

@@ -231,7 +231,7 @@ void Application::initDebugMessenger() {
 	VkDebugUtilsMessengerCreateInfoEXT createInfo;
 	buildDebugMessengerCreateInfo(createInfo);
 
-	if (VK_SUCCESS != VkUtils::createDebugUtilsMessengerEXT(vkInstance, &createInfo, nullptr, &debugMessenger)) {
+	if (VK_SUCCESS != vox::createDebugUtilsMessengerEXT(vkInstance, &createInfo, nullptr, &debugMessenger)) {
 		throw std::runtime_error("Failed to set up debug messenger!");
 	}
 
@@ -557,8 +557,8 @@ void Application::initPipeline() {
 		VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo = {};
 		vertexInputStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 
-		const auto vertexBindingDescription = VkUtils::VkVertex::getBindingDescription();
-		const auto vertexAttributeDescription = VkUtils::VkVertex::getAttributeDescription();
+		const auto vertexBindingDescription = vox::Vertex::getBindingDescription();
+		const auto vertexAttributeDescription = vox::Vertex::getAttributeDescription();
 
 		vertexInputStateCreateInfo.vertexBindingDescriptionCount = 1;
 		vertexInputStateCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexAttributeDescription.size());
@@ -719,7 +719,7 @@ void Application::initCommandPools() {
 	commandPoolCreateInfo.queueFamilyIndex = graphicsFamily.value();
 	commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
-	VkUtils::VkCommandPooolBuildInfo commandPoolBuildInfo = {};
+	vox::CommandPooolBuildInfo commandPoolBuildInfo = {};
 	commandPoolBuildInfo.logicalDevice = mainLogicalDevice;
 	commandPoolBuildInfo.commandPoolInfo = &commandPoolCreateInfo;
 	commandPoolBuildInfo.allocationCallbacks = nullptr;
@@ -742,7 +742,7 @@ void Application::initVertexBuffer() {
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
 
-	VkUtils::VkBufferBuildInfo bufferBuildInfo = {};
+	vox::BufferBuildInfo bufferBuildInfo = {};
 	bufferBuildInfo.deviceSize = sizeof(vertices[0]) * vertices.size();
 	bufferBuildInfo.bufferUsageFlags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 	bufferBuildInfo.memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
@@ -779,7 +779,7 @@ void Application::initIndexBuffer() {
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
 
-	VkUtils::VkBufferBuildInfo bufferBuildInfo = {};
+	vox::BufferBuildInfo bufferBuildInfo = {};
 	bufferBuildInfo.deviceSize = bufferSize;
 	bufferBuildInfo.bufferUsageFlags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 	bufferBuildInfo.memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
@@ -931,7 +931,7 @@ void Application::initTextureImage() {
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
 
-	VkUtils::VkBufferBuildInfo bufferBuildInfo = {};
+	vox::BufferBuildInfo bufferBuildInfo = {};
 	bufferBuildInfo.deviceSize = imageSize;
 	bufferBuildInfo.bufferUsageFlags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 	bufferBuildInfo.memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
@@ -1012,7 +1012,7 @@ void Application::initUniformBuffers() {
 	for (size_t i = 0; i < swapchainImages.size(); i++) {
 		constexpr auto bufferSize = sizeof(UniformBufferObject);
 
-		VkUtils::VkBufferBuildInfo bufferBuildInfo = {};
+		vox::BufferBuildInfo bufferBuildInfo = {};
 		bufferBuildInfo.deviceSize = bufferSize;
 		bufferBuildInfo.bufferUsageFlags = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 		bufferBuildInfo.memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
@@ -1144,7 +1144,7 @@ VkShaderModule Application::buildShaderModule(const std::vector<char>& rawShader
 	return module;
 }
 
-VkResult Application::buildBuffer(VkUtils::VkBufferBuildInfo buildInfo) {
+VkResult Application::buildBuffer(vox::BufferBuildInfo buildInfo) {
 	VkBufferCreateInfo bufferCreateInfo = {};
 	bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 	bufferCreateInfo.size = buildInfo.deviceSize;
@@ -1282,7 +1282,7 @@ VkResult Application::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t
 	return VK_SUCCESS;
 }
 
-VkResult Application::buildPool(VkUtils::VkCommandPooolBuildInfo buildInfo) {
+VkResult Application::buildPool(vox::CommandPooolBuildInfo buildInfo) {
 	if (const auto result = vkCreateCommandPool(buildInfo.logicalDevice, buildInfo.commandPoolInfo, buildInfo.allocationCallbacks, buildInfo.commandPool);
 		VK_SUCCESS != result) {
 		return result;
@@ -1367,8 +1367,8 @@ std::vector<const char*> Application::getGlfwExtensionsRequired() {
 	return extensions;
 }
 
-VkUtils::VkSwapChainSupportDetails Application::getSwapChainSupport(VkPhysicalDevice physicalDevice) {
-	VkUtils::VkSwapChainSupportDetails swapChainSupportDetails;
+vox::SwapChainSupportDetails Application::getSwapChainSupport(VkPhysicalDevice physicalDevice) {
+	vox::SwapChainSupportDetails swapChainSupportDetails;
 
 	if (VK_SUCCESS != vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &swapChainSupportDetails.surfaceCapabilites)) {
 		throw std::runtime_error("[Vulkan] Failed to get physical device surface capabilities!");
@@ -1455,8 +1455,8 @@ uint32_t Application::getMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags m
 	throw std::runtime_error("[Vulkan] Failed to find suitable memory type!");
 }
 
-VkUtils::VkQueueFamilyIndices Application::getQueueFamilies(VkPhysicalDevice physicalDevice) {
-	VkUtils::VkQueueFamilyIndices queueFamilyIndices;
+vox::QueueFamilyIndices Application::getQueueFamilies(VkPhysicalDevice physicalDevice) {
+	vox::QueueFamilyIndices queueFamilyIndices;
 
 	uint32_t familyCount = 0;
 	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &familyCount, nullptr);
@@ -1608,11 +1608,11 @@ void Application::loadModel() {
 		throw std::runtime_error(warn + err);
 	}
 
-	std::unordered_map<VkUtils::VkVertex, uint32_t> uniqueVertices = {};
+	std::unordered_map<vox::Vertex, uint32_t> uniqueVertices = {};
 
 	for (const auto& [name, mesh, lines, points] : shapes) {
 		for (const auto& [vertexIndex, normalIndex, texCoordIndex] : mesh.indices) {
-			VkUtils::VkVertex vertex = {};
+			vox::Vertex vertex = {};
 
 			vertex.pos = {
 				attrib.vertices[3 * vertexIndex + 0],
@@ -1785,7 +1785,7 @@ void Application::free() {
     vkDestroySurfaceKHR(vkInstance, surface, nullptr);
 
     if (enableValidationLayers) {
-        VkUtils::destroyDebugUtilsMessengerEXT(vkInstance, debugMessenger, nullptr); // Adjust based on your debug messenger creation method
+        vox::destroyDebugUtilsMessengerEXT(vkInstance, debugMessenger, nullptr); // Adjust based on your debug messenger creation method
     }
     vkDestroyInstance(vkInstance, nullptr);
 

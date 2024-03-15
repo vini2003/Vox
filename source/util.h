@@ -12,15 +12,15 @@
 #include <optional>
 #include <vector>
 
-namespace VkUtils {
-	struct VkQueueFamilyIndices {
+namespace vox {
+	struct QueueFamilyIndices {
 		std::optional<uint32_t> graphicsFamily;
 		std::optional<uint32_t> presentFamily;
 
 		bool isValid();
 	};
 
-	struct VkSwapChainSupportDetails {
+	struct SwapChainSupportDetails {
 		VkSurfaceCapabilitiesKHR surfaceCapabilites;
 		std::vector<VkSurfaceFormatKHR> surfaceFormats;
 		std::vector<VkPresentModeKHR> presentModes;
@@ -28,7 +28,7 @@ namespace VkUtils {
 		bool isValid();
 	};
 
-	struct VkBufferBuildInfo {
+	struct BufferBuildInfo {
 		VkDeviceSize deviceSize;
 		VkBufferUsageFlags bufferUsageFlags;
 		VkMemoryPropertyFlags memoryPropertyFlags;
@@ -36,40 +36,19 @@ namespace VkUtils {
 		VkDeviceMemory* bufferMemory;
 	};
 
-	struct VkCommandPooolBuildInfo {
+	struct CommandPooolBuildInfo {
 		VkDevice logicalDevice;
 		VkCommandPoolCreateInfo* commandPoolInfo;
 		VkAllocationCallbacks* allocationCallbacks;
 		VkCommandPool* commandPool;
 	};
 
-	struct VkVertex {
-		glm::vec3 pos;
-		glm::vec3 color;
-		glm::vec2 texCoord;
 
-		static VkVertexInputBindingDescription getBindingDescription();
-		
-		static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescription();
 
-		bool operator==(const VkVertex& other) const;
-	};
 
-	struct VkTriangle {
-		VkVertex vA, vB, vC;
-	};
 
 	VkResult createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
 
 	void destroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
 }
 
-namespace std {
-	template<> struct hash<VkUtils::VkVertex> {
-		size_t operator()(VkUtils::VkVertex const& vertex) const {
-			return ((hash<glm::vec3>()(vertex.pos) ^
-				   (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^
-				   (hash<glm::vec2>()(vertex.texCoord) << 1);
-		}
-	};
-}

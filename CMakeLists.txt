@@ -12,6 +12,8 @@ add_executable(${PROJECT_NAME} "${SOURCE_DIRECTORY}/main.cpp"
         "${SOURCE_DIRECTORY}/util.h"
         "${SOURCE_DIRECTORY}/shaders.cpp"
         "${SOURCE_DIRECTORY}/shaders.h"
+        source/vertex.cpp
+        source/vertex.h
 )
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD

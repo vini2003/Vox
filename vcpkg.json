@@ -33,5 +33,8 @@
   }, {
     "name" : "tinyobjloader",
     "version>=" : "2.0.0-rc9"
+  }, {
+    "name" : "nlohmann-json",
+    "version>=" : "3.11.3"
   } ]
 }
