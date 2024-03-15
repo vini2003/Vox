@@ -302,7 +302,6 @@ void Shader<V>::updateDescriptorSets(const VkDevice &device) {
         }
 
         if (!descriptorWrites.empty()) {
-            std::cout << "Updating descriptor sets, " << i << std::flush;
             vkUpdateDescriptorSets(device, descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
         }
     }
