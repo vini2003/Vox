@@ -57,7 +57,7 @@ public:
 	const char* NAME = "Vulkan";
 	const char* ENGINE = "None";
 
-	std::map<std::string, std::shared_ptr<Shader<>>> shaders = {};
+	std::map<std::string, Shader<>> shaders = {};
 
 
 	uint32_t currentFrame = 0;
@@ -188,6 +188,7 @@ public:
 	void initVkInstance();
 	void initImGui();
 	void initDebugMessenger();
+	void initShaders();
 	void initSurface();
 	void initPhysicalDevice();
 	void initLogicalDevice();
