@@ -1,9 +1,6 @@
-//
-// Created by vini2003 on 14/03/2024.
-//
-
 #ifndef VERTEX_H
 #define VERTEX_H
+
 #include <array>
 
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
@@ -73,7 +70,7 @@ namespace vox {
         }
 
         static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions() {
-            const auto& attributes = Derived::attributes;
+            const std::array attributes = Derived::attributes;
 
             std::vector<VkVertexInputAttributeDescription> descriptions;
 
@@ -95,17 +92,17 @@ namespace vox {
         glm::vec3 color;
         glm::vec2 texCoord;
 
-        static constexpr std::array<VertexAttribute, 3> attributes = {{
-            {offsetof(Vertex, pos), toVkFormat<glm::vec3>()},
-            {offsetof(Vertex, color), toVkFormat<glm::vec3>()},
-            {offsetof(Vertex, texCoord), toVkFormat<glm::vec2>()}
-        }};
+        static const std::array<VertexAttribute, 3> attributes;
     };
+
+    inline bool operator==(const Vertex& lhs, const Vertex& rhs) {
+        return lhs.pos == rhs.pos && lhs.color == rhs.color && lhs.texCoord == rhs.texCoord;
+    }
 }
 
 namespace std {
     template<> struct hash<vox::Vertex> {
-        size_t operator()(vox::Vertex const& vertex) const {
+        size_t operator()(vox::Vertex const& vertex) const noexcept {
             return ((hash<glm::vec3>()(vertex.pos) ^
                    (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^
                    (hash<glm::vec2>()(vertex.texCoord) << 1);

@@ -1,27 +1,24 @@
-#pragma once
-
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#ifndef APPLICATION_H
+#define APPLICATION_H
 
 #include <iostream>
 #include <functional>
 #include <vector>
 #include <filesystem>
 #include <map>
-#include <cstring>
-#include <unordered_map>
-#include <set>
+#include <memory>
 
-#include <imgui.h>
-#include <imgui_impl_vulkan.h>
-#include <imgui_impl_glfw.h>
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "shaders.h"
 #include "util.h"
+#include "vertex.h"
+#include "shader.h"
 
 #ifdef NDEBUG
 const bool enableValidationLayers = false;
@@ -35,7 +32,7 @@ struct UniformBufferObject {
 	alignas(16) glm::mat4 proj;
 };
 
-class Application {
+class Application : public std::enable_shared_from_this<Application> {
 public:
 	void run();
 
@@ -60,7 +57,8 @@ public:
 	const char* NAME = "Vulkan";
 	const char* ENGINE = "None";
 
-	std::vector<std::string> shaders = { "obj", "obj_red" };
+	std::map<std::string, std::shared_ptr<Shader<>>> shaders = {};
+
 
 	uint32_t currentFrame = 0;
 
@@ -132,6 +130,13 @@ public:
 
 	VkShaderModule buildShaderModule(const std::vector<char>& rawShader);
 
+	static VkPipelineViewportStateCreateInfo buildPipelineViewportStateCreateInfo(const VkViewport *viewport, const VkRect2D *scissor);
+	static VkPipelineRasterizationStateCreateInfo buildPipelineRasterizationStateCreateInfo();
+	static VkPipelineMultisampleStateCreateInfo buildPipelineMultisampleStateCreateInfo();
+	static VkPipelineColorBlendAttachmentState buildPipelineColorBlendAttachmentState();
+	static VkPipelineColorBlendStateCreateInfo buildPipelineColorBlendStateCreateInfo(const VkPipelineColorBlendAttachmentState *colorBlendAttachmentState);
+	static VkPipelineDepthStencilStateCreateInfo buildPipelineDepthStencilStateCreateInfo();
+
 	void buildDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 
 	VkResult buildBuffer(vox::BufferBuildInfo buildInfo);
@@ -166,7 +171,7 @@ public:
 
 	vox::QueueFamilyIndices getQueueFamilies(VkPhysicalDevice physicalDevice);
 
-	std::map<std::string, std::vector<char>> getShaders();
+	std::map<std::string, std::vector<char>> findShaders();
 
 	void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
@@ -189,7 +194,7 @@ public:
 	void initSwapchain();
 	void initImageViews();
 	void initRenderPass();
-	void initDescriptorSetLayout();
+	void initDescriptorSetLayouts();
 	void initPipeline();
 	void initFramebuffers();
 	void initCommandPools();
@@ -220,3 +225,5 @@ public:
 
 	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* callbackData, void* userData);
 };
+
+#endif

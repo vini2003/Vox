@@ -6,14 +6,14 @@ set(PROJECT_NAME Vox)
 set(SOURCE_DIRECTORY "source")
 
 add_executable(${PROJECT_NAME} "${SOURCE_DIRECTORY}/main.cpp"
-        "${SOURCE_DIRECTORY}/application.cpp"
-        "${SOURCE_DIRECTORY}/application.h"
         "${SOURCE_DIRECTORY}/util.cpp"
         "${SOURCE_DIRECTORY}/util.h"
-        "${SOURCE_DIRECTORY}/shaders.cpp"
-        "${SOURCE_DIRECTORY}/shaders.h"
-        source/vertex.cpp
-        source/vertex.h
+        "${SOURCE_DIRECTORY}/vertex.cpp"
+        "${SOURCE_DIRECTORY}/vertex.h"
+        "${SOURCE_DIRECTORY}/shader.cpp"
+        "${SOURCE_DIRECTORY}/shader.h"
+        "${SOURCE_DIRECTORY}/application.cpp"
+        "${SOURCE_DIRECTORY}/application.h"
 )
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
