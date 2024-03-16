@@ -3,6 +3,7 @@
 //
 
 #include "vertex.h"
+#include "util.h"
 
 const std::array<vox::VertexAttribute, 3> vox::Vertex::attributes = {{
     {offsetof(vox::Vertex, pos), toVkFormat<glm::vec3>()},

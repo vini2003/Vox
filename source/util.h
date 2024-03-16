@@ -78,6 +78,12 @@ constexpr VkFormat toVkFormat<glm::dmat3>() { return VK_FORMAT_R64G64B64_SFLOAT;
 template<>
 constexpr VkFormat toVkFormat<glm::dmat4>() { return VK_FORMAT_R64G64B64A64_SFLOAT; } // Simplified; actually handled as 4 dvec4s
 
+struct UniformBufferObject {
+	alignas(16) glm::mat4 model;
+	alignas(16) glm::mat4 view;
+	alignas(16) glm::mat4 proj;
+};
+
 inline VkFormat GLMTypeToVkFormat(const std::string& type) {
 	if (type == "float") return VK_FORMAT_R32_SFLOAT;
 	if (type == "double") return VK_FORMAT_R64_SFLOAT;
@@ -136,6 +142,8 @@ inline size_t GLMTypeSize(const std::string& type) {
 	if (type == "dmat2") return sizeof(glm::dmat2); // This is a simplification
 	if (type == "dmat3") return sizeof(glm::dmat3); // This is a simplification
 	if (type == "dmat4") return sizeof(glm::dmat4); // This is a simplification
+
+	if (type == "ubo") return sizeof(UniformBufferObject);
 
 	throw std::runtime_error("Unsupported GLM type: " + type);
 }

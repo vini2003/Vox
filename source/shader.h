@@ -142,9 +142,10 @@ public:
     void buildDescriptorSetLayout(const VkDevice& device);
     void buildDescriptorSets(const VkDevice& device, const VkDescriptorPool& descriptorPool, uint32_t amount);
 
+    void allocateBuffers();
+
     // VkResult Application::buildBuffer(vox::BufferBuildInfo buildInfo)
     void buildBuffers(const VkDevice &device, const std::function<VkResult(vox::BufferBuildInfo)> &buildBuffer);
-    void buildSamplers();
 
     void allocateBuffer(uint32_t binding);
     void allocateSampler(uint32_t binding);
@@ -277,8 +278,6 @@ void Shader<V>::buildDescriptorSets(const VkDevice &device, const VkDescriptorPo
         throw std::runtime_error("[Shader] Failed to allocate descriptor sets!");
     }
 
-    const auto amount = descriptorSets.size();
-
     for (auto i = 0; i < amount; ++i) {
         std::vector<VkWriteDescriptorSet> descriptorWrites;
 
@@ -296,6 +295,7 @@ void Shader<V>::buildDescriptorSets(const VkDevice &device, const VkDescriptorPo
             writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
             writeDescriptorSet.descriptorCount = 1;
             writeDescriptorSet.pBufferInfo = &bufferInfo;
+            writeDescriptorSet.pNext = nullptr;
 
             descriptorWrites.push_back(writeDescriptorSet);
         }
@@ -314,6 +314,7 @@ void Shader<V>::buildDescriptorSets(const VkDevice &device, const VkDescriptorPo
             writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
             writeDescriptorSet.descriptorCount = 1;
             writeDescriptorSet.pImageInfo = &imageInfo;
+            writeDescriptorSet.pNext = nullptr;
 
             descriptorWrites.push_back(writeDescriptorSet);
         }
@@ -325,13 +326,29 @@ void Shader<V>::buildDescriptorSets(const VkDevice &device, const VkDescriptorPo
 }
 
 template<typename V>
+void Shader<V>::allocateBuffers() {
+    // Then, find the other ones and create buffers for them.
+    uint32_t binding = 2;
+
+    for (const auto& [name, type] : metadata.uniforms) {
+        if (name == "ubo") {
+            continue;
+        }
+
+        allocateBuffer(binding);
+
+        ++binding;
+    }
+}
+
+template<typename V>
 void Shader<V>::buildBuffers(const VkDevice& device, const std::function<VkResult(vox::BufferBuildInfo)> &buildBuffer) {
     // Iterate through metadata.buffers, remove "model", "proj" and "view" as they're already contained in the UBO.
     // Then, find the other ones and create buffers for them.
-    uint32_t binding = 1;
+    uint32_t binding = 2;
 
-    for (const auto& uniform : metadata.uniforms) {
-        if (uniform.name == "model" || uniform.name == "proj" || uniform.name == "view") {
+    for (const auto&[name, type] : metadata.uniforms) {
+        if (name == "ubo") {
             continue;
         }
 
@@ -347,7 +364,7 @@ void Shader<V>::buildBuffers(const VkDevice& device, const std::function<VkResul
 
         for (auto i = 0; i < 3; ++i) {
             vox::BufferBuildInfo buildInfo = {};
-            buildInfo.deviceSize = GLMTypeSize(uniform.type);
+            buildInfo.deviceSize = GLMTypeSize(type);
             buildInfo.bufferUsageFlags = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
             buildInfo.memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
             buildInfo.buffer = &buffers[i];
@@ -362,7 +379,7 @@ void Shader<V>::buildBuffers(const VkDevice& device, const std::function<VkResul
             }
         }
 
-        boundBuffers[binding] = { buffers, 0, GLMTypeSize(uniform.type) };
+        boundBuffers[binding] = { buffers, 0, GLMTypeSize(type) };
 
         ++binding;
     }

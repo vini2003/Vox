@@ -26,12 +26,6 @@ const bool enableValidationLayers = false;
 const bool enableValidationLayers = true;
 #endif
 
-struct UniformBufferObject {
-	alignas(16) glm::mat4 model;
-	alignas(16) glm::mat4 view;
-	alignas(16) glm::mat4 proj;
-};
-
 class Application : public std::enable_shared_from_this<Application> {
 public:
 	void run();
@@ -84,10 +78,6 @@ public:
 	std::vector<VkFramebuffer> swapchainFramebuffers;
 
 	VkRenderPass renderPass;
-
-	std::map<std::string, VkDescriptorSetLayout> descriptorSetLayouts;
-
-	std::map<std::string, std::vector<VkDescriptorSet>> descriptorSets;
 
 	VkDescriptorPool descriptorPool;
 
@@ -170,8 +160,6 @@ public:
 	uint32_t getMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags memoryPropertyFlags);
 
 	vox::QueueFamilyIndices getQueueFamilies(VkPhysicalDevice physicalDevice);
-
-	std::map<std::string, std::vector<char>> findShaders();
 
 	void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 

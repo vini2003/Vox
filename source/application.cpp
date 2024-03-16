@@ -247,45 +247,62 @@ void Application::initDebugMessenger() {
 }
 
 void Application::initShaders() {
-	std::map<std::string, std::vector<char>> rawShaders = findShaders();
+	std::map<std::string, ShaderMetadata> shaderMetadata;
 
-	struct ShaderCode {
-		std::vector<char> vertex;
-		std::vector<char> fragment;
-	};
+	std::map<std::string, std::vector<char>> shaderVertexCode;
+	std::map<std::string, std::vector<char>> shaderFragmentCode;
 
-	std::map<std::string, ShaderCode> shaderCodes = {};
+	const std::filesystem::directory_iterator shaderCodeIterator("shaders/spirv");
 
-	for (const auto& [filename, data] : rawShaders) {
-		const auto lastUnderscorePos = filename.find_last_of('.');
+	for (const auto& shaderEntry : shaderCodeIterator) {
+		if (shaderEntry.path().extension() == ".vert" || shaderEntry.path().extension() == ".frag") {
+			std::ifstream shaderFile(shaderEntry.path(), std::ios::ate | std::ios::binary);
 
-		if (lastUnderscorePos == std::string::npos) {
-			throw std::runtime_error("[Vulkan] Shader file name does not contain a suffix!");
-		}
+			if (!shaderFile.is_open()) {
+				throw std::runtime_error("[Vulkan] Failed to load shader file: " + shaderEntry.path().filename().string() + "\n");
+			}
 
-		const auto id = filename.substr(0, lastUnderscorePos);
-		const auto suffix = filename.substr(lastUnderscorePos);
+			std::vector<char> buffer(shaderEntry.file_size());
+			shaderFile.seekg(0);
+			shaderFile.read(buffer.data(), shaderEntry.file_size());
+			shaderFile.close();
 
-		if (suffix != ".vert" && suffix != ".frag") {
-			throw std::runtime_error("[Vulkan] Shader file name suffix is not valid!");
-		}
+			std::string id = shaderEntry.path().stem().string();
 
-		if (!shaderCodes.contains(id)) {
-			shaderCodes[id] = { {}, {} };
-		}
+			if (shaderEntry.path().extension() == ".vert") {
+				shaderVertexCode[id] = buffer;
+			} else if (shaderEntry.path().extension() == ".frag") {
+				shaderFragmentCode[id] = buffer;
+			}
 
-		if (suffix == ".vert") {
-			shaderCodes[id].vertex = data;
-		} else if (suffix == ".frag") {
-			shaderCodes[id].fragment = data;
+			std::cout << "[Vulkan] Loaded shader file: " << shaderEntry.path().filename().string() << "\n" << std::flush;
 		}
 	}
 
-	// TODO: Implement shader module metadata. This would be useful for entrynames, etc.
-	// TODO: Another issue is, how do we dictate the attributes, descriptor layouts, etc? This is
-	// TODO: why Minecraft has the shader JSON files.
-	for (const auto& [id, shaderCode] : shaderCodes) {
-		shaders[id] = Shader<>(id, shaderCode.vertex, shaderCode.fragment);
+	const std::filesystem::directory_iterator shaderMetadataIterator("shaders/metadata");
+
+	for (const auto& metadataEntry : shaderMetadataIterator) {
+		if (metadataEntry.path().extension() == ".json") {
+			std::ifstream metadataFile(metadataEntry.path());
+
+			if (!metadataFile.is_open()) {
+				throw std::runtime_error("[Vulkan] Failed to load shader metadata file: " + metadataEntry.path().filename().string() + "\n");
+			}
+
+			nlohmann::json metadata;
+			metadataFile >> metadata;
+			metadataFile.close();
+
+			std::string id = metadataEntry.path().stem().string();
+			shaderMetadata[id] = metadata.get<ShaderMetadata>();
+
+			std::cout << "[Vulkan] Loaded shader metadata file: " << id << ".json\n" << std::flush;
+		}
+	}
+
+
+	for (const auto& [id, metadata] : shaderMetadata) {
+		shaders[id] = Shader<>(id, metadata, shaderVertexCode[metadata.vertex], shaderFragmentCode[metadata.fragment]);
 	}
 }
 
@@ -515,10 +532,9 @@ void Application::initDescriptorSetLayouts() {
 	for (auto& [id, shader] : shaders) {
 		shader.allocateBuffer(0);
 		shader.allocateSampler(1);
+		shader.allocateBuffers();
 
 		shader.buildDescriptorSetLayout(mainLogicalDevice);
-
-		descriptorSetLayouts[id] = shader.descriptorSetLayout.value(); //  TODO: Check if this works.
 	}
 }
 
@@ -578,7 +594,7 @@ void Application::initPipeline() {
 		VkPipelineLayoutCreateInfo layoutCreateInfo = {};
 		layoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		layoutCreateInfo.setLayoutCount = 1;
-		layoutCreateInfo.pSetLayouts = &descriptorSetLayouts[id];
+		layoutCreateInfo.pSetLayouts = &shaders[id].descriptorSetLayout.value(); // TODO: Check if present.
 
 		// TODO: Check if we need to initialize pipelineLayouts[id].
 		if (VK_SUCCESS != vkCreatePipelineLayout(mainLogicalDevice, &layoutCreateInfo, nullptr, &pipelineLayouts[id])) {
@@ -1438,31 +1454,6 @@ vox::QueueFamilyIndices Application::getQueueFamilies(VkPhysicalDevice physicalD
 	std::cout << "[Vulkan] Queue family verificaiton finished.\n" << std::flush;
 
 	return queueFamilyIndices;
-}
-
-std::map<std::string, std::vector<char>> Application::findShaders() {
-	std::map<std::string, std::vector<char>> shaders;
-	const std::filesystem::directory_iterator shaderIterator("shaders/spirv");
-
-	for (const auto& shaderEntry : shaderIterator) {
-		if (shaderEntry.path().extension() == ".vert" || shaderEntry.path().extension() == ".frag") {
-			std::ifstream shaderFile(shaderEntry.path(), std::ios::ate | std::ios::binary);
-
-			if (!shaderFile.is_open()) {
-				throw std::runtime_error("[Vulkan] Failed to load shader file: " + shaderEntry.path().filename().string() + "\n");
-			}
-
-			std::vector<char> buffer(shaderEntry.file_size());
-			shaderFile.seekg(0);
-			shaderFile.read(buffer.data(), shaderEntry.file_size());
-			shaderFile.close();
-			shaders[shaderEntry.path().filename().string()] = buffer;
-
-			std::cout << "[Vulkan] Loaded shader file: " << shaderEntry.path().filename().string() << "\n" << std::flush;
-		}
-	}
-
-	return shaders;
 }
 
 void Application::run() {
