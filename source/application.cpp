@@ -983,26 +983,12 @@ void Application::updateVkUniformBuffer(uint32_t currentImage) {
 
 	memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
 
-	// for (auto& [id, shader] : shaders) {
-	// 	shader.setUniformFloat("decay", 0.5f);
-	// 	shader.setUniformVec4("colorModulation", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	//
-	// 	shader.uploadUniforms(mainLogicalDevice, currentImage);
-	//
-	// 	struct Extras {
-	// 		alignas(16) glm::vec4 colorModulation;
-	// 		alignas(16) float decay;
-	// 	};
-	//
-	// 	const auto extras = Extras{ glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0.5f };
-	//
-	// 	std::vector<char> vec(sizeof(Extras));
-	// 	std::memcpy(vec.data(), &extras, sizeof(Extras));
-	//
-	// 	const auto blob = shader.uniformBlob;
-	//
-	// 	std::cout << sizeof(Extras) << "\n" << std::flush;
-	// }
+	for (auto& [id, shader] : shaders) {
+		shader.setUniformFloat("decay", 0.5f);
+		shader.setUniformVec4("colorModulation", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+
+		shader.uploadUniforms(mainLogicalDevice, currentImage);
+	}
 }
 
 bool Application::checkVkValidationLayers() {

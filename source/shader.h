@@ -192,7 +192,7 @@ void Shader<V>::initializeUniformBlobAndOffsets() {
         currentOffset = vox::GLMTypeAlignUp(currentOffset, alignment);
 
         uniformOffsets[name] = currentOffset;
-        currentOffset += vox::GLMTypeSize(type);
+        currentOffset += vox::GLMTypeAlignment(type);
     }
 
     uniformBlob.resize(currentOffset);
@@ -437,6 +437,10 @@ void Shader<V>::buildBuffers(const VkDevice& device, const std::function<VkResul
  * all of the data. Also, the descriptor layout and such must be updated to reflect the binary blob.
  * Given we know the types of the uniforms, we can calculate the size and offsets of the data
  * when the shader is initialized and use this for the calculations.
+ *
+ * UPDATE - It mostly works. Mostly - the upload doesn't work, so multiplying by colorModulation in the shader doesn't
+ * result in any color. However, removing that multiplication makes it work.
+ * Therefore, the current issue is likely something to do with the data's formatting for the upload?
  */
 template<typename V>
 void Shader<V>::allocateBuffer(const uint32_t binding) {
@@ -462,7 +466,15 @@ template<typename V>
 void Shader<V>::uploadUniforms(const VkDevice& device, uint32_t currentImage) {
     void* data;
     vkMapMemory(device, boundBuffers[2]->memories[currentImage], 0, uniformBlob.size(), 0, &data);
-    memcpy(data, uniformBlob.data(), uniformBlob.size());
+
+    struct Extras {
+        alignas(16) glm::vec4 colorModulation;
+        alignas(16) float decay;
+    };
+
+    auto extras = Extras { glm::vec4(1.0f, 0.5f, 0.5f, 1.0f), 0.5f };
+
+    memcpy(data, &extras, sizeof(Extras));
     vkUnmapMemory(device, boundBuffers[2]->memories[currentImage]);
 }
 
