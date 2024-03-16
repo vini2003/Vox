@@ -514,7 +514,7 @@ void Application::initRenderPass() {
 void Application::initDescriptorSetLayouts() {
 	for (auto& [id, shader] : shaders) {
 		shader.allocateBuffer(0);
-		shader.allocateImage(1);
+		shader.allocateSampler(1);
 
 		shader.buildDescriptorSetLayout(mainLogicalDevice);
 
@@ -896,9 +896,15 @@ void Application::initUniformBuffers() {
 		}
 	}
 
-	for (const auto& [id, shader] : shaders) {
-		shaders[id].bindBuffer(0, uniformBuffers, 0, sizeof(UniformBufferObject));
-		shaders[id].bindImage(1, textureImageView, textureSampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	for (auto& [id, shader] : shaders) {
+		shader.bindBuffer(0, uniformBuffers, 0, sizeof(UniformBufferObject));
+		shader.bindSampler(1, textureImageView, textureSampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+		auto buildBufferLambda = [&](const vox::BufferBuildInfo& bufferBuildInfo) -> VkResult {
+			return buildBuffer(bufferBuildInfo);
+		};
+
+		shader.buildBuffers(mainLogicalDevice, buildBufferLambda);
 	}
 }
 

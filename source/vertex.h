@@ -12,46 +12,6 @@
 
 #include <vulkan/vulkan_core.h>
 
-template<typename T>
-constexpr VkFormat toVkFormat();
-
-template<>
-constexpr VkFormat toVkFormat<float>() { return VK_FORMAT_R32_SFLOAT; }
-template<>
-constexpr VkFormat toVkFormat<double>() { return VK_FORMAT_R64_SFLOAT; }
-template<>
-constexpr VkFormat toVkFormat<int32_t>() { return VK_FORMAT_R32_SINT; }
-template<>
-constexpr VkFormat toVkFormat<uint32_t>() { return VK_FORMAT_R32_UINT; }
-
-template<>
-constexpr VkFormat toVkFormat<glm::vec2>() { return VK_FORMAT_R32G32_SFLOAT; }
-template<>
-constexpr VkFormat toVkFormat<glm::vec3>() { return VK_FORMAT_R32G32B32_SFLOAT; }
-template<>
-constexpr VkFormat toVkFormat<glm::vec4>() { return VK_FORMAT_R32G32B32A32_SFLOAT; }
-
-template<>
-constexpr VkFormat toVkFormat<glm::ivec2>() { return VK_FORMAT_R32G32_SINT; }
-template<>
-constexpr VkFormat toVkFormat<glm::ivec3>() { return VK_FORMAT_R32G32B32_SINT; }
-template<>
-constexpr VkFormat toVkFormat<glm::ivec4>() { return VK_FORMAT_R32G32B32A32_SINT; }
-
-template<>
-constexpr VkFormat toVkFormat<glm::uvec2>() { return VK_FORMAT_R32G32_UINT; }
-template<>
-constexpr VkFormat toVkFormat<glm::uvec3>() { return VK_FORMAT_R32G32B32_UINT; }
-template<>
-constexpr VkFormat toVkFormat<glm::uvec4>() { return VK_FORMAT_R32G32B32A32_UINT; }
-
-template<>
-constexpr VkFormat toVkFormat<glm::dvec2>() { return VK_FORMAT_R64G64_SFLOAT; }
-template<>
-constexpr VkFormat toVkFormat<glm::dvec3>() { return VK_FORMAT_R64G64B64_SFLOAT; }
-template<>
-constexpr VkFormat toVkFormat<glm::dvec4>() { return VK_FORMAT_R64G64B64A64_SFLOAT; }
-
 namespace vox {
     struct VertexAttribute {
         size_t offset;
