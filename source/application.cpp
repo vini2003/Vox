@@ -12,6 +12,7 @@
 
 #include "shader.h"
 #include "application.h"
+#include "util.h"
 
 void Application::initGlfw() {
 	glfwInit();
@@ -913,7 +914,7 @@ void Application::initUniformBuffers() {
 	}
 
 	for (auto& [id, shader] : shaders) {
-		shader.bindBuffer(0, uniformBuffers, 0, sizeof(UniformBufferObject));
+		shader.bindBuffer(0, uniformBuffers, 0, sizeof(UniformBufferObject), uniformBufferMemories, uniformBuffersMapped);
 		shader.bindSampler(1, textureImageView, textureSampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 		auto buildBufferLambda = [&](const vox::BufferBuildInfo& bufferBuildInfo) -> VkResult {
@@ -982,17 +983,26 @@ void Application::updateVkUniformBuffer(uint32_t currentImage) {
 
 	memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
 
-	// TODO: Remove!
-	auto i = 0;
-	for (auto& [binding, bufferInfo] : shaders["obj"].boundBuffers) {
-		if (i == 0) {
-			++i;
-			continue;
-		}
-
-		// const auto colorModulation = glm::vec4(1.0f, 0.33f, 0.33f, 1.0f);
-		memcpy(bufferInfo->mapped[currentImage], &ubo, sizeof(UniformBufferObject));
-	}
+	// for (auto& [id, shader] : shaders) {
+	// 	shader.setUniformFloat("decay", 0.5f);
+	// 	shader.setUniformVec4("colorModulation", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	//
+	// 	shader.uploadUniforms(mainLogicalDevice, currentImage);
+	//
+	// 	struct Extras {
+	// 		alignas(16) glm::vec4 colorModulation;
+	// 		alignas(16) float decay;
+	// 	};
+	//
+	// 	const auto extras = Extras{ glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0.5f };
+	//
+	// 	std::vector<char> vec(sizeof(Extras));
+	// 	std::memcpy(vec.data(), &extras, sizeof(Extras));
+	//
+	// 	const auto blob = shader.uniformBlob;
+	//
+	// 	std::cout << sizeof(Extras) << "\n" << std::flush;
+	// }
 }
 
 bool Application::checkVkValidationLayers() {
@@ -1744,6 +1754,7 @@ void Application::free() {
     if (enableValidationLayers) {
         vox::destroyDebugUtilsMessengerEXT(vkInstance, debugMessenger, nullptr); // Adjust based on your debug messenger creation method
     }
+
     vkDestroyInstance(vkInstance, nullptr);
 
     glfwDestroyWindow(glfwWindow);

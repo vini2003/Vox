@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="Vox"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\.vcpkg-clion\;CMake Files\..\..\.vcpkg-clion\vcpkg (1)\;CMake Files\..\..\.vcpkg-clion\vcpkg (1)\scripts\;CMake Files\..\..\.vcpkg-clion\vcpkg (1)\scripts\buildsystems\;CMake Files\cmake-build-release-1\;CMake Files\cmake-build-release-1\vcpkg_installed\;CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\;CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\share\;CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\share\imgui\;CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\share\glfw3\;CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\share\glm\;CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\share\stb\;CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\share\tinyobjloader\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/mingw32-make.exe -f &quot;C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/mingw32-make.exe -f &quot;C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/mingw32-make.exe -f &quot;C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/mingw32-make.exe -f &quot;C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Vox">
+				<Option output="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/Vox.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DGLFW_DLL"/>
+					<Add directory="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/vcpkg_installed/x64-mingw-dynamic/include"/>
+					<Add directory="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++"/>
+					<Add directory="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/x86_64-w64-mingw32"/>
+					<Add directory="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/backward"/>
+					<Add directory="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/include"/>
+					<Add directory="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/../../../../include"/>
+					<Add directory="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/include-fixed"/>
+					<Add directory="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/mingw32-make.exe -f &quot;C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/Makefile&quot;  VERBOSE=1 Vox"/>
+					<CompileFile command="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/mingw32-make.exe -f &quot;C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/mingw32-make.exe -f &quot;C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/mingw32-make.exe -f &quot;C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Vox/fast">
+				<Option output="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/Vox.exe" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DGLFW_DLL"/>
+					<Add directory="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/vcpkg_installed/x64-mingw-dynamic/include"/>
+					<Add directory="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++"/>
+					<Add directory="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/x86_64-w64-mingw32"/>
+					<Add directory="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/backward"/>
+					<Add directory="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/include"/>
+					<Add directory="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/../../../../include"/>
+					<Add directory="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/include-fixed"/>
+					<Add directory="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/../lib/gcc/x86_64-w64-mingw32/13.1.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/mingw32-make.exe -f &quot;C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/Makefile&quot;  VERBOSE=1 Vox/fast"/>
+					<CompileFile command="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/mingw32-make.exe -f &quot;C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/mingw32-make.exe -f &quot;C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/mingw32-make.exe -f &quot;C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/mingw32-make.exe -f &quot;C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/mingw32-make.exe -f &quot;C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/mingw32-make.exe -f &quot;C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/mingw32-make.exe -f &quot;C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/mingw32-make.exe -f &quot;C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/mingw32-make.exe -f &quot;C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/mingw32-make.exe -f &quot;C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="C:/Users/vini2003/AppData/Local/JetBrains/Toolbox/apps/CLion-Nova/ch-0/241.14024.27/bin/mingw/bin/mingw32-make.exe -f &quot;C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/source/application.cpp">
+			<Option target="Vox"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/source/application.h">
+			<Option target="Vox"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/source/main.cpp">
+			<Option target="Vox"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/source/shader.cpp">
+			<Option target="Vox"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/source/shader.h">
+			<Option target="Vox"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/source/util.cpp">
+			<Option target="Vox"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/source/util.h">
+			<Option target="Vox"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/source/vertex.cpp">
+			<Option target="Vox"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/source/vertex.h">
+			<Option target="Vox"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/vcpkg.json">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/../../.vcpkg-clion/vcpkg (1)/scripts/buildsystems/vcpkg.cmake">
+			<Option virtualFolder="CMake Files\..\..\.vcpkg-clion\vcpkg (1)\scripts\buildsystems\"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/vcpkg_installed/x64-mingw-dynamic/share/imgui/imgui-config.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\share\imgui\"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/vcpkg_installed/x64-mingw-dynamic/share/imgui/imgui-targets-debug.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\share\imgui\"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/vcpkg_installed/x64-mingw-dynamic/share/imgui/imgui-targets-release.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\share\imgui\"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/vcpkg_installed/x64-mingw-dynamic/share/imgui/imgui-targets.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\share\imgui\"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/vcpkg_installed/x64-mingw-dynamic/share/glfw3/glfw3Config.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\share\glfw3\"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/vcpkg_installed/x64-mingw-dynamic/share/glfw3/glfw3ConfigVersion.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\share\glfw3\"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/vcpkg_installed/x64-mingw-dynamic/share/glfw3/glfw3Targets-debug.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\share\glfw3\"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/vcpkg_installed/x64-mingw-dynamic/share/glfw3/glfw3Targets-release.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\share\glfw3\"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/vcpkg_installed/x64-mingw-dynamic/share/glfw3/glfw3Targets.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\share\glfw3\"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/vcpkg_installed/x64-mingw-dynamic/share/glm/glmConfig-debug.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\share\glm\"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/vcpkg_installed/x64-mingw-dynamic/share/glm/glmConfig-release.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\share\glm\"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/vcpkg_installed/x64-mingw-dynamic/share/glm/glmConfig.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\share\glm\"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/vcpkg_installed/x64-mingw-dynamic/share/glm/glmConfigVersion.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\share\glm\"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/vcpkg_installed/x64-mingw-dynamic/share/stb/FindStb.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\share\stb\"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/vcpkg_installed/x64-mingw-dynamic/share/stb/vcpkg-cmake-wrapper.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\share\stb\"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/vcpkg_installed/x64-mingw-dynamic/share/tinyobjloader/tinyobjloader-config-version.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\share\tinyobjloader\"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/vcpkg_installed/x64-mingw-dynamic/share/tinyobjloader/tinyobjloader-config.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\share\tinyobjloader\"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/vcpkg_installed/x64-mingw-dynamic/share/tinyobjloader/tinyobjloader-targets-debug.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\share\tinyobjloader\"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/vcpkg_installed/x64-mingw-dynamic/share/tinyobjloader/tinyobjloader-targets-release.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\share\tinyobjloader\"/>
+		</Unit>
+		<Unit filename="C:/Users/vini2003/GitHub/Vox/cmake-build-release-1/vcpkg_installed/x64-mingw-dynamic/share/tinyobjloader/tinyobjloader-targets.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-release-1\vcpkg_installed\x64-mingw-dynamic\share\tinyobjloader\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>
