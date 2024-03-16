@@ -86,10 +86,6 @@ size_t vox::GLMTypeAlignment(const std::string &type) {
 }
 
 size_t vox::GLMTypeAlignUp(const size_t size, const size_t alignment) {
-	if (true) {
-		return 16; // Screw it. TODO: Remove.
-	}
-	
 	return (size + alignment - 1) & ~(alignment - 1);
 }
 

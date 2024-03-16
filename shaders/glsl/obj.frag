@@ -10,5 +10,5 @@ layout(location = 3) in float decay;
 layout(location = 0) out vec4 outColor;
 
 void main() {
-    outColor = texture(texSampler, fragTexCoord) * colorModulation;
+    outColor = texture(texSampler, fragTexCoord) * colorModulation * decay;
 }

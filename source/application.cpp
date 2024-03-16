@@ -984,8 +984,8 @@ void Application::updateVkUniformBuffer(uint32_t currentImage) {
 	memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
 
 	for (auto& [id, shader] : shaders) {
-		shader.setUniformFloat("decay", 0.5f);
-		shader.setUniformVec4("colorModulation", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+		shader.setUniformFloat("decay", 4.5f);
+		shader.setUniformVec4("colorModulation", glm::vec4(1.0f, 0.3f, 0.3f, 1.0f));
 
 		shader.uploadUniforms(mainLogicalDevice, currentImage);
 	}

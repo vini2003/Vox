@@ -3,6 +3,7 @@
 
 #include <filesystem>
 #include <functional>
+#include <iostream>
 #include <map>
 #include <optional>
 #include <string>
@@ -466,18 +467,36 @@ template<typename V>
 void Shader<V>::uploadUniforms(const VkDevice& device, uint32_t currentImage) {
     void* data;
     vkMapMemory(device, boundBuffers[2]->memories[currentImage], 0, uniformBlob.size(), 0, &data);
+    memcpy(data, uniformBlob.data(), uniformBlob.size());
+    vkUnmapMemory(device, boundBuffers[2]->memories[currentImage]);
 
     struct Extras {
         alignas(16) glm::vec4 colorModulation;
         alignas(16) float decay;
     };
 
-    auto extras = Extras { glm::vec4(1.0f, 0.5f, 0.5f, 1.0f), 0.5f };
+    auto extras = Extras { glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 0.5f };
 
-    memcpy(data, &extras, sizeof(Extras));
-    vkUnmapMemory(device, boundBuffers[2]->memories[currentImage]);
+    // Helper function to print the bytes
+    auto printBytes = [](const void* ptr, std::size_t size) {
+        const unsigned char* p = static_cast<const unsigned char*>(ptr);
+        for (std::size_t i = 0; i < size; ++i) {
+            std::cout << std::hex << std::setw(2) << std::setfill('0') << (int)p[i];
+            if (i < size - 1) std::cout << " ";
+        }
+        std::cout << std::dec << std::endl; // Switch back to decimal for any further output
+    };
+
+    // Print the content of extras as bytes
+    std::cout << "Extras bytes: ";
+    printBytes(&extras, sizeof(extras));
+
+    // Print the content of uniformBlob as bytes
+    std::cout << "uniformBlob bytes: ";
+    printBytes(uniformBlob.data(), uniformBlob.size());
+
+    int a = 1;
 }
-
 
 template<typename V>
 void Shader<V>::setUniformFloat(const std::string& name, const float value) {
