@@ -25,6 +25,10 @@
     {
       "name": "ubo",
       "type": "ubo"
+    },
+    {
+      "name": "colorModulation",
+      "type": "ubo"
     }
   ]
 }

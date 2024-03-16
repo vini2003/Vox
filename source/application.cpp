@@ -981,6 +981,18 @@ void Application::updateVkUniformBuffer(uint32_t currentImage) {
 	ubo.proj[1][1] *= -1;
 
 	memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
+
+	// TODO: Remove!
+	auto i = 0;
+	for (auto& [binding, bufferInfo] : shaders["obj"].boundBuffers) {
+		if (i == 0) {
+			++i;
+			continue;
+		}
+
+		// const auto colorModulation = glm::vec4(1.0f, 0.33f, 0.33f, 1.0f);
+		memcpy(bufferInfo->mapped[currentImage], &ubo, sizeof(UniformBufferObject));
+	}
 }
 
 bool Application::checkVkValidationLayers() {

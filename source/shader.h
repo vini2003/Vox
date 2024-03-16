@@ -51,6 +51,8 @@ struct ShaderBoundBufferInfo {
     std::vector<VkBuffer> buffers;
     VkDeviceSize offset;
     VkDeviceSize range;
+    std::vector<VkDeviceMemory> memories;
+    std::vector<void*> mapped;
 };
 
 struct ShaderBoundImageInfo {
@@ -379,7 +381,7 @@ void Shader<V>::buildBuffers(const VkDevice& device, const std::function<VkResul
             }
         }
 
-        boundBuffers[binding] = { buffers, 0, GLMTypeSize(type) };
+        boundBuffers[binding] = { buffers, 0, GLMTypeSize(type), bufferMemories, buffersMapped };
 
         ++binding;
     }
