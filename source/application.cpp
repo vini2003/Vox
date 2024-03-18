@@ -154,9 +154,7 @@ void Application::initImGui() {
 	poolInfo.poolSizeCount = std::size(poolSizes);
 	poolInfo.pPoolSizes = poolSizes;
 
-	VkDescriptorPool pool;
-
-	if (VK_SUCCESS != vkCreateDescriptorPool(mainLogicalDevice, &poolInfo, nullptr, &pool)) {
+	if (VK_SUCCESS != vkCreateDescriptorPool(mainLogicalDevice, &poolInfo, nullptr, &imguiDescriptorPool)) {
 		throw std::runtime_error("[Vulkan] Failed to create ImGui descriptor pool!");
 	}
 
@@ -171,7 +169,7 @@ void Application::initImGui() {
 	initInfo.Device = mainLogicalDevice;
 	initInfo.QueueFamily = getQueueFamilies(mainPhysicalDevice).graphicsFamily.value(); // TODO: Check if this works.
 	initInfo.Queue = graphicsQueue;
-	initInfo.DescriptorPool = pool;
+	initInfo.DescriptorPool = imguiDescriptorPool;
 	initInfo.MinImageCount = 3;
 	initInfo.ImageCount = 3;
 	initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
@@ -531,9 +529,9 @@ void Application::initRenderPass() {
 
 void Application::initDescriptorSetLayouts() {
 	for (auto& [id, shader] : shaders) {
-		shader.allocateBuffer(0);
-		shader.allocateSampler(1);
-		shader.allocateBuffers();
+		shader.reserveBuffer(0);
+		shader.reserveSampler(1);
+		shader.reserveBuffer();
 
 		shader.buildDescriptorSetLayout(mainLogicalDevice);
 	}
@@ -548,11 +546,27 @@ void Application::initPipeline() {
 			return buildShaderModule(code);
 		};
 
-		shader.buildVertexShaderModule(buildShaderModuleLambda);
-		shader.buildFragmentShaderModule(buildShaderModuleLambda);
+		const auto vertexShaderCode = shader.getVertexShaderCode();
+		const auto fragmentShaderCode = shader.getFragmentShaderCode();
 
-		const auto vertexShaderStageCreateInfo = shader.buildVertexShaderStageCreateInfo();
-		const auto fragmentShaderStageCreateInfo = shader.buildFragmentShaderStageCreateInfo();
+		if (!vertexShaderCode.has_value()) {
+			throw std::runtime_error("[Vulkan] Vertex shader code not found for shader: " + id);
+		}
+
+		if (!fragmentShaderCode.has_value()) {
+			throw std::runtime_error("[Vulkan] Fragment shader code not found for shader: " + id);
+		}
+
+		const auto vertexShaderModule = buildShaderModule(vertexShaderCode.value());
+		const auto fragmentShaderModule = buildShaderModule(fragmentShaderCode.value());
+
+		shader.setVertexShaderModule(vertexShaderModule);
+		shader.setFragmentShaderModule(fragmentShaderModule);
+
+		const auto vertexShaderStageCreateInfo = buildPipelineShaderStageCreateInfo(vertexShaderModule, VK_SHADER_STAGE_VERTEX_BIT);
+		const auto fragmentShaderStageCreateInfo = buildPipelineShaderStageCreateInfo(fragmentShaderModule, VK_SHADER_STAGE_FRAGMENT_BIT);
+
+		const auto shaderStageCreateInfos = std::array { vertexShaderStageCreateInfo, fragmentShaderStageCreateInfo };
 
 		VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo = {};
 		vertexInputStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -592,14 +606,19 @@ void Application::initPipeline() {
 		const auto colorBlendStateCreateInfo = buildPipelineColorBlendStateCreateInfo(&colorBlendAttachmentState);
 		const auto depthStencilStateCreateInfo = buildPipelineDepthStencilStateCreateInfo();
 
+		if (!shader.getDescriptorSetLayout().has_value()) {
+			throw std::runtime_error("[Vulkan] Descriptor set layout not found for shader: " + id);
+		}
+
+		auto descriptorSetLayout = shader.getDescriptorSetLayout().value();
+
 		VkPipelineLayoutCreateInfo layoutCreateInfo = {};
 		layoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		layoutCreateInfo.setLayoutCount = 1;
-		layoutCreateInfo.pSetLayouts = &shaders[id].descriptorSetLayout.value(); // TODO: Check if present.
+		layoutCreateInfo.pSetLayouts = &descriptorSetLayout;
 
-		// TODO: Check if we need to initialize pipelineLayouts[id].
 		if (VK_SUCCESS != vkCreatePipelineLayout(mainLogicalDevice, &layoutCreateInfo, nullptr, &pipelineLayouts[id])) {
-			throw std::runtime_error("[Vulkan] Failed to create pipeline layout!");
+			throw std::runtime_error("[Vulkan] Failed to create pipeline layout for shader: " + id);
 		}
 
 		std::cout << "[Vulkan] Pipeline layout initialization succeeded.\n" << std::flush;
@@ -607,7 +626,7 @@ void Application::initPipeline() {
 		VkGraphicsPipelineCreateInfo pipelineCreateInfo = {};
 		pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		pipelineCreateInfo.stageCount = 2;
-		pipelineCreateInfo.pStages = std::array { vertexShaderStageCreateInfo, fragmentShaderStageCreateInfo }.data(); // TODO: Remove the array.
+		pipelineCreateInfo.pStages = shaderStageCreateInfos.data();
 		pipelineCreateInfo.pVertexInputState = &vertexInputStateCreateInfo;
 		pipelineCreateInfo.pInputAssemblyState = &inputAssemblyStateCreateInfo;
 		pipelineCreateInfo.pViewportState = &viewportStateCreateInfo;
@@ -622,15 +641,14 @@ void Application::initPipeline() {
 		pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
 		pipelineCreateInfo.basePipelineIndex = -1;
 
-		// TODO: Check if we need to initialize pipelines[id].
 		if (VK_SUCCESS != vkCreateGraphicsPipelines(mainLogicalDevice, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &pipelines[id])) {
-			throw std::runtime_error("[Vulkan] Failed to create graphics pipeline!");
+			throw std::runtime_error("[Vulkan] Failed to create graphics pipeline for shader: " + id);
 		}
 
-		std::cout << "[Vulkan] Pipeline initialization succeeded.\n" << std::flush;
+		std::cout << "[Vulkan] Pipeline initialization succeeded for shader: " + id + "\n" << std::flush;
 
-		shader.destroyVertexShaderModule(mainLogicalDevice);
-		shader.destroyFragmentShaderModule(mainLogicalDevice);
+		vkDestroyShaderModule(mainLogicalDevice, vertexShaderModule, nullptr);
+		vkDestroyShaderModule(mainLogicalDevice, fragmentShaderModule, nullptr);
 	}
 }
 
@@ -914,8 +932,14 @@ void Application::initUniformBuffers() {
 	}
 
 	for (auto& [id, shader] : shaders) {
-		shader.bindBuffer(0, uniformBuffers, 0, sizeof(UniformBufferObject), uniformBufferMemories, uniformBuffersMapped);
-		shader.bindSampler(1, textureImageView, textureSampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		auto uniformBufferPtrs = std::vector<VkBuffer*>(3);
+		auto uniformBufferMemoryPtrs = std::vector<VkDeviceMemory*>(3);
+
+		std::transform(uniformBuffers.begin(), uniformBuffers.end(), uniformBufferPtrs.begin(), [](auto& buffer) { return &buffer; });
+		std::transform(uniformBufferMemories.begin(), uniformBufferMemories.end(), uniformBufferMemoryPtrs.begin(), [](auto& memory) { return &memory; });
+
+		shader.bindBuffer(0, uniformBufferPtrs, 0, sizeof(UniformBufferObject), uniformBufferMemoryPtrs, uniformBuffersMapped);
+		shader.bindSampler(1, &textureImageView, &textureSampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 		auto buildBufferLambda = [&](const vox::BufferBuildInfo& bufferBuildInfo) -> VkResult {
 			return buildBuffer(bufferBuildInfo);
@@ -1045,6 +1069,15 @@ VkShaderModule Application::buildShaderModule(const std::vector<char>& rawShader
 	std::cout << "[Vulkan] Built shader with " << rawShader.size() << " bytes.\n" << std::flush;
 
 	return module;
+}
+
+VkPipelineShaderStageCreateInfo Application::buildPipelineShaderStageCreateInfo(const VkShaderModule shaderModule, const VkShaderStageFlagBits stage) {
+	VkPipelineShaderStageCreateInfo info{};
+	info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	info.stage = stage;
+	info.module = shaderModule;
+	info.pName = "main";
+	return info;
 }
 
 VkPipelineViewportStateCreateInfo Application::buildPipelineViewportStateCreateInfo(const VkViewport* viewport, const VkRect2D* scissor) {
@@ -1502,13 +1535,13 @@ void Application::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t im
 	for (const auto& [id, shader] : shaders) {
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelines[id]);
 
-		VkBuffer vertexBuffers[] = { vertexBuffer };
-		VkDeviceSize offsets[] = { 0 };
+		const VkBuffer vertexBuffers[] = { vertexBuffer };
+		const VkDeviceSize offsets[] = { 0 };
 
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 		vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayouts[id], 0, 1, &shader.descriptorSets[currentFrame], 0, nullptr);
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayouts[id], 0, 1, &shader.getDescriptorSets()[currentFrame], 0, nullptr);
 
 		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 	}
@@ -1724,12 +1757,23 @@ void Application::free() {
         vkFreeMemory(mainLogicalDevice, uniformBufferMemories[i], nullptr);
     }
 
+	for (const auto& [id, shader] : shaders) {
+		shader.destroyOwnedBuffers(mainLogicalDevice);
+		shader.destroyOwnedBufferMemories(mainLogicalDevice);
+
+		shader.destroyOwnedDescriptorSetLayot(mainLogicalDevice);
+	}
+
 	vkDestroyDescriptorPool(mainLogicalDevice, descriptorPool, nullptr);
+	vkDestroyDescriptorPool(mainLogicalDevice, imguiDescriptorPool, nullptr);
 
-    // vkDestroyDescriptorSetLayout(mainLogicalDevice, descriptorSetLayout, nullptr);
+	for (const auto& [id, pipeline] : pipelines) {
+		vkDestroyPipeline(mainLogicalDevice, pipeline, nullptr);
+	}
 
-    // vkDestroyPipeline(mainLogicalDevice, pipeline, nullptr);
-    // vkDestroyPipelineLayout(mainLogicalDevice, pipelineLayout, nullptr);
+	for (const auto& [id, pipelineLayout] : pipelineLayouts) {
+		vkDestroyPipelineLayout(mainLogicalDevice, pipelineLayout, nullptr);
+	}
 
     vkDestroyRenderPass(mainLogicalDevice, renderPass, nullptr);
 
@@ -1738,7 +1782,7 @@ void Application::free() {
     vkDestroySurfaceKHR(vkInstance, surface, nullptr);
 
     if (enableValidationLayers) {
-        vox::destroyDebugUtilsMessengerEXT(vkInstance, debugMessenger, nullptr); // Adjust based on your debug messenger creation method
+        vox::destroyDebugUtilsMessengerEXT(vkInstance, debugMessenger, nullptr);
     }
 
     vkDestroyInstance(vkInstance, nullptr);

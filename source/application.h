@@ -80,6 +80,7 @@ public:
 	VkRenderPass renderPass;
 
 	VkDescriptorPool descriptorPool;
+	VkDescriptorPool imguiDescriptorPool;
 
 	std::map<std::string, VkPipelineLayout> pipelineLayouts;
 	std::map<std::string, VkPipeline> pipelines;
@@ -120,6 +121,7 @@ public:
 
 	VkShaderModule buildShaderModule(const std::vector<char>& rawShader);
 
+	static VkPipelineShaderStageCreateInfo buildPipelineShaderStageCreateInfo(VkShaderModule shaderModule, VkShaderStageFlagBits stage);
 	static VkPipelineViewportStateCreateInfo buildPipelineViewportStateCreateInfo(const VkViewport *viewport, const VkRect2D *scissor);
 	static VkPipelineRasterizationStateCreateInfo buildPipelineRasterizationStateCreateInfo();
 	static VkPipelineMultisampleStateCreateInfo buildPipelineMultisampleStateCreateInfo();
