@@ -10,11 +10,8 @@
 #include <glm/gtx/hash.hpp>
 
 #include <optional>
-#include <stdexcept>
 #include <string>
 #include <vector>
-
-
 
 namespace vox {
 	template<typename T>
@@ -70,26 +67,19 @@ namespace vox {
 		alignas(16) glm::mat4 proj;
 	};
 
-	struct QueueFamilyIndices {
+	struct QueueFamilies {
 		std::optional<uint32_t> graphicsFamily;
 		std::optional<uint32_t> presentFamily;
 
-		[[nodiscard]] bool isValid() const;
+		[[nodiscard]] bool areValid() const;
 	};
 
-	struct SwapChainSupportDetails {
+	struct SwapChainSupport {
 		VkSurfaceCapabilitiesKHR surfaceCapabilites;
 		std::vector<VkSurfaceFormatKHR> surfaceFormats;
 		std::vector<VkPresentModeKHR> presentModes;
 
 		[[nodiscard]] bool isValid() const;
-	};
-
-	struct CommandPooolBuildInfo {
-		VkDevice logicalDevice;
-		VkCommandPoolCreateInfo* commandPoolInfo;
-		VkAllocationCallbacks* allocationCallbacks;
-		VkCommandPool* commandPool;
 	};
 
 	VkFormat GLMTypeToVkFormat(const std::string& type);

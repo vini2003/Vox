@@ -180,7 +180,7 @@ void Application::initImGui() {
 
 
 void Application::initVkInstance() {
-	if (enableValidationLayers && !checkVkValidationLayers()) {
+	if (enableValidationLayers && !checkValidationLayers()) {
 		throw std::runtime_error("Requested validation layers not available!");
 	}
 
@@ -247,7 +247,7 @@ void Application::initDebugMessenger() {
 }
 
 void Application::initShaders() {
-	std::map<std::string, ShaderMetadata> shaderMetadata;
+	std::map<std::string, vox::ShaderMetadata> shaderMetadata;
 
 	std::map<std::string, std::vector<char>> shaderVertexCode;
 	std::map<std::string, std::vector<char>> shaderFragmentCode;
@@ -294,7 +294,7 @@ void Application::initShaders() {
 			metadataFile.close();
 
 			std::string id = metadataEntry.path().stem().string();
-			shaderMetadata[id] = metadata.get<ShaderMetadata>();
+			shaderMetadata[id] = metadata.get<vox::ShaderMetadata>();
 
 			std::cout << "[Vulkan] Loaded shader metadata file: " << id << ".json\n" << std::flush;
 		}
@@ -302,7 +302,7 @@ void Application::initShaders() {
 
 
 	for (const auto& [id, metadata] : shaderMetadata) {
-		shaders[id] = Shader<>(id, metadata, shaderVertexCode[metadata.vertex], shaderFragmentCode[metadata.fragment]);
+		shaders[id] = vox::Shader<>(id, metadata, shaderVertexCode[metadata.vertex], shaderFragmentCode[metadata.fragment]);
 	}
 }
 
@@ -849,14 +849,14 @@ void Application::updateUniformBuffers(uint32_t currentImage) {
 	memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
 
 	for (auto &shader: shaders | std::views::values) {
-		shader.setUniformFloat("decay", 4.5f);
-		shader.setUniformVec4("colorModulation", glm::vec4(1.0f, 0.3f, 0.3f, 1.0f));
+		shader.setUniform("decay", 4.5f);
+		shader.setUniform("colorModulation", glm::vec4(1.0f, 0.3f, 0.3f, 1.0f));
 
 		shader.uploadUniforms(mainLogicalDevice, currentImage);
 	}
 }
 
-bool Application::checkVkValidationLayers() {
+bool Application::checkValidationLayers() const {
 	uint32_t layerCount = 0;
 	if (VK_SUCCESS != vkEnumerateInstanceLayerProperties(&layerCount, nullptr)) {
 		throw std::runtime_error("[Vulkan] Failed to enumerate instance layer properties!");
@@ -1349,8 +1349,8 @@ std::vector<const char*> Application::getGlfwExtensionsRequired() {
 	return extensions;
 }
 
-vox::SwapChainSupportDetails Application::getSwapChainSupport(VkPhysicalDevice physicalDevice) {
-	vox::SwapChainSupportDetails swapChainSupportDetails;
+vox::SwapChainSupport Application::getSwapChainSupport(VkPhysicalDevice physicalDevice) {
+	vox::SwapChainSupport swapChainSupportDetails;
 
 	if (VK_SUCCESS != vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &swapChainSupportDetails.surfaceCapabilites)) {
 		throw std::runtime_error("[Vulkan] Failed to get physical device surface capabilities!");
@@ -1420,7 +1420,7 @@ bool Application::hasRequiredFeatures(VkPhysicalDevice physicalDevice) {
 	VkPhysicalDeviceFeatures supportedFeatures = {};
 	vkGetPhysicalDeviceFeatures(physicalDevice, &supportedFeatures);
 
-	return getQueueFamilies(physicalDevice).isValid() && hasExtensionSupport(physicalDevice) && getSwapChainSupport(physicalDevice).isValid() && hasSamplerAnisotropySupport(supportedFeatures);
+	return getQueueFamilies(physicalDevice).areValid() && hasExtensionSupport(physicalDevice) && getSwapChainSupport(physicalDevice).isValid() && hasSamplerAnisotropySupport(supportedFeatures);
 }
 
 uint32_t Application::getMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags memoryPropertyFlags) {
@@ -1437,8 +1437,8 @@ uint32_t Application::getMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags m
 	throw std::runtime_error("[Vulkan] Failed to find suitable memory type!");
 }
 
-vox::QueueFamilyIndices Application::getQueueFamilies(VkPhysicalDevice physicalDevice) {
-	vox::QueueFamilyIndices queueFamilyIndices;
+vox::QueueFamilies Application::getQueueFamilies(VkPhysicalDevice physicalDevice) {
+	vox::QueueFamilies queueFamilyIndices;
 
 	uint32_t familyCount = 0;
 	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &familyCount, nullptr);
@@ -1455,7 +1455,7 @@ vox::QueueFamilyIndices Application::getQueueFamilies(VkPhysicalDevice physicalD
 		if (families[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) queueFamilyIndices.graphicsFamily = i;
 		if (presentSupport) queueFamilyIndices.presentFamily = i;
 
-		if (queueFamilyIndices.isValid()) break;
+		if (queueFamilyIndices.areValid()) break;
 	}
 
 	std::cout << "[Vulkan] Queue family verificaiton finished.\n" << std::flush;

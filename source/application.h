@@ -49,7 +49,7 @@ public:
 	const char* NAME = "Vulkan";
 	const char* ENGINE = "None";
 
-	std::map<std::string, Shader<>> shaders = {};
+	std::map<std::string, vox::Shader<>> shaders = {};
 
 	uint32_t currentFrame = 0;
 
@@ -115,11 +115,11 @@ public:
 
 	std::vector<VkFence> inFlightFences;
 
-	Camera camera = {};
+	vox::Camera camera = {};
 
 	vox::UniformBufferObject ubo = {};
 
-	bool checkVkValidationLayers();
+	bool checkValidationLayers() const;
 
 	VkShaderModule buildShaderModule(const std::vector<char>& rawShader) const;
 
@@ -167,7 +167,7 @@ public:
 	std::vector<VkExtensionProperties> getVkExtensionsAvailable();
 	std::vector<const char*> getGlfwExtensionsRequired();
 
-	vox::SwapChainSupportDetails getSwapChainSupport(VkPhysicalDevice physicalDevice);
+	vox::SwapChainSupport getSwapChainSupport(VkPhysicalDevice physicalDevice);
 
 	bool hasSamplerAnisotropySupport(VkPhysicalDeviceFeatures physicalDeviceFeatures);
 	bool hasExtensionSupport(VkPhysicalDevice vkPhysicalDevice);
@@ -175,7 +175,7 @@ public:
 
 	uint32_t getMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags memoryPropertyFlags);
 
-	vox::QueueFamilyIndices getQueueFamilies(VkPhysicalDevice physicalDevice);
+	vox::QueueFamilies getQueueFamilies(VkPhysicalDevice physicalDevice);
 
 	void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
