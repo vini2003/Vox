@@ -33,7 +33,7 @@ public:
 	bool framebufferResized = false;
 
 	const std::vector<const char*> validationLayers = {
-	"VK_LAYER_KHRONOS_validation"
+		"VK_LAYER_KHRONOS_validation"
 	};
 
 	const std::vector<const char*> deviceExtensions = {
@@ -142,21 +142,17 @@ public:
 	VkResult buildPool(vox::CommandPooolBuildInfo buildInfo);
 
 	VkSurfaceFormatKHR selectSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& surfaceFormats);
-
 	VkPresentModeKHR selectSwapPresentMode(const std::vector<VkPresentModeKHR>& presentModes);
 
 	VkExtent2D selectSwapExtent(const VkSurfaceCapabilitiesKHR& surfaceCapabilities);
 
 	std::vector<VkExtensionProperties> getVkExtensionsAvailable();
-
 	std::vector<const char*> getGlfwExtensionsRequired();
 
 	vox::SwapChainSupportDetails getSwapChainSupport(VkPhysicalDevice physicalDevice);
 
 	bool hasSamplerAnisotropySupport(VkPhysicalDeviceFeatures physicalDeviceFeatures);
-
 	bool hasExtensionSupport(VkPhysicalDevice vkPhysicalDevice);
-
 	bool hasRequiredFeatures(VkPhysicalDevice physicalDevice);
 
 	uint32_t getMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags memoryPropertyFlags);

@@ -11,6 +11,8 @@
 #include <imgui_impl_vulkan.h>
 
 #include "application.h"
+
+#include "constants.h"
 #include "shader.h"
 #include "util.h"
 
@@ -787,16 +789,16 @@ void Application::initIndexBuffer() {
 void Application::initDescriptorPool() {
 	std::array<VkDescriptorPoolSize, 2> sizes = {};
 	sizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	sizes[0].descriptorCount = static_cast<uint32_t>(swapchainImages.size() * 5); // TODO: Adjust!
+	sizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT * 5); // TODO: Adjust!
 	sizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	sizes[1].descriptorCount = static_cast<uint32_t>(swapchainImages.size() * 5); // TODO: Adjust!
+	sizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT * 5); // TODO: Adjust!
 
 	VkDescriptorPoolCreateInfo createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	createInfo.poolSizeCount = sizes.size();
 	createInfo.pPoolSizes = sizes.data();
 
-	createInfo.maxSets = static_cast<uint32_t>(swapchainImages.size() * 5); // TODO: Adjust!
+	createInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT * 5); // TODO: Adjust!
 
 	if (VK_SUCCESS != vkCreateDescriptorPool(mainLogicalDevice, &createInfo, nullptr, &descriptorPool)) {
 		throw std::runtime_error("[Vulkan] Failed to create descriptor pool!");
@@ -805,7 +807,7 @@ void Application::initDescriptorPool() {
 
 void Application::initDescriptorSets() {
 	for (auto& [id, shader] : shaders) {
-		shader.buildDescriptorSets(mainLogicalDevice, descriptorPool, swapchainImages.size());
+		shader.buildDescriptorSets(mainLogicalDevice, descriptorPool, MAX_FRAMES_IN_FLIGHT);
 	}
 }
 
@@ -911,11 +913,11 @@ void Application::initTextureSampler() {
 }
 
 void Application::initUniformBuffers() {
-	uniformBuffers.resize(swapchainImages.size());
-	uniformBufferMemories.resize(swapchainImages.size());
-	uniformBuffersMapped.resize(swapchainImages.size());
+	uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+	uniformBufferMemories.resize(MAX_FRAMES_IN_FLIGHT);
+	uniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
 
-	for (size_t i = 0; i < swapchainImages.size(); i++) {
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 		constexpr auto bufferSize = sizeof(UniformBufferObject);
 
 		vox::BufferBuildInfo bufferBuildInfo = {};
@@ -953,13 +955,13 @@ void Application::initUniformBuffers() {
 }
 
 void Application::initCommandBuffers() {
-	commandBuffers.resize(swapchainFramebuffers.size());
+	commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 
 	VkCommandBufferAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.commandPool = commandPool;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
+	allocInfo.commandBufferCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
 	if (VK_SUCCESS != vkAllocateCommandBuffers(mainLogicalDevice, &allocInfo, commandBuffers.data())) {
 		throw std::runtime_error("[Vulkan] Failed to allocate command buffers!");
@@ -969,10 +971,10 @@ void Application::initCommandBuffers() {
 }
 
 void Application::initSyncObjects() {
-	imageAvailableSemaphores.resize(swapchainFramebuffers.size());
-	renderFinishedSemaphores.resize(swapchainFramebuffers.size());
+	imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+	renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 
-	inFlightFences.resize(swapchainFramebuffers.size());
+	inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
 
 	VkSemaphoreCreateInfo semaphoreCreateInfo = {};
 	semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -981,7 +983,7 @@ void Application::initSyncObjects() {
 	fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 	fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-	for (auto i = 0; i < swapchainFramebuffers.size(); i++) {
+	for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 		if (VK_SUCCESS != vkCreateSemaphore(mainLogicalDevice, &semaphoreCreateInfo, nullptr, &imageAvailableSemaphores[i]) ||
 			VK_SUCCESS != vkCreateSemaphore(mainLogicalDevice, &semaphoreCreateInfo, nullptr, &renderFinishedSemaphores[i])) {
 			throw std::runtime_error("[Vulkan] Failed to create semaphore(s)!");
@@ -1710,7 +1712,7 @@ void Application::draw() {
 		throw std::runtime_error("[Vulkan] Failed to wait for queue to become idle!");
 	}
 
-	currentFrame = (currentFrame + 1) % (swapchainFramebuffers.size());
+	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
 void Application::loop() {
@@ -1729,7 +1731,7 @@ void Application::free() {
 
     vkDeviceWaitIdle(mainLogicalDevice);
 
-    for (auto i = 0; i < swapchainFramebuffers.size(); i++) {
+    for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
         vkDestroySemaphore(mainLogicalDevice, renderFinishedSemaphores[i], nullptr);
         vkDestroySemaphore(mainLogicalDevice, imageAvailableSemaphores[i], nullptr);
         vkDestroyFence(mainLogicalDevice, inFlightFences[i], nullptr);
@@ -1755,7 +1757,7 @@ void Application::free() {
     vkDestroyImage(mainLogicalDevice, depthImage, nullptr);
     vkFreeMemory(mainLogicalDevice, depthImageMemory, nullptr);
 
-    for (auto i = 0; i < uniformBuffers.size(); i++) {
+    for (auto i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
         vkDestroyBuffer(mainLogicalDevice, uniformBuffers[i], nullptr);
         vkFreeMemory(mainLogicalDevice, uniformBufferMemories[i], nullptr);
     }
