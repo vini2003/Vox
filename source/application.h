@@ -213,6 +213,8 @@ public:
 	void resetVkSwapchain();
 
 	void draw();
+	void drawImGui();
+
 	void loop();
 	void free();
 

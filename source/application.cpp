@@ -1014,9 +1014,14 @@ void Application::updateUniformBuffers(uint32_t currentImage) {
 
 	ubo.view = camera.getViewMatrix();
 
+	const auto aspectRatio = static_cast<float>(swapchainExtent.width) / static_cast<float>(swapchainExtent.height);
+
+	ubo.proj = camera.getProjectionMatrix(aspectRatio);
+	ubo.proj[1][1] *= -1;
+
 	memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
 
-	for (auto& [id, shader] : shaders) {
+	for (auto &shader: shaders | std::views::values) {
 		shader.setUniformFloat("decay", 4.5f);
 		shader.setUniformVec4("colorModulation", glm::vec4(1.0f, 0.3f, 0.3f, 1.0f));
 
@@ -1668,14 +1673,7 @@ void Application::draw() {
 		throw std::runtime_error("[Vulkan] Failed to acquire swap chain image!");
 	}
 
-	ImGui_ImplVulkan_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-
-	ImGui::NewFrame();
-
-	ImGui::Button("Meow", ImVec2(50, 50));
-
-	ImGui::Render();
+	drawImGui();
 
 	if (VK_SUCCESS != vkWaitForFences(mainLogicalDevice, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX)) {
 		throw std::runtime_error("[Vulkan] Failed to wait for fence!");
@@ -1738,6 +1736,30 @@ void Application::draw() {
 	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
+void Application::drawImGui() {
+	ImGui_ImplVulkan_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+
+	ImGui::Begin("Camera Controls");
+
+	// Temp variable for position
+	glm::vec3 tempPosition = camera.getPosition();
+	if (ImGui::SliderFloat3("Position", glm::value_ptr(tempPosition), -10.0f, 10.0f)) {
+		camera.setPosition(tempPosition); // Apply the new position if changed
+	}
+
+	// Similarly, handle zoom if needed
+	float zoom = camera.getZoom();
+	if (ImGui::SliderFloat("Zoom", &zoom, 1.0f, 90.0f)) {
+		camera.setZoom(zoom); // Apply the new zoom if changed
+	}
+
+	ImGui::End();
+
+	ImGui::Render();
+}
+
 void Application::loop() {
 	while (!glfwWindowShouldClose(glfwWindow)) {
 		glfwPollEvents();
@@ -1752,10 +1774,6 @@ void Application::loop() {
 		draw();
 	}
 }
-
-class thingmabob {
-	virtual void meow();
-};
 
 void Application::free() {
     ImGui_ImplVulkan_Shutdown();

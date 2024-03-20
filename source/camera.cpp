@@ -5,11 +5,15 @@
 #include "camera.h"
 
 #include <imgui.h>
-#include <vector>
 #include <bits/stl_algo.h>
+#include <glm/ext/matrix_clip_space.hpp>
 
 glm::mat4 Camera::getViewMatrix() const {
     return glm::lookAt(position, position + front, up);
+}
+
+glm::mat4 Camera::getProjectionMatrix(float aspectRatio) const {
+    return glm::perspective(glm::radians(zoom), aspectRatio, 0.1f, 100.0f);
 }
 
 void Camera::handleKeyboardInput(GLFWwindow* window, const float deltaTime) {

@@ -48,7 +48,8 @@ public:
         updateCameraVectors();
     }
 
-    glm::mat4 getViewMatrix() const;
+    [[nodiscard]] glm::mat4 getViewMatrix() const;
+    [[nodiscard]] glm::mat4 getProjectionMatrix(float aspectRatio) const;
 
     void handleKeyboardInput(GLFWwindow *window, float deltaTime);
     void handleMouseInput(GLFWwindow* window, GLboolean constrainPitch = true);
@@ -57,43 +58,25 @@ public:
     void updateCameraVectors();
 
     [[nodiscard]] glm::vec3 getPosition() const;
-
-    void setPosition(const glm::vec3 &position);
-
     [[nodiscard]] glm::vec3 getFront() const;
-
-    void setFront(const glm::vec3 &front);
-
     [[nodiscard]] glm::vec3 getUp() const;
-
-    void setUp(const glm::vec3 &up);
-
     [[nodiscard]] glm::vec3 getRight() const;
-
-    void setRight(const glm::vec3 &right);
-
     [[nodiscard]] glm::vec3 getWorldUp() const;
-
-    void setWorldUp(const glm::vec3 &worldUp);
-
     [[nodiscard]] float getYaw() const;
-
-    void setYaw(float yaw);
-
     [[nodiscard]] float getPitch() const;
-
-    void setPitch(float pitch);
-
     [[nodiscard]] float getMovementSpeed() const;
-
-    void setMovementSpeed(float movementSpeed);
-
     [[nodiscard]] float getMouseSensitivity() const;
-
-    void setMouseSensitivity(float mouseSensitivity);
-
     [[nodiscard]] float getZoom() const;
 
+    void setPosition(const glm::vec3 &position);
+    void setFront(const glm::vec3 &front);
+    void setUp(const glm::vec3 &up);
+    void setRight(const glm::vec3 &right);
+    void setWorldUp(const glm::vec3 &worldUp);
+    void setYaw(float yaw);
+    void setPitch(float pitch);
+    void setMovementSpeed(float movementSpeed);
+    void setMouseSensitivity(float mouseSensitivity);
     void setZoom(float zoom);
 };
 
