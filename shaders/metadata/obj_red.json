@@ -1,0 +1,38 @@
+{
+  "vertex": "obj_red",
+  "fragment": "obj_red",
+  "attributes": [
+    {
+      "name": "position",
+      "type": "vec3"
+    },
+    {
+      "name": "normal",
+      "type": "vec3"
+    },
+    {
+      "name": "uv",
+      "type": "vec2"
+    }
+  ],
+  "samplers": [
+    {
+      "name": "diffuse",
+      "type": "sampler2D"
+    }
+  ],
+  "uniforms": [
+    {
+      "name": "ubo",
+      "type": "ubo"
+    },
+    {
+      "name": "colorModulation",
+      "type": "vec4"
+    },
+    {
+      "name": "decay",
+      "type": "float"
+    }
+  ]
+}

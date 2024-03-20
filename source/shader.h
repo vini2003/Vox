@@ -3,7 +3,6 @@
 
 #include <filesystem>
 #include <functional>
-#include <iostream>
 #include <map>
 #include <optional>
 #include <string>
@@ -157,7 +156,6 @@ public:
     void bindSampler(uint32_t binding, VkImageView *imageView, VkSampler *sampler, VkImageLayout imageLayout);
 
     void destroyOwnedDescriptorSetLayot(const VkDevice &device) const;
-    void freeOwnedDescriptorSets(const VkDevice &device, const VkDescriptorPool& descriptorPool) const;
 
     void destroyOwnedBuffers(const VkDevice &device) const;
     void destroyOwnedBufferMemories(const VkDevice &device) const;
@@ -532,11 +530,6 @@ void Shader<V>::destroyOwnedDescriptorSetLayot(const VkDevice &device) const {
     if (descriptorSetLayout.has_value()) {
         vkDestroyDescriptorSetLayout(device, descriptorSetLayout.value(), nullptr);
     }
-}
-
-template<typename V>
-void Shader<V>::freeOwnedDescriptorSets(const VkDevice &device, const VkDescriptorPool &descriptorPool) const {
-    // TODO: Check if needed?
 }
 
 template<typename V>

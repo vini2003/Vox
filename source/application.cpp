@@ -10,8 +10,8 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
 
-#include "shader.h"
 #include "application.h"
+#include "shader.h"
 #include "util.h"
 
 void Application::initGlfw() {
@@ -559,6 +559,9 @@ void Application::initPipeline() {
 
 		const auto vertexShaderModule = buildShaderModule(vertexShaderCode.value());
 		const auto fragmentShaderModule = buildShaderModule(fragmentShaderCode.value());
+
+		shader.setVertexShaderCode(std::nullopt); // Free the memory used by the vector.
+		shader.setFragmentShaderCode(std::nullopt); // Free the memory used by the vector.
 
 		shader.setVertexShaderModule(vertexShaderModule);
 		shader.setFragmentShaderModule(fragmentShaderModule);
@@ -1757,7 +1760,7 @@ void Application::free() {
         vkFreeMemory(mainLogicalDevice, uniformBufferMemories[i], nullptr);
     }
 
-	for (const auto& [id, shader] : shaders) {
+	for (const auto &shader: shaders | std::views::values) {
 		shader.destroyOwnedBuffers(mainLogicalDevice);
 		shader.destroyOwnedBufferMemories(mainLogicalDevice);
 
@@ -1767,11 +1770,11 @@ void Application::free() {
 	vkDestroyDescriptorPool(mainLogicalDevice, descriptorPool, nullptr);
 	vkDestroyDescriptorPool(mainLogicalDevice, imguiDescriptorPool, nullptr);
 
-	for (const auto& [id, pipeline] : pipelines) {
+	for (const auto &pipeline: pipelines | std::views::values) {
 		vkDestroyPipeline(mainLogicalDevice, pipeline, nullptr);
 	}
 
-	for (const auto& [id, pipelineLayout] : pipelineLayouts) {
+	for (const auto &pipelineLayout: pipelineLayouts | std::views::values) {
 		vkDestroyPipelineLayout(mainLogicalDevice, pipelineLayout, nullptr);
 	}
 
@@ -1793,12 +1796,13 @@ void Application::free() {
 }
 
 void Application::freeVkSwapchain() {
-    for (auto imageView : swapchainImageViews) {
+    for (const auto imageView : swapchainImageViews) {
         vkDestroyImageView(mainLogicalDevice, imageView, nullptr);
     }
+
     vkDestroySwapchainKHR(mainLogicalDevice, swapchain, nullptr);
 
-    for (auto framebuffer : swapchainFramebuffers) {
+    for (const auto framebuffer : swapchainFramebuffers) {
         vkDestroyFramebuffer(mainLogicalDevice, framebuffer, nullptr);
     }
 }
@@ -1823,7 +1827,7 @@ void Application::resetVkSwapchain() {
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL Application::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* callbackData, void* userData) {
-	std::cerr << "Validation layer: " << callbackData->pMessage << std::endl;
+	std::cerr << "[Vulkan] Validation layer: " << callbackData->pMessage << "\n" << std::flush;
 
 	return VK_FALSE;
 }
