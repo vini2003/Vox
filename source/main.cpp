@@ -1,7 +1,7 @@
 #include "application.h"
 
 int main() {
-	Application application;
+	vox::Application application;
 
 	try {
 		application.run();

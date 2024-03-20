@@ -32,7 +32,7 @@ namespace vox {
         std::string type;
 
         [[nodiscard]] VkFormat format() const {
-            return vox::GLMTypeToVkFormat(type);
+            return GLMTypeToVkFormat(type);
         }
     };
 
@@ -64,7 +64,7 @@ namespace vox {
         VkImageLayout imageLayout;
     };
 
-    template<typename V = vox::Vertex>
+    template<typename V = Vertex>
     class Shader {
         std::string id;
 
@@ -201,11 +201,11 @@ namespace vox {
         for (const auto& [name, type] : metadata.uniforms) {
             if (name == "ubo") continue;
 
-            const size_t alignment = vox::GLMTypeAlignment(type);
-            currentOffset = vox::GLMTypeAlignUp(currentOffset, alignment);
+            const size_t alignment = GLMTypeAlignment(type);
+            currentOffset = GLMTypeAlignUp(currentOffset, alignment);
 
             uniformOffsets[name] = currentOffset;
-            currentOffset += vox::GLMTypeAlignment(type);
+            currentOffset += GLMTypeAlignment(type);
         }
 
         uniformBytes.resize(currentOffset);
