@@ -105,6 +105,7 @@ public:
 	std::vector<void*> uniformBuffersMapped;
 
 	std::vector<vox::Vertex> vertices = {};
+
 	std::vector<uint32_t> indices = {};
 
 	std::vector<VkCommandBuffer> commandBuffers;
@@ -116,11 +117,11 @@ public:
 
 	Camera camera = {};
 
-	UniformBufferObject ubo = {};
+	vox::UniformBufferObject ubo = {};
 
 	bool checkVkValidationLayers();
 
-	VkShaderModule buildShaderModule(const std::vector<char>& rawShader);
+	VkShaderModule buildShaderModule(const std::vector<char>& rawShader) const;
 
 	static VkPipelineShaderStageCreateInfo buildPipelineShaderStageCreateInfo(VkShaderModule shaderModule, VkShaderStageFlagBits stage);
 	static VkPipelineViewportStateCreateInfo buildPipelineViewportStateCreateInfo(const VkViewport *viewport, const VkRect2D *scissor);
@@ -130,17 +131,33 @@ public:
 	static VkPipelineColorBlendStateCreateInfo buildPipelineColorBlendStateCreateInfo(const VkPipelineColorBlendAttachmentState *colorBlendAttachmentState);
 	static VkPipelineDepthStencilStateCreateInfo buildPipelineDepthStencilStateCreateInfo();
 
-	void buildDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+	static void buildDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 
-	VkResult buildBuffer(vox::BufferBuildInfo buildInfo);
+	VkResult buildBuffer(VkBuffer *buffer, VkDeviceMemory *bufferMemory, VkDeviceSize deviceSize, VkBufferUsageFlags bufferUsageFlags, VkMemoryPropertyFlags memoryPropertyFlags);
 	VkResult buildImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkImage& image, VkDeviceMemory& imageMemory);
 	VkResult buildImageView(VkImage image, VkFormat format, VkImageAspectFlags imageAspectFlags, VkImageView& imageView);
+	VkResult buildTextureImage(const std::string& imagePath, VkImage& textureImage, VkDeviceMemory& textureImageMemory);
+
+	VkResult buildUniformBuffer(VkBuffer *buffer, VkDeviceMemory *bufferMemory, const VkDeviceSize size);
+
+	template<typename T>
+	VkResult buildUniformBuffer(VkBuffer *buffer, VkDeviceMemory *bufferMemory);
+
+	template<class T>
+	VkResult buildVertexBuffer(VkBuffer *buffer, VkDeviceMemory *bufferMemory, const std::vector<T> &data);
+
+	template<class T>
+	VkResult buildIndexBuffer(VkBuffer *buffer, VkDeviceMemory *bufferMemory, const std::vector<T> &data);
 
 	void copyBuffer(VkBuffer srcBuffer, VkBuffer destBuffer, VkDeviceSize bufferSize);
 
 	VkResult copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 
-	VkResult buildPool(vox::CommandPooolBuildInfo buildInfo);
+	VkResult buildSampler(VkSampler* sampler, VkFilter magFilter = VK_FILTER_LINEAR, VkFilter minFilter = VK_FILTER_LINEAR, VkSamplerAddressMode addressMode = VK_SAMPLER_ADDRESS_MODE_REPEAT, float maxAnisotropy = 1.0f, VkBorderColor borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK, bool compareEnable = false, VkCompareOp compareOp = VK_COMPARE_OP_ALWAYS, VkSamplerMipmapMode mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR, float mipLodBias = 0.0f, float minLod = 0.0f, float maxLod = 0.0f) const;
+
+	VkResult buildCommandPool(VkCommandPool *pool, uint32_t queueFamilyIndex, VkCommandPoolCreateFlags flags) const;
+
+	VkResult buildFramebuffer(VkFramebuffer* framebuffer, VkRenderPass renderPass, const std::vector<VkImageView> &attachments, uint32_t width, uint32_t height, uint32_t layers = 1) const;
 
 	VkSurfaceFormatKHR selectSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& surfaceFormats);
 	VkPresentModeKHR selectSwapPresentMode(const std::vector<VkPresentModeKHR>& presentModes);
@@ -207,7 +224,7 @@ public:
 
 	void executeImmediateCommand(std::function<void(VkCommandBuffer cmd)> &&function);
 
-	void transitionVkImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 
 	void freeVkSwapchain();
 	void resetVkSwapchain();
@@ -220,5 +237,81 @@ public:
 
 	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* callbackData, void* userData);
 };
+
+template<typename T>
+VkResult Application::buildUniformBuffer(VkBuffer *buffer, VkDeviceMemory *bufferMemory) {
+	return buildUniformBuffer(buffer, bufferMemory, sizeof(T));
+}
+
+template<typename T>
+VkResult Application::buildVertexBuffer(VkBuffer* buffer, VkDeviceMemory* bufferMemory, const std::vector<T>& data) {
+	VkDeviceSize bufferSize = sizeof(data[0]) * data.size();
+
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+
+	if (const auto result = buildBuffer(&stagingBuffer, &stagingBufferMemory, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+		result != VK_SUCCESS) {
+		return result;
+	}
+
+	void* mappedData;
+
+	if (const auto result = vkMapMemory(mainLogicalDevice, stagingBufferMemory, 0, bufferSize, 0, &mappedData);
+		result != VK_SUCCESS) {
+		return result;
+	}
+
+	memcpy(mappedData, data.data(), bufferSize);
+	vkUnmapMemory(mainLogicalDevice, stagingBufferMemory);
+
+	if (const auto result = buildBuffer(buffer, bufferMemory, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		result != VK_SUCCESS) {
+		return result;
+	}
+
+	copyBuffer(stagingBuffer, *buffer, bufferSize);
+
+	vkDestroyBuffer(mainLogicalDevice, stagingBuffer, nullptr);
+	vkFreeMemory(mainLogicalDevice, stagingBufferMemory, nullptr);
+
+	return VK_SUCCESS;
+}
+
+template<typename T>
+VkResult Application::buildIndexBuffer(VkBuffer* buffer, VkDeviceMemory* bufferMemory, const std::vector<T>& data) {
+	const VkDeviceSize bufferSize = sizeof(data[0]) * data.size();
+
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+
+	if (const auto result = buildBuffer(&stagingBuffer, &stagingBufferMemory, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+		result != VK_SUCCESS) {
+		return result;
+	}
+
+	void* mappedData;
+
+	if (const auto result = vkMapMemory(mainLogicalDevice, stagingBufferMemory, 0, bufferSize, 0, &mappedData);
+		result != VK_SUCCESS) {
+		return result;
+	}
+
+	memcpy(mappedData, data.data(), bufferSize);
+
+	vkUnmapMemory(mainLogicalDevice, stagingBufferMemory);
+
+	if (const auto result = buildBuffer(buffer, bufferMemory, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		result != VK_SUCCESS) {
+		return result;
+	}
+
+	copyBuffer(stagingBuffer, *buffer, bufferSize);
+
+	vkDestroyBuffer(mainLogicalDevice, stagingBuffer, nullptr);
+	vkFreeMemory(mainLogicalDevice, stagingBufferMemory, nullptr);
+
+	return VK_SUCCESS;
+}
 
 #endif

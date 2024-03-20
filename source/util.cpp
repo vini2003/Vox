@@ -89,26 +89,6 @@ size_t vox::GLMTypeAlignUp(const size_t size, const size_t alignment) {
 	return (size + alignment - 1) & ~(alignment - 1);
 }
 
-std::vector<char> vox::createBinaryBlob(std::initializer_list<std::pair<std::string, const void *>> args) {
-	std::vector<char> blob;
-	size_t currentOffset = 0;
-
-	for (const auto& [type, data] : args) {
-		const auto typeSize = GLMTypeSize(type);
-		const auto typeAlignment = GLMTypeAlignment(type);
-
-		currentOffset = GLMTypeAlignUp(currentOffset, typeAlignment);
-
-		blob.resize(currentOffset + typeSize);
-
-		memcpy(&blob[currentOffset], data, typeSize);
-
-		currentOffset += typeSize;
-	}
-
-	return blob;
-}
-
 VkResult vox::createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
 	const auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT"));
 

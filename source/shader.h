@@ -146,7 +146,7 @@ public:
     void buildDescriptorSetLayout(const VkDevice& device);
     void buildDescriptorSets(const VkDevice& device, const VkDescriptorPool& descriptorPool, uint32_t amount);
 
-    void buildBuffers(const VkDevice &device, const std::function<VkResult(vox::BufferBuildInfo)> &buildBuffer);
+    void buildBuffers(const std::function<VkResult(VkBuffer*, VkDeviceMemory*, VkDeviceSize)> &buildBuffer);
 
     void reserveBuffer();
     void reserveBuffer(uint32_t binding);
@@ -469,7 +469,7 @@ void Shader<V>::reserveBuffer() {
 }
 
 template<typename V>
-void Shader<V>::buildBuffers(const VkDevice& device, const std::function<VkResult(vox::BufferBuildInfo)> &buildBuffer) {
+void Shader<V>::buildBuffers(const std::function<VkResult(VkBuffer*, VkDeviceMemory*, VkDeviceSize)> &buildBuffer) {
     initUniformBytesAndOffsets();
 
     auto buffers = std::vector<VkBuffer*>(3);
@@ -481,17 +481,7 @@ void Shader<V>::buildBuffers(const VkDevice& device, const std::function<VkResul
         VkBuffer buffer;
         VkDeviceMemory bufferMemory;
 
-        vox::BufferBuildInfo buildInfo = {};
-
-        buildInfo.deviceSize = uniformBytes.size();
-
-        buildInfo.bufferUsageFlags = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-        buildInfo.memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-
-        buildInfo.buffer = &buffer;
-        buildInfo.bufferMemory = &bufferMemory;
-
-        if (VK_SUCCESS != buildBuffer(buildInfo)) {
+        if (VK_SUCCESS != buildBuffer(&buffer, &bufferMemory,uniformBytes.size())) {
             throw std::runtime_error("[Shader] Failed to build buffer for shader: " + id);
         }
 

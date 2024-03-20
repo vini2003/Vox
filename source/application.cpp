@@ -87,7 +87,7 @@ void Application::executeImmediateCommand(std::function<void(VkCommandBuffer com
 	vkFreeCommandBuffers(mainLogicalDevice, shortCommandPool, 1, &commandBuffer);
 }
 
-void Application::transitionVkImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) {
+void Application::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) {
 	executeImmediateCommand([&](const auto& commandBuffer) {
 		VkImageMemoryBarrier barrier = {};
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -660,20 +660,7 @@ void Application::initFramebuffers() {
 	swapchainFramebuffers.resize(swapchainImageViews.size());
 
 	for (auto i = 0; i < swapchainFramebuffers.size(); ++i) {
-		const auto vkImageView = swapchainImageViews[i];
-
-		std::array vkAttachments = { vkImageView, depthImageView };
-
-		VkFramebufferCreateInfo framebufferCreateInfo = {};
-		framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		framebufferCreateInfo.renderPass = renderPass;
-		framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(vkAttachments.size());
-		framebufferCreateInfo.pAttachments = vkAttachments.data();
-		framebufferCreateInfo.width = swapchainExtent.width;
-		framebufferCreateInfo.height = swapchainExtent.height;
-		framebufferCreateInfo.layers = 1;
-
-		if (VK_SUCCESS != vkCreateFramebuffer(mainLogicalDevice, &framebufferCreateInfo, nullptr, &swapchainFramebuffers[i])) {
+		if (VK_SUCCESS != buildFramebuffer(&swapchainFramebuffers[i], renderPass, { swapchainImageViews[i], depthImageView }, swapchainExtent.width, swapchainExtent.height)) {
 			throw std::runtime_error("[Vulkan] Failed to create framebuffer!");
 		}
 	}
@@ -684,105 +671,25 @@ void Application::initFramebuffers() {
 void Application::initCommandPools() {
 	const auto [graphicsFamily, presentFamily] = getQueueFamilies(mainPhysicalDevice);
 
-	VkCommandPoolCreateInfo commandPoolCreateInfo = {};
-	commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-	commandPoolCreateInfo.queueFamilyIndex = graphicsFamily.value();
-	commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-
-	vox::CommandPooolBuildInfo commandPoolBuildInfo = {};
-	commandPoolBuildInfo.logicalDevice = mainLogicalDevice;
-	commandPoolBuildInfo.commandPoolInfo = &commandPoolCreateInfo;
-	commandPoolBuildInfo.allocationCallbacks = nullptr;
-	commandPoolBuildInfo.commandPool = &commandPool;
-
-	if (VK_SUCCESS != buildPool(commandPoolBuildInfo)) {
+	if (VK_SUCCESS != buildCommandPool(&commandPool, graphicsFamily.value(), VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)) {
 		throw std::runtime_error("[Vulkan] Failed to create command pool!");
 	}
 
-	commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
-
-	commandPoolBuildInfo.commandPool = &shortCommandPool;
-
-	if (VK_SUCCESS != buildPool(commandPoolBuildInfo)) {
+	if (VK_SUCCESS != buildCommandPool(&shortCommandPool, graphicsFamily.value(), VK_COMMAND_POOL_CREATE_TRANSIENT_BIT)) {
 		throw std::runtime_error("[Vulkan] Failed to create short command pool!");
 	}
 }
 
 void Application::initVertexBuffer() {
-	VkBuffer stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
-
-	vox::BufferBuildInfo bufferBuildInfo = {};
-	bufferBuildInfo.deviceSize = sizeof(vertices[0]) * vertices.size();
-	bufferBuildInfo.bufferUsageFlags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-	bufferBuildInfo.memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-	bufferBuildInfo.buffer = &stagingBuffer;
-	bufferBuildInfo.bufferMemory = &stagingBufferMemory;
-
-	if (VK_SUCCESS != buildBuffer(bufferBuildInfo)) {
-		throw std::runtime_error("[Vulkan] Failed to create staging vertex buffer!");
-	}
-
-	void* data;
-	vkMapMemory(mainLogicalDevice, stagingBufferMemory, 0, bufferBuildInfo.deviceSize, 0, &data);
-	memcpy(data, vertices.data(), bufferBuildInfo.deviceSize);
-	vkUnmapMemory(mainLogicalDevice, stagingBufferMemory);
-
-	bufferBuildInfo.bufferUsageFlags = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-	bufferBuildInfo.memoryPropertyFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-	bufferBuildInfo.buffer = &vertexBuffer;
-	bufferBuildInfo.bufferMemory = &vertexBufferMemory;
-
-	if (VK_SUCCESS != buildBuffer(bufferBuildInfo)) {
+	if (VK_SUCCESS != buildVertexBuffer(&vertexBuffer, &vertexBufferMemory, vertices)) {
 		throw std::runtime_error("[Vulkan] Failed to create vertex buffer!");
 	}
-
-	copyBuffer(stagingBuffer, vertexBuffer, bufferBuildInfo.deviceSize);
-
-	vkDestroyBuffer(mainLogicalDevice, stagingBuffer, nullptr);
-	vkFreeMemory(mainLogicalDevice, stagingBufferMemory, nullptr);
 }
 
 void Application::initIndexBuffer() {
-	VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
-
-	VkBuffer stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
-
-	vox::BufferBuildInfo bufferBuildInfo = {};
-	bufferBuildInfo.deviceSize = bufferSize;
-	bufferBuildInfo.bufferUsageFlags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-	bufferBuildInfo.memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-	bufferBuildInfo.buffer = &stagingBuffer;
-	bufferBuildInfo.bufferMemory = &stagingBufferMemory;
-
-	if (VK_SUCCESS != buildBuffer(bufferBuildInfo)) {
-		throw std::runtime_error("[Vulkan] Failed to create staging index buffer!");
-	}
-
-	void* data;
-
-	if (VK_SUCCESS != vkMapMemory(mainLogicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data)) {
-		throw std::runtime_error("[Vulkan] Failed to map memory for index buffer!");
-	}
-
-	memcpy(data, indices.data(), bufferSize);
-
-	vkUnmapMemory(mainLogicalDevice, stagingBufferMemory);
-
-	bufferBuildInfo.bufferUsageFlags = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-	bufferBuildInfo.memoryPropertyFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-	bufferBuildInfo.buffer = &indexBuffer;
-	bufferBuildInfo.bufferMemory = &indexBufferMemory;
-
-	if (VK_SUCCESS != buildBuffer(bufferBuildInfo)) {
+	if (VK_SUCCESS != buildIndexBuffer(&indexBuffer, &indexBufferMemory, indices)) {
 		throw std::runtime_error("[Vulkan] Failed to create index buffer!");
 	}
-
-	copyBuffer(stagingBuffer, indexBuffer, bufferSize);
-
-	vkDestroyBuffer(mainLogicalDevice, stagingBuffer, nullptr);
-	vkFreeMemory(mainLogicalDevice, stagingBufferMemory, nullptr);
 }
 
 void Application::initDescriptorPool() {
@@ -823,58 +730,9 @@ void Application::initDepthResources() {
 }
 
 void Application::initTextureImage() {
-	int textureWidht;
-	int textureHeight;
-	int textureChannels;
-
-	stbi_uc* pixels = stbi_load(TEXTURE_PATH.c_str(), &textureWidht, &textureHeight, &textureChannels, STBI_rgb_alpha);
-
-	const VkDeviceSize imageSize = textureWidht * textureHeight * 4;
-
-	if (pixels == nullptr) {
-		throw std::runtime_error("[STB] Failed to load texture image!");
-	}
-
-	VkBuffer stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
-
-	vox::BufferBuildInfo bufferBuildInfo = {};
-	bufferBuildInfo.deviceSize = imageSize;
-	bufferBuildInfo.bufferUsageFlags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-	bufferBuildInfo.memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-	bufferBuildInfo.buffer = &stagingBuffer;
-	bufferBuildInfo.bufferMemory = &stagingBufferMemory;
-
-	if (VK_SUCCESS != buildBuffer(bufferBuildInfo)) {
-		throw std::runtime_error("[Vulkan] Failed to create staging texture buffer!");
-	}
-
-	void* data;
-
-	if (VK_SUCCESS != vkMapMemory(mainLogicalDevice, stagingBufferMemory, 0, imageSize, 0, &data)) {
-		throw std::runtime_error("[Vulkan] Failed to map memory for texture buffer!");
-	}
-
-	memcpy(data, pixels, imageSize);
-
-	vkUnmapMemory(mainLogicalDevice, stagingBufferMemory);
-
-	stbi_image_free(pixels);
-
-	if (VK_SUCCESS != buildImage(textureWidht, textureHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory)) {
+	if (VK_SUCCESS != buildTextureImage(TEXTURE_PATH, textureImage, textureImageMemory)) {
 		throw std::runtime_error("[Vulkan] Failed to create texture image!");
 	}
-
-	transitionVkImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-
-	if (VK_SUCCESS != copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(textureWidht), static_cast<uint32_t>(textureHeight))) {
-		throw std::runtime_error("[Vulkan] Failed to copy buffer to image!");
-	}
-
-	transitionVkImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-	vkDestroyBuffer(mainLogicalDevice, stagingBuffer, nullptr);
-	vkFreeMemory(mainLogicalDevice, stagingBufferMemory, nullptr);
 }
 
 void Application::initTextureImageView() {
@@ -884,29 +742,7 @@ void Application::initTextureImageView() {
 }
 
 void Application::initTextureSampler() {
-	VkSamplerCreateInfo createInfo = {};
-	createInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-	createInfo.magFilter = VK_FILTER_LINEAR;
-	createInfo.minFilter = VK_FILTER_LINEAR;
-	createInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	createInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	createInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	createInfo.anisotropyEnable = VK_TRUE;
-
-	VkPhysicalDeviceProperties physicalDeviceProperties = {};
-	vkGetPhysicalDeviceProperties(mainPhysicalDevice, &physicalDeviceProperties);
-
-	createInfo.maxAnisotropy = physicalDeviceProperties.limits.maxSamplerAnisotropy;
-	createInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-	createInfo.unnormalizedCoordinates = VK_FALSE;
-	createInfo.compareEnable = VK_FALSE;
-	createInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-	createInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-	createInfo.mipLodBias = 0.0f;
-	createInfo.minLod = 0.0f;
-	createInfo.maxLod = 0.0f;
-
-	if (VK_SUCCESS != vkCreateSampler(mainLogicalDevice, &createInfo, nullptr, &textureSampler)) {
+	if (VK_SUCCESS != buildSampler(&textureSampler)) {
 		throw std::runtime_error("[Vulkan] Failed to create texture sampler!");
 	}
 }
@@ -917,20 +753,11 @@ void Application::initUniformBuffers() {
 	uniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-		constexpr auto bufferSize = sizeof(UniformBufferObject);
-
-		vox::BufferBuildInfo bufferBuildInfo = {};
-		bufferBuildInfo.deviceSize = bufferSize;
-		bufferBuildInfo.bufferUsageFlags = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-		bufferBuildInfo.memoryPropertyFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-		bufferBuildInfo.buffer = &uniformBuffers[i];
-		bufferBuildInfo.bufferMemory = &uniformBufferMemories[i];
-
-		if (VK_SUCCESS != buildBuffer(bufferBuildInfo)) {
+		if (VK_SUCCESS != buildUniformBuffer<vox::UniformBufferObject>(&uniformBuffers[i], &uniformBufferMemories[i])) {
 			throw std::runtime_error("[Vulkan] Failed to create uniform buffer!");
 		}
 
-		if (VK_SUCCESS != vkMapMemory(mainLogicalDevice, uniformBufferMemories[i], 0, bufferSize, 0, &uniformBuffersMapped[i])) {
+		if (VK_SUCCESS != vkMapMemory(mainLogicalDevice, uniformBufferMemories[i], 0, sizeof(vox::UniformBufferObject), 0, &uniformBuffersMapped[i])) {
 			throw std::runtime_error("[Vulkan] Failed to map uniform buffer memory!");
 		}
 	}
@@ -939,17 +766,17 @@ void Application::initUniformBuffers() {
 		auto uniformBufferPtrs = std::vector<VkBuffer*>(3);
 		auto uniformBufferMemoryPtrs = std::vector<VkDeviceMemory*>(3);
 
-		std::transform(uniformBuffers.begin(), uniformBuffers.end(), uniformBufferPtrs.begin(), [](auto& buffer) { return &buffer; });
-		std::transform(uniformBufferMemories.begin(), uniformBufferMemories.end(), uniformBufferMemoryPtrs.begin(), [](auto& memory) { return &memory; });
+		std::ranges::transform(uniformBuffers, uniformBufferPtrs.begin(), [](auto& buffer) { return &buffer; });
+		std::ranges::transform(uniformBufferMemories, uniformBufferMemoryPtrs.begin(), [](auto& memory) { return &memory; });
 
-		shader.bindBuffer(0, uniformBufferPtrs, 0, sizeof(UniformBufferObject), uniformBufferMemoryPtrs, uniformBuffersMapped);
+		shader.bindBuffer(0, uniformBufferPtrs, 0, sizeof(vox::UniformBufferObject), uniformBufferMemoryPtrs, uniformBuffersMapped);
 		shader.bindSampler(1, &textureImageView, &textureSampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-		auto buildBufferLambda = [&](const vox::BufferBuildInfo& bufferBuildInfo) -> VkResult {
-			return buildBuffer(bufferBuildInfo);
+		auto buildBufferLambda = [&](VkBuffer* buffer, VkDeviceMemory* bufferMemory, VkDeviceSize size) -> VkResult {
+			return buildUniformBuffer(buffer, bufferMemory, size);
 		};
 
-		shader.buildBuffers(mainLogicalDevice, buildBufferLambda);
+		shader.buildBuffers(buildBufferLambda);
 	}
 }
 
@@ -1068,7 +895,7 @@ void Application::buildDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoE
 	createInfo.pUserData = nullptr;
 }
 
-VkShaderModule Application::buildShaderModule(const std::vector<char>& rawShader) {
+VkShaderModule Application::buildShaderModule(const std::vector<char>& rawShader) const {
 	VkShaderModuleCreateInfo createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 	createInfo.codeSize = rawShader.size();
@@ -1174,14 +1001,20 @@ VkPipelineDepthStencilStateCreateInfo Application::buildPipelineDepthStencilStat
     return info;
 }
 
-VkResult Application::buildBuffer(vox::BufferBuildInfo buildInfo) {
+VkResult Application::buildBuffer(
+	VkBuffer* buffer,
+	VkDeviceMemory* bufferMemory,
+	const VkDeviceSize deviceSize,
+	const VkBufferUsageFlags bufferUsageFlags,
+	const VkMemoryPropertyFlags memoryPropertyFlags
+) {
 	VkBufferCreateInfo bufferCreateInfo = {};
 	bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	bufferCreateInfo.size = buildInfo.deviceSize;
-	bufferCreateInfo.usage = buildInfo.bufferUsageFlags;
+	bufferCreateInfo.size = deviceSize;
+	bufferCreateInfo.usage = bufferUsageFlags;
 	bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-	if (const auto result = vkCreateBuffer(mainLogicalDevice, &bufferCreateInfo, nullptr, buildInfo.buffer);
+	if (const auto result = vkCreateBuffer(mainLogicalDevice, &bufferCreateInfo, nullptr, buffer);
 		result != VK_SUCCESS) {
 		std::cerr << "[Vulkan] Failed to create buffer!\n" << std::flush;
 		return result;
@@ -1190,14 +1023,14 @@ VkResult Application::buildBuffer(vox::BufferBuildInfo buildInfo) {
 	std::cout << "[Vulkan] Buffer initialization succeeded.\n" << std::flush;
 
 	VkMemoryRequirements memRequirements;
-	vkGetBufferMemoryRequirements(mainLogicalDevice, *buildInfo.buffer, &memRequirements);
+	vkGetBufferMemoryRequirements(mainLogicalDevice, *buffer, &memRequirements);
 
 	VkMemoryAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	allocInfo.allocationSize = memRequirements.size;
-	allocInfo.memoryTypeIndex = getMemoryType(memRequirements.memoryTypeBits, buildInfo.memoryPropertyFlags);
+	allocInfo.memoryTypeIndex = getMemoryType(memRequirements.memoryTypeBits, memoryPropertyFlags);
 
-	if (const auto result = vkAllocateMemory(mainLogicalDevice, &allocInfo, nullptr, buildInfo.bufferMemory);
+	if (const auto result = vkAllocateMemory(mainLogicalDevice, &allocInfo, nullptr, bufferMemory);
 		result != VK_SUCCESS) {
 		std::cerr << "[Vulkan] Failed to allocate buffer memory!\n" << std::flush;
 		return result;
@@ -1205,7 +1038,7 @@ VkResult Application::buildBuffer(vox::BufferBuildInfo buildInfo) {
 
 	std::cout << "[Vulkan] Buffer memory allocation succeeded.\n" << std::flush;
 
-	vkBindBufferMemory(mainLogicalDevice, *buildInfo.buffer, *buildInfo.bufferMemory, 0);
+	vkBindBufferMemory(mainLogicalDevice, *buffer, *bufferMemory, 0);
 
 	return VK_SUCCESS;
 }
@@ -1271,6 +1104,63 @@ VkResult Application::buildImageView(VkImage image, VkFormat format, VkImageAspe
 	return vkCreateImageView(mainLogicalDevice, &createInfo, nullptr, &imageView);
 }
 
+VkResult Application::buildTextureImage(const std::string& imagePath, VkImage& textureImage, VkDeviceMemory& textureImageMemory) {
+    int textureWidth;
+	int textureHeight;
+	int textureChannels;
+
+    stbi_uc* pixels = stbi_load(imagePath.c_str(), &textureWidth, &textureHeight, &textureChannels, STBI_rgb_alpha);
+
+    if (!pixels) {
+        throw std::runtime_error("[STB] Failed to load texture image!");
+    }
+
+    const VkDeviceSize imageSize = textureWidth * textureHeight * 4; // Assuming 4 bytes per pixel (RGBA).
+
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+
+    if (const auto result = buildBuffer(&stagingBuffer, &stagingBufferMemory, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+		result != VK_SUCCESS) {
+		return result;
+	}
+
+    void* data;
+
+    if (const auto result = vkMapMemory(mainLogicalDevice, stagingBufferMemory, 0, imageSize, 0, &data);
+    	result != VK_SUCCESS) {
+	    return result;
+    }
+
+    memcpy(data, pixels, imageSize);
+    vkUnmapMemory(mainLogicalDevice, stagingBufferMemory);
+
+    stbi_image_free(pixels);
+
+    if (const auto result = buildImage(textureWidth, textureHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
+    	result != VK_SUCCESS) {
+	    return result;
+    }
+
+    transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+	if (const auto result = copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(textureWidth), static_cast<uint32_t>(textureHeight));
+		result != VK_SUCCESS) {
+		return result;
+	}
+
+    transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+    vkDestroyBuffer(mainLogicalDevice, stagingBuffer, nullptr);
+    vkFreeMemory(mainLogicalDevice, stagingBufferMemory, nullptr);
+
+    return VK_SUCCESS;
+}
+
+VkResult Application::buildUniformBuffer(VkBuffer*buffer, VkDeviceMemory*bufferMemory, const VkDeviceSize size) {
+	return buildBuffer(buffer, bufferMemory, size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+}
+
 void Application::copyBuffer(VkBuffer srcBuffer, VkBuffer destBuffer, VkDeviceSize bufferSize) {
 	executeImmediateCommand([&](const auto& commandBuffer) {
 		VkBufferCopy bufferCopy = {};
@@ -1312,13 +1202,75 @@ VkResult Application::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t
 	return VK_SUCCESS;
 }
 
-VkResult Application::buildPool(vox::CommandPooolBuildInfo buildInfo) {
-	if (const auto result = vkCreateCommandPool(buildInfo.logicalDevice, buildInfo.commandPoolInfo, buildInfo.allocationCallbacks, buildInfo.commandPool);
-		VK_SUCCESS != result) {
+VkResult Application::buildSampler(
+	VkSampler* sampler,
+	const VkFilter magFilter,
+	const VkFilter minFilter,
+	const VkSamplerAddressMode addressMode,
+	const float maxAnisotropy,
+	const VkBorderColor borderColor,
+	const bool compareEnable,
+	const VkCompareOp compareOp,
+	const VkSamplerMipmapMode mipmapMode,
+	const float mipLodBias,
+	const float minLod,
+	const float maxLod) const {
+	VkSamplerCreateInfo samplerInfo = {};
+	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	samplerInfo.magFilter = magFilter;
+	samplerInfo.minFilter = minFilter;
+	samplerInfo.addressModeU = addressMode;
+	samplerInfo.addressModeV = addressMode;
+	samplerInfo.addressModeW = addressMode;
+	samplerInfo.anisotropyEnable = VK_TRUE;
+	samplerInfo.maxAnisotropy = maxAnisotropy;
+	samplerInfo.borderColor = borderColor;
+	samplerInfo.unnormalizedCoordinates = VK_FALSE;
+	samplerInfo.compareEnable = compareEnable ? VK_TRUE : VK_FALSE;
+	samplerInfo.compareOp = compareOp;
+	samplerInfo.mipmapMode = mipmapMode;
+	samplerInfo.mipLodBias = mipLodBias;
+	samplerInfo.minLod = minLod;
+	samplerInfo.maxLod = maxLod;
+
+	VkPhysicalDeviceProperties properties = {};
+	vkGetPhysicalDeviceProperties(mainPhysicalDevice, &properties);
+
+	if (samplerInfo.maxAnisotropy > properties.limits.maxSamplerAnisotropy) {
+		samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
+	}
+
+	return vkCreateSampler(mainLogicalDevice, &samplerInfo, nullptr, sampler);
+}
+
+VkResult Application::buildCommandPool(VkCommandPool*pool, const uint32_t queueFamilyIndex, const VkCommandPoolCreateFlags flags) const {
+	VkCommandPoolCreateInfo poolCreateInfo = {};
+	poolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	poolCreateInfo.queueFamilyIndex = queueFamilyIndex;
+	poolCreateInfo.flags = flags;
+
+	if (const auto result = vkCreateCommandPool(mainLogicalDevice, &poolCreateInfo, nullptr, pool);
+		result != VK_SUCCESS) {
 		return result;
 	}
 
-	std::cout << "[Vulkan] Command pool initialization succeeded!\n" << std::flush;
+	return VK_SUCCESS;
+}
+
+VkResult Application::buildFramebuffer(VkFramebuffer *framebuffer, VkRenderPass renderPass, const std::vector<VkImageView> &attachments, const uint32_t width, const uint32_t height, const uint32_t layers) const {
+	VkFramebufferCreateInfo framebufferCreateInfo = {};
+	framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+	framebufferCreateInfo.renderPass = renderPass;
+	framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+	framebufferCreateInfo.pAttachments = attachments.data();
+	framebufferCreateInfo.width = width;
+	framebufferCreateInfo.height = height;
+	framebufferCreateInfo.layers = layers;
+
+	if (const auto result = vkCreateFramebuffer(mainLogicalDevice, &framebufferCreateInfo, nullptr, framebuffer);
+		result != VK_SUCCESS) {
+		return result;
+	}
 
 	return VK_SUCCESS;
 }
