@@ -16,6 +16,8 @@ add_executable(${PROJECT_NAME} "${SOURCE_DIRECTORY}/main.cpp"
         "${SOURCE_DIRECTORY}/application.h"
         source/constants.cpp
         source/constants.h
+        source/camera.cpp
+        source/camera.h
 )
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD

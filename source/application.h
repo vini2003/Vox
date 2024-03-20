@@ -16,6 +16,7 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "camera.h"
 #include "util.h"
 #include "vertex.h"
 #include "shader.h"
@@ -40,9 +41,6 @@ public:
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME
 	};
 
-	const int DEFAULT_WIDTH = 800;
-	const int DEFAULT_HEIGHT = 600;
-
 	const std::string MODEL_PATH = "models/viking_room.obj";
 	const std::string TEXTURE_PATH = "textures/viking_room.png";
 
@@ -52,7 +50,6 @@ public:
 	const char* ENGINE = "None";
 
 	std::map<std::string, Shader<>> shaders = {};
-
 
 	uint32_t currentFrame = 0;
 
@@ -117,6 +114,10 @@ public:
 
 	std::vector<VkFence> inFlightFences;
 
+	Camera camera = {};
+
+	UniformBufferObject ubo = {};
+
 	bool checkVkValidationLayers();
 
 	VkShaderModule buildShaderModule(const std::vector<char>& rawShader);
@@ -169,6 +170,10 @@ public:
 
 	void loadModel();
 
+	void handleInput(GLFWwindow *window, float timeDelta);
+	static void handleMouseScroll(GLFWwindow *window, double x, double y);
+	static void handleFramebufferResize(GLFWwindow *window, int width, int height);
+
 	void initGlfw();
 	void initVk();
 	void initVkInstance();
@@ -188,6 +193,7 @@ public:
 	void initVertexBuffer();
 	void initIndexBuffer();
 	void initUniformBuffers();
+	void initUniformBufferObjects();
 	void initDescriptorPool();
 	void initDescriptorSets();
 	void initDepthResources();
@@ -197,7 +203,7 @@ public:
 	void initCommandBuffers();
 	void initSyncObjects();
 
-	void updateVkUniformBuffer(uint32_t currentImage);
+	void updateUniformBuffers(uint32_t currentImage);
 
 	void executeImmediateCommand(std::function<void(VkCommandBuffer cmd)> &&function);
 

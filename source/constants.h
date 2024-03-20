@@ -9,5 +9,7 @@
 
 constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 2;
 
+const int DEFAULT_WIDTH = 800;
+const int DEFAULT_HEIGHT = 600;
 
 #endif //CONSTANTS_H

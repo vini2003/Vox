@@ -21,7 +21,7 @@ layout(location = 2) out vec4 colorModulation;
 layout(location = 3) out float decay;
 
 void main() {
-    gl_Position = ubo.proj * ubo.view * ubo.model * vec4(inPosition, 1.0) * vec4(2.5, 1.0, 1.0, 1.0);
+    gl_Position = ubo.proj * ubo.view * ubo.model * vec4(inPosition, 1.0);
     fragColor = inColor;
     fragTexCoord = inTexCoord;
 

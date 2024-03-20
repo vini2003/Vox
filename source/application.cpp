@@ -22,11 +22,9 @@ void Application::initGlfw() {
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 	glfwWindow = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, NAME, nullptr, nullptr);
 	glfwSetWindowUserPointer(glfwWindow, this);
-
-	glfwSetFramebufferSizeCallback(glfwWindow, [](GLFWwindow* window, int width, int height) {
-		auto* application = static_cast<Application*>(glfwGetWindowUserPointer(window));
-		application->framebufferResized = true;
-	});
+	// glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetFramebufferSizeCallback(glfwWindow, handleFramebufferResize);
+	glfwSetScrollCallback(glfwWindow, handleMouseScroll);
 }
 
 void Application::initVk() {
@@ -51,6 +49,7 @@ void Application::initVk() {
 	initVertexBuffer();
 	initIndexBuffer();
 	initUniformBuffers();
+	initUniformBufferObjects();
 	initDescriptorPool();
 	initDescriptorSets();
 	initCommandBuffers();
@@ -954,6 +953,14 @@ void Application::initUniformBuffers() {
 	}
 }
 
+void Application::initUniformBufferObjects() {
+	ubo.model = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.proj = glm::perspective(glm::radians(45.0f), swapchainExtent.width / static_cast<float>(swapchainExtent.height), 0.1f, 10.0f);
+
+	ubo.proj[1][1] *= -1;
+}
+
 void Application::initCommandBuffers() {
 	commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 
@@ -997,18 +1004,15 @@ void Application::initSyncObjects() {
 	std::cout << "[Vulkan] Semaphore creation succeeded.\n" << std::flush;
 }
 
-void Application::updateVkUniformBuffer(uint32_t currentImage) {
+void Application::updateUniformBuffers(uint32_t currentImage) {
 	static auto startTime = std::chrono::high_resolution_clock::now();
 
 	const auto currentTime = std::chrono::high_resolution_clock::now();
-	const auto time = std::chrono::duration<float>(currentTime - startTime).count();
+	const auto timeDelta = std::chrono::duration<float>(currentTime - startTime).count();
 
-	UniformBufferObject ubo = {};
-	ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.proj = glm::perspective(glm::radians(45.0f), swapchainExtent.width / static_cast<float>(swapchainExtent.height), 0.1f, 10.0f);
+	handleInput(glfwWindow, timeDelta);
 
-	ubo.proj[1][1] *= -1;
+	ubo.view = camera.getViewMatrix();
 
 	memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
 
@@ -1630,6 +1634,25 @@ void Application::loadModel() {
 	}
 }
 
+void Application::handleInput(GLFWwindow *window, const float timeDelta) {
+	camera.handleKeyboardInput(window, timeDelta);
+	camera.handleMouseInput(window);
+}
+
+void Application::handleMouseScroll(GLFWwindow *window, double x, double y) {
+	auto* application = static_cast<Application*>(glfwGetWindowUserPointer(window));
+
+	application->camera.handleMouseScroll(window, x, y);
+}
+
+void Application::handleFramebufferResize(GLFWwindow *window, int width, int height) {
+	auto* application = static_cast<Application*>(glfwGetWindowUserPointer(window));
+	application->framebufferResized = true;
+
+	application->camera.setZoom(glm::radians(45.0f));
+	application->ubo.proj = glm::perspective(application->camera.getZoom(), width / (float) height, 0.1f, 10.0f);
+}
+
 void Application::draw() {
 	uint32_t imageIndex;
 
@@ -1664,7 +1687,7 @@ void Application::draw() {
 
 	recordCommandBuffer(commandBuffers[currentFrame], imageIndex);
 
-	updateVkUniformBuffer(currentFrame);
+	updateUniformBuffers(currentFrame);
 
 	if (VK_SUCCESS != vkResetFences(mainLogicalDevice, 1, &inFlightFences[currentFrame])) {
 		throw std::runtime_error("[Vulkan] Failed to reset fence!");
@@ -1719,9 +1742,20 @@ void Application::loop() {
 	while (!glfwWindowShouldClose(glfwWindow)) {
 		glfwPollEvents();
 
+		// if mouse disabled, disable imgui mouse input
+		if (glfwGetInputMode(glfwWindow, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) {
+			ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
+		} else {
+			ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
+		}
+
 		draw();
 	}
 }
+
+class thingmabob {
+	virtual void meow();
+};
 
 void Application::free() {
     ImGui_ImplVulkan_Shutdown();
