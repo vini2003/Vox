@@ -35,6 +35,7 @@ namespace vox {
 		initLogicalDevice();
 		initSwapchain();
 		initShaders();
+		initModels();
 		initImageViews();
 		initRenderPass();
 		initDescriptorSetLayouts();
@@ -45,7 +46,9 @@ namespace vox {
 		initTextureImage();
 		initTextureImageView();
 		initTextureSampler();
-		loadModel();
+
+		uploadModels();
+
 		initVertexBuffer();
 		initIndexBuffer();
 		initUniformBuffers();
@@ -56,7 +59,7 @@ namespace vox {
 		initSyncObjects();
 	}
 
-	void Application::executeImmediateCommand(std::function<void(VkCommandBuffer commandBuffer)> &&function) {
+	void Application::executeImmediateCommand(std::function<void(VkCommandBuffer commandBuffer)> &&function) const {
 		VkCommandBufferAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -87,7 +90,7 @@ namespace vox {
 		vkFreeCommandBuffers(mainLogicalDevice, shortCommandPool, 1, &commandBuffer);
 	}
 
-	void Application::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) {
+	void Application::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) const {
 		executeImmediateCommand([&](const auto& commandBuffer) {
 			VkImageMemoryBarrier barrier = {};
 			barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -189,7 +192,7 @@ namespace vox {
 	}
 
 	void Application::initImGuiStyle(){
-		ImGuiStyle& style = ImGui::GetStyle();
+		auto& style = ImGui::GetStyle();
 
 		style.Alpha = 1.0f;
 		style.DisabledAlpha = 1.0f;
@@ -402,6 +405,29 @@ namespace vox {
 
 		for (const auto& [id, metadata] : shaderMetadata) {
 			shaders[id] = Shader<>(id, metadata, shaderVertexCode[metadata.vertex], shaderFragmentCode[metadata.fragment]);
+		}
+	}
+
+	void Application::initModels() {
+		const std::filesystem::directory_iterator modelIterator("models");
+
+		for (const auto& metadataEntry : modelIterator) {
+			if (metadataEntry.path().extension() == ".obj") {
+				std::ifstream file(metadataEntry.path());
+
+				if (!file.is_open()) {
+					throw std::runtime_error("[Vulkan] Failed to load model file: " + metadataEntry.path().filename().string() + "\n");
+				}
+
+
+				std::string id = metadataEntry.path().stem().string();
+				auto model = Model(id, metadataEntry.path());
+				model.load();
+
+				std::cout << "[Vulkan] Loaded model file: " << id << ".json\n" << std::flush;
+
+				models[id] = model;
+			}
 		}
 	}
 
@@ -928,6 +954,12 @@ namespace vox {
 		}
 
 		std::cout << "[Vulkan] Semaphore creation succeeded.\n" << std::flush;
+	}
+
+	void Application::uploadModels() {
+		for (auto& model : models | std::views::values) {
+			model.upload(&vertices, &indices);
+		}
 	}
 
 	void Application::updateUniformBuffers(uint32_t currentImage) {
@@ -1647,47 +1679,6 @@ namespace vox {
 
 	bool Application::hasStencilComponent(VkFormat vkFormat) {
 		return vkFormat == VK_FORMAT_D32_SFLOAT_S8_UINT || vkFormat == VK_FORMAT_D24_UNORM_S8_UINT;
-	}
-
-	void Application::loadModel() {
-		tinyobj::attrib_t attrib;
-		std::vector<tinyobj::shape_t> shapes;
-		std::vector<tinyobj::material_t> materials;
-		std::string warn, err;
-
-		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, MODEL_PATH.c_str())) {
-			throw std::runtime_error(warn + err);
-		}
-
-		std::unordered_map<Vertex, uint32_t> uniqueVertices = {};
-
-		for (const auto& [name, mesh, lines, points] : shapes) {
-			for (const auto& [vertexIndex, normalIndex, texCoordIndex] : mesh.indices) {
-				Vertex vertex = {};
-
-				vertex.pos = {
-					attrib.vertices[3 * vertexIndex + 0],
-					attrib.vertices[3 * vertexIndex + 1],
-					attrib.vertices[3 * vertexIndex + 2]
-				};
-
-				vertex.texCoord = {
-					attrib.texcoords[2 * texCoordIndex + 0],
-					1.0f - attrib.texcoords[2 * texCoordIndex + 1]
-				};
-
-				vertex.color = {1.0f, 1.0f, 1.0f};
-
-				vertices.push_back(vertex);
-
-				if (uniqueVertices.count(vertex) == 0) {
-					uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-					vertices.push_back(vertex);
-				}
-
-				indices.push_back(uniqueVertices[vertex]);
-			}
-		}
 	}
 
 	void Application::handleInput(GLFWwindow *window, const float timeDelta) {

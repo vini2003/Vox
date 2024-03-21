@@ -17,6 +17,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "camera.h"
+#include "model.h"
 #include "util.h"
 #include "vertex.h"
 #include "shader.h"
@@ -45,12 +46,11 @@ namespace vox {
 		const std::string MODEL_PATH = "models/viking_room.obj";
 		const std::string TEXTURE_PATH = "textures/viking_room.png";
 
-		const int MAX_FLAMES_IN_FLIGHT = 2;
-
 		const char* NAME = "Vulkan";
 		const char* ENGINE = "None";
 
 		std::map<std::string, Shader<>> shaders = {};
+		std::map<std::string, Model> models = {};
 
 		uint32_t currentFrame = 0;
 
@@ -186,8 +186,6 @@ namespace vox {
 
 		bool hasStencilComponent(VkFormat vkFormat);
 
-		void loadModel();
-
 		void handleInput(GLFWwindow *window, float timeDelta);
 		static void handleMouseScroll(GLFWwindow *window, double x, double y);
 		static void handleFramebufferResize(GLFWwindow *window, int width, int height);
@@ -197,10 +195,11 @@ namespace vox {
 		void initVkInstance();
 		void initImGui();
 
-		void initImGuiStyle();
+		static void initImGuiStyle();
 
 		void initDebugMessenger();
 		void initShaders();
+		void initModels();
 		void initSurface();
 		void initPhysicalDevice();
 		void initLogicalDevice();
@@ -224,11 +223,13 @@ namespace vox {
 		void initCommandBuffers();
 		void initSyncObjects();
 
+		void uploadModels();
+
 		void updateUniformBuffers(uint32_t currentImage);
 
-		void executeImmediateCommand(std::function<void(VkCommandBuffer cmd)> &&function);
+		void executeImmediateCommand(std::function<void(VkCommandBuffer cmd)> &&function) const;
 
-		void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+		void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) const;
 
 		void freeVkSwapchain();
 		void resetVkSwapchain();
