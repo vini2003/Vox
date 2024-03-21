@@ -14,16 +14,17 @@ add_executable(${PROJECT_NAME} "${SOURCE_DIRECTORY}/main.cpp"
         "${SOURCE_DIRECTORY}/shader.h"
         "${SOURCE_DIRECTORY}/application.cpp"
         "${SOURCE_DIRECTORY}/application.h"
-        source/constants.cpp
-        source/constants.h
-        source/camera.cpp
-        source/camera.h
+        "${SOURCE_DIRECTORY}/constants.cpp"
+        "${SOURCE_DIRECTORY}/constants.h"
+        "${SOURCE_DIRECTORY}/camera.cpp"
+        "${SOURCE_DIRECTORY}/camera.h"
 )
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/shaders shaders
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/textures textures
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/models models
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/shaders" "shaders"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/textures" "textures"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/models" "models"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/fonts" "fonts"
 )
 
 find_package(Vulkan REQUIRED)

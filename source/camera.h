@@ -23,7 +23,7 @@ namespace vox {
 
         float movementSpeed;
         float mouseSensitivity;
-        float zoom;
+        float fieldOfView;
 
         double lastX = DEFAULT_WIDTH / 2.0;
         double lastY = DEFAULT_HEIGHT / 2.0;
@@ -44,7 +44,7 @@ namespace vox {
               pitch(pitch),
               movementSpeed(2.5f),
               mouseSensitivity(0.1f),
-              zoom(45.0f) {
+              fieldOfView(45.0f) {
             updateVecs();
         }
 
@@ -66,7 +66,7 @@ namespace vox {
         [[nodiscard]] float getPitch() const;
         [[nodiscard]] float getMovementSpeed() const;
         [[nodiscard]] float getMouseSensitivity() const;
-        [[nodiscard]] float getZoom() const;
+        [[nodiscard]] float getFieldOfView() const;
 
         void setPosition(const glm::vec3 &position);
         void setFront(const glm::vec3 &front);
@@ -77,7 +77,7 @@ namespace vox {
         void setPitch(float pitch);
         void setMovementSpeed(float movementSpeed);
         void setMouseSensitivity(float mouseSensitivity);
-        void setZoom(float zoom);
+        void setFieldOfView(float fieldOfView);
     };
 }
 

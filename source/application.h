@@ -196,6 +196,9 @@ namespace vox {
 		void initVk();
 		void initVkInstance();
 		void initImGui();
+
+		void initImGuiStyle();
+
 		void initDebugMessenger();
 		void initShaders();
 		void initSurface();

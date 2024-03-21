@@ -14,7 +14,7 @@ namespace vox {
     }
 
     glm::mat4 Camera::getProjectionMatrix(const float aspectRatio) const {
-        return glm::perspective(glm::radians(zoom), aspectRatio, 0.1f, 100.0f);
+        return glm::perspective(glm::radians(fieldOfView), aspectRatio, 0.1f, 100.0f);
     }
 
     void Camera::handleKeyboardInput(GLFWwindow* window, const float deltaTime) {
@@ -162,7 +162,7 @@ namespace vox {
     float Camera::getPitch() const { return pitch; }
     float Camera::getMovementSpeed() const { return movementSpeed; }
     float Camera::getMouseSensitivity() const { return mouseSensitivity; }
-    float Camera::getZoom() const { return zoom; }
+    float Camera::getFieldOfView() const { return fieldOfView; }
 
     void Camera::setPosition(const glm::vec3 &position) { this->position = position; }
     void Camera::setFront(const glm::vec3 &front) { this->front = front; }
@@ -173,5 +173,5 @@ namespace vox {
     void Camera::setPitch(const float pitch) { this->pitch = pitch; }
     void Camera::setMovementSpeed(const float movementSpeed) { this->movementSpeed = movementSpeed; }
     void Camera::setMouseSensitivity(const float mouseSensitivity) { this->mouseSensitivity = mouseSensitivity; }
-    void Camera::setZoom(const float zoom) { this->zoom = zoom; }
+    void Camera::setFieldOfView(const float fieldOfView) { this->fieldOfView = fieldOfView; }
 }
