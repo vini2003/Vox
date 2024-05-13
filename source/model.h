@@ -1,40 +1,49 @@
-//
-// Created by vini2003 on 21/03/2024.
-//
-
 #ifndef MODEL_H
 #define MODEL_H
+
 #include <filesystem>
 #include <string>
+#include <vector>
 
 #include "vertex.h"
+#include "mesh.h"
+#include "texture.h"
 
+namespace vox {
+    class Model {
+        std::string id;
 
-class Model {
-    std::string id;
-    std::filesystem::path path;
+        std::filesystem::path path;
 
-public:
-    Model() = default;
+        std::vector<vox::Mesh> meshes;
+        std::vector<vox::Texture> textures;
 
-    [[nodiscard]] Model(std::string id, std::filesystem::path path)
-        : id(std::move(id)),
-          path(std::move(path)) {
-    }
+    public:
+        Model() = default;
 
-private:
-    std::vector<vox::Vertex> vertices;
-    std::vector<uint32_t> indices;
+        [[nodiscard]] Model(std::string id, std::filesystem::path path)
+                : id(std::move(id)),
+                  path(std::move(path)) {
+        }
 
-public:
-    void load();
-    void upload(std::vector<vox::Vertex>* vertices, std::vector<uint32_t>* indices);
+        void load();
 
-    std::string getId();
-    std::vector<vox::Vertex> getVertices();
-    std::vector<uint32_t> getIndices();
-};
+        void upload(std::vector<vox::Vertex>* vertices, std::vector<uint32_t>* indices);
 
+        std::string getId();
 
+        std::filesystem::path getPath();
 
-#endif //MODEL_H
+        [[nodiscard]] const std::vector<Mesh>& getMeshes() const;
+
+        [[nodiscard]] const std::vector<Texture>& getTextures() const;
+
+    private:
+        void addMesh(Mesh&& mesh);
+        void addMesh(const Mesh& mesh);
+
+        void removeMesh(const Mesh &mesh);
+    };
+}
+
+#endif

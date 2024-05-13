@@ -20,6 +20,20 @@ add_executable(${PROJECT_NAME} "${SOURCE_DIRECTORY}/main.cpp"
         "${SOURCE_DIRECTORY}/camera.h"
         source/model.cpp
         source/model.h
+        source/mesh.cpp
+        source/mesh.h
+        source/texture.cpp
+        source/texture.h
+        source/material.cpp
+        source/material.h
+        source/texture_manager.cpp
+        source/texture_manager.h
+        source/texture_atlas.cpp
+        source/texture_atlas.h
+        source/model_manager.cpp
+        source/model_manager.h
+        source/shader_manager.cpp
+        source/shader_manager.h
 )
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD

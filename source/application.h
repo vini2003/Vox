@@ -21,6 +21,9 @@
 #include "util.h"
 #include "vertex.h"
 #include "shader.h"
+#include "shader_manager.h"
+#include "model_manager.h"
+#include "texture_manager.h"
 
 #ifdef NDEBUG
 constexpr auto enableValidationLayers = false;
@@ -49,8 +52,12 @@ namespace vox {
 		const char* NAME = "Vulkan";
 		const char* ENGINE = "None";
 
-		std::map<std::string, Shader<>> shaders = {};
-		std::map<std::string, Model> models = {};
+        ShaderManager shaderManager;
+        ModelManager modelManager;
+        TextureManager textureManager;
+
+//		std::map<std::string, Shader<>> shaders = {};
+//		std::map<std::string, Model> models = {};
 
 		uint32_t currentFrame = 0;
 
@@ -200,6 +207,7 @@ namespace vox {
 		void initDebugMessenger();
 		void initShaders();
 		void initModels();
+        void initTextures();
 		void initSurface();
 		void initPhysicalDevice();
 		void initLogicalDevice();

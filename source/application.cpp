@@ -36,6 +36,7 @@ namespace vox {
 		initSwapchain();
 		initShaders();
 		initModels();
+        initTextures();
 		initImageViews();
 		initRenderPass();
 		initDescriptorSetLayouts();
@@ -349,87 +350,16 @@ namespace vox {
 	}
 
 	void Application::initShaders() {
-		std::map<std::string, ShaderMetadata> shaderMetadata;
-
-		std::map<std::string, std::vector<char>> shaderVertexCode;
-		std::map<std::string, std::vector<char>> shaderFragmentCode;
-
-		const std::filesystem::directory_iterator shaderCodeIterator("shaders/spirv");
-
-		for (const auto& shaderEntry : shaderCodeIterator) {
-			if (shaderEntry.path().extension() == ".vert" || shaderEntry.path().extension() == ".frag") {
-				std::ifstream shaderFile(shaderEntry.path(), std::ios::ate | std::ios::binary);
-
-				if (!shaderFile.is_open()) {
-					throw std::runtime_error("[Vulkan] Failed to load shader file: " + shaderEntry.path().filename().string() + "\n");
-				}
-
-				std::vector<char> buffer(shaderEntry.file_size());
-				shaderFile.seekg(0);
-				shaderFile.read(buffer.data(), shaderEntry.file_size());
-				shaderFile.close();
-
-				std::string id = shaderEntry.path().stem().string();
-
-				if (shaderEntry.path().extension() == ".vert") {
-					shaderVertexCode[id] = buffer;
-				} else if (shaderEntry.path().extension() == ".frag") {
-					shaderFragmentCode[id] = buffer;
-				}
-
-				std::cout << "[Vulkan] Loaded shader file: " << shaderEntry.path().filename().string() << "\n" << std::flush;
-			}
-		}
-
-		const std::filesystem::directory_iterator shaderMetadataIterator("shaders/metadata");
-
-		for (const auto& metadataEntry : shaderMetadataIterator) {
-			if (metadataEntry.path().extension() == ".json") {
-				std::ifstream metadataFile(metadataEntry.path());
-
-				if (!metadataFile.is_open()) {
-					throw std::runtime_error("[Vulkan] Failed to load shader metadata file: " + metadataEntry.path().filename().string() + "\n");
-				}
-
-				nlohmann::json metadata;
-				metadataFile >> metadata;
-				metadataFile.close();
-
-				std::string id = metadataEntry.path().stem().string();
-				shaderMetadata[id] = metadata.get<ShaderMetadata>();
-
-				std::cout << "[Vulkan] Loaded shader metadata file: " << id << ".json\n" << std::flush;
-			}
-		}
-
-
-		for (const auto& [id, metadata] : shaderMetadata) {
-			shaders[id] = Shader<>(id, metadata, shaderVertexCode[metadata.vertex], shaderFragmentCode[metadata.fragment]);
-		}
+		shaderManager.loadAll();
 	}
 
 	void Application::initModels() {
-		const std::filesystem::directory_iterator modelIterator("models");
-
-		for (const auto& metadataEntry : modelIterator) {
-			if (metadataEntry.path().extension() == ".obj") {
-				std::ifstream file(metadataEntry.path());
-
-				if (!file.is_open()) {
-					throw std::runtime_error("[Vulkan] Failed to load model file: " + metadataEntry.path().filename().string() + "\n");
-				}
-
-
-				std::string id = metadataEntry.path().stem().string();
-				auto model = Model(id, metadataEntry.path());
-				model.load();
-
-				std::cout << "[Vulkan] Loaded model file: " << id << ".json\n" << std::flush;
-
-				models[id] = model;
-			}
-		}
+		modelManager.loadAll();
 	}
+
+    void Application::initTextures() {
+        textureManager.loadAll();
+    }
 
 	void Application::initSurface() {
 		if (VK_SUCCESS != glfwCreateWindowSurface(vkInstance, glfwWindow, nullptr, &surface)) {
@@ -668,10 +598,6 @@ namespace vox {
 		// TODO: Another issue is, how do we dictate the attributes, descriptor layouts, etc? This is
 		// TODO: why Minecraft has the shader JSON files.
 		for (auto& [id, shader] : shaders) {
-			auto buildShaderModuleLambda = [&](const std::vector<char>& code) -> VkShaderModule {
-				return buildShaderModule(code);
-			};
-
 			const auto vertexShaderCode = shader.getVertexShaderCode();
 			const auto fragmentShaderCode = shader.getFragmentShaderCode();
 
