@@ -584,7 +584,7 @@ namespace vox {
 	}
 
 	void Application::initDescriptorSetLayouts() {
-		for (auto& [id, shader] : shaders) {
+		for (auto& shader : shaderManager.getAll() | std::views::values) {
 			shader.reserveBuffer(0);
 			shader.reserveSampler(1);
 			shader.reserveBuffer();
@@ -597,7 +597,7 @@ namespace vox {
 		// TODO: Implement shader module metadata. This would be useful for entrynames, etc.
 		// TODO: Another issue is, how do we dictate the attributes, descriptor layouts, etc? This is
 		// TODO: why Minecraft has the shader JSON files.
-		for (auto& [id, shader] : shaders) {
+		for (auto& [id, shader] : shaderManager.getAll()) {
 			const auto vertexShaderCode = shader.getVertexShaderCode();
 			const auto fragmentShaderCode = shader.getFragmentShaderCode();
 
@@ -763,7 +763,7 @@ namespace vox {
 	}
 
 	void Application::initDescriptorSets() {
-		for (auto& [id, shader] : shaders) {
+		for (auto& [id, shader] : shaderManager.getAll()) {
 			shader.buildDescriptorSets(mainLogicalDevice, descriptorPool, MAX_FRAMES_IN_FLIGHT);
 		}
 	}
@@ -813,7 +813,7 @@ namespace vox {
 			}
 		}
 
-		for (auto& [id, shader] : shaders) {
+		for (auto& [id, shader] : shaderManager.getAll()) {
 			auto uniformBufferPtrs = std::vector<VkBuffer*>(3);
 			auto uniformBufferMemoryPtrs = std::vector<VkDeviceMemory*>(3);
 
@@ -883,7 +883,7 @@ namespace vox {
 	}
 
 	void Application::uploadModels() {
-		for (auto& model : models | std::views::values) {
+		for (auto& model : modelManager.getAll() | std::views::values) {
 			model.upload(&vertices, &indices);
 		}
 	}
@@ -905,7 +905,7 @@ namespace vox {
 
 		memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
 
-		for (auto &shader: shaders | std::views::values) {
+		for (auto &shader: shaderManager.getAll() | std::views::values) {
 			shader.setUniform("decay", 4.5f);
 			shader.setUniform("colorModulation", glm::vec4(1.0f, 0.3f, 0.3f, 1.0f));
 
@@ -1555,7 +1555,7 @@ namespace vox {
 
 		vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-		for (const auto& [id, shader] : shaders) {
+		for (const auto& [id, shader] : shaderManager.getAll()) {
 			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelines[id]);
 
 			const VkBuffer vertexBuffers[] = { vertexBuffer };
@@ -1790,7 +1790,7 @@ namespace vox {
 	        vkFreeMemory(mainLogicalDevice, uniformBufferMemories[i], nullptr);
 	    }
 
-		for (const auto &shader: shaders | std::views::values) {
+		for (const auto &shader: shaderManager.getAll() | std::views::values) {
 			shader.destroyOwnedBuffers(mainLogicalDevice);
 			shader.destroyOwnedBufferMemories(mainLogicalDevice);
 

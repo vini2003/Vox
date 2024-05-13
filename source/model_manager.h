@@ -26,6 +26,8 @@ namespace vox {
 
         Model &get(const std::string &name);
 
+        std::unordered_map<std::string, Model>& getAll();
+
         void add(const std::string &name, Model model);
 
         void remove(const std::string &name);

@@ -7,6 +7,10 @@ vox::Model &vox::ModelManager::get(const std::string &name) {
     return models[name];
 }
 
+std::unordered_map<std::string, vox::Model> &vox::ModelManager::getAll() {
+    return models;
+}
+
 void vox::ModelManager::add(const std::string &name, vox::Model model) {
     models[name] = std::move(model);
 }

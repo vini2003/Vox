@@ -26,6 +26,8 @@ namespace vox {
 
         Shader<> &get(const std::string &name);
 
+        std::unordered_map<std::string, Shader<>>& getAll();
+
         void add(const std::string &name, Shader<> shader);
 
         void remove(const std::string &name);

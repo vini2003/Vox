@@ -13,6 +13,10 @@ vox::Shader<> &vox::ShaderManager::get(const std::string &name) {
     return shaders[name];
 }
 
+std::unordered_map<std::string, vox::Shader<>> &vox::ShaderManager::getAll() {
+    return shaders;
+}
+
 void vox::ShaderManager::loadAll() {
     std::map<std::string, ShaderMetadata> shaderMetadata;
 
