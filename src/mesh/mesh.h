@@ -4,8 +4,8 @@
 #include <vector>
 #include <cstdint>
 
-#include "vertex.h"
-#include "material.h"
+#include "../vertex/vertex.h"
+#include "../material/material.h"
 
 namespace vox {
     class Mesh {

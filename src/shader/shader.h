@@ -13,8 +13,8 @@
 #include <nlohmann/json.hpp>
 #include <vulkan/vulkan_core.h>
 
-#include "util.h"
-#include "vertex.h"
+#include "../misc/util.h"
+#include "../vertex/vertex.h"
 
 namespace vox {
     struct ShaderMetadataAttribute {

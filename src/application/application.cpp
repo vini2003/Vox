@@ -12,9 +12,9 @@
 
 #include "application.h"
 
-#include "constants.h"
-#include "shader.h"
-#include "util.h"
+#include "../misc/constants.h"
+#include "../shader/shader.h"
+#include "../misc/util.h"
 
 namespace vox {
 	void Application::initGlfw() {

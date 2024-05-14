@@ -1,5 +1,5 @@
 #include "vertex.h"
-#include "util.h"
+#include "../misc/util.h"
 
 namespace vox {
     const std::array<VertexAttribute, 3> Vertex::attributes = {{

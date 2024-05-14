@@ -8,7 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
-#include "constants.h"
+#include "../misc/constants.h"
 
 namespace vox {
     class Camera {

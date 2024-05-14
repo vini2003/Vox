@@ -5,9 +5,9 @@
 #include <string>
 #include <vector>
 
-#include "vertex.h"
-#include "mesh.h"
-#include "texture.h"
+#include "../vertex/vertex.h"
+#include "../mesh/mesh.h"
+#include "../texture/texture.h"
 
 namespace vox {
     class Model {

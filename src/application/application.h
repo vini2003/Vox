@@ -16,14 +16,14 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "camera.h"
-#include "model.h"
-#include "util.h"
-#include "vertex.h"
-#include "shader.h"
-#include "shader_manager.h"
-#include "model_manager.h"
-#include "texture_manager.h"
+#include "../camera/camera.h"
+#include "../model/model.h"
+#include "../misc/util.h"
+#include "../vertex/vertex.h"
+#include "../shader/shader.h"
+#include "../shader/shader_manager.h"
+#include "../model/model_manager.h"
+#include "../texture/texture_manager.h"
 
 #ifdef NDEBUG
 constexpr auto enableValidationLayers = false;

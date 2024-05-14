@@ -1,5 +1,5 @@
 #include "mesh.h"
-#include "vertex.h"
+#include "../vertex/vertex.h"
 
 std::vector<vox::Vertex> &vox::Mesh::getVertices() {
     return vertices;
