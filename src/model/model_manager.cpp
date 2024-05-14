@@ -12,7 +12,7 @@ std::unordered_map<std::string, vox::Model> &vox::ModelManager::getAll() {
 }
 
 void vox::ModelManager::add(const std::string &name, vox::Model model) {
-    models[name] = std::move(model);
+    models.emplace(name, std::move(model));
 }
 
 void vox::ModelManager::remove(const std::string &name) {
@@ -37,7 +37,7 @@ void vox::ModelManager::loadAll() {
 
             std::cout << "[Vulkan] Loaded model file: " << id << ".json\n" << std::flush;
 
-            models[id] = model;
+            models.emplace(id, model);
         }
     }
 }

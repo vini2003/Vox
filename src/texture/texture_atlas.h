@@ -9,9 +9,10 @@
 #include <cstdint>
 #include <vector>
 #include <algorithm>
-#include "texture_manager.h"
 
 namespace vox {
+    class TextureManager;
+
     class TextureAtlas {
         const uint32_t id;
 
